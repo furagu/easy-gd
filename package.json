@@ -1,0 +1,31 @@
+{
+  "name": "easy-gd",
+  "version": "0.0.0",
+  "description": "High-level functions missing in GD library: open an image of any supported format; resize an image doing no math at all; put a watermark like a boss.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Meta-Design/easy-gd.git"
+  },
+  "keywords": [
+    "graphics",
+    "resize",
+    "watermark",
+    "gd",
+    "easy"
+  ],
+  "author": "Egor Balyshev",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "gitHead": "113915ebcfc7728fa17ebc533590af2d1c91e197",
+  "bugs": {
+    "url": "https://github.com/Meta-Design/easy-gd/issues"
+  },
+  "dependencies": {
+    "node-gd": "~0.2.3",
+    "buffertools": "~1.1.1"
+  }
+}
