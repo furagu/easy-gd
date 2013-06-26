@@ -40,7 +40,7 @@ gd.getFormatPtr = function (buffer) {
 gd.createFromPtr = function (buffer) {
     var format, image
     format = gd.getFormatPtr(buffer)
-    image = format.createFromPtr.apply(this, buffer)
+    image = formats[format].createFromPtr.call(this, buffer)
     if (!image) throw gdError('open', 'Failed to create image from buffer')
     image.format = format
     return image
@@ -48,31 +48,39 @@ gd.createFromPtr = function (buffer) {
 
 gd.createFrom = function (filename, callback) {
     fs.readFile(filename, function(e, data) {
-        var image
         if (e) return callback(gdError('read', e))
         try {
-            image = gd.createFromPtr(data)
+            var image = gd.createFromPtr(data)
         } catch (e) {
-            callback(e)
+            return callback(e)
         }
         callback(null, image)
     })
 }
 
 gd.Image.prototype.save = function (filename, options, callback) {
-    var format
-    options = options || {}
-    format = options.format || this.format || options.defaultFormat
-    checkFormat(format)
-    return formats[format].save.apply(this, filename, options, callback)
+    try {
+        var format = this.targetFormat(options)
+    } catch (err) {
+        return callback(err)
+    }
+    return formats[format].save.call(this, filename, options, callback)
 }
 
 gd.Image.prototype.ptr = function (options) {
     var format, data
+    format = this.targetFormat(options)
+    data = formats[format].ptr.call(this, options)
+    return new Buffer(data, 'binary')
+}
+
+gd.Image.prototype.targetFormat = function (options) {
+    var format
     options = options || {}
     format = options.format || this.format || options.defaultFormat
-    data = formats[format].ptr.apply(this, options)
-    return new Buffer(data, 'binary')
+    if (!format) throw gdError('format_required', 'Image format required')
+    if (!format in formats) throw gdError('unknown_format', 'Unknown format ' + format)
+    return format
 }
 
 gd.Image.prototype.resized = function (options) {
@@ -118,8 +126,7 @@ gd.Image.prototype.resized = function (options) {
     }
 
     target = gd.createTrueColor(tw, th)
-    target.format = options.format || this.format
-    checkFormat(target.format)
+    target.format = this.targetFormat(options)
 
     target.saveAlpha(1)
     target.alphaBlending(target.format === 'jpeg' ? 1 : 0)
@@ -166,9 +173,4 @@ function chunk (arr, len) {
     while (i < n)
         chunks.push(arr.slice(i, i += len))
     return chunks
-}
-
-function checkFormat (format) {
-    if (!format) throw gdError('format_required', 'Image format required')
-    if (!format in formats) throw gdError('unknown_format', 'Unknown format ' + format)
 }
