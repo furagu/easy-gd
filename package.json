@@ -4,7 +4,7 @@
   "description": "High-level functions missing in GD library: open an image of any supported format; resize an image doing no math at all; put a watermark like a boss.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "make test"
   },
   "repository": {
     "type": "git",
@@ -27,5 +27,10 @@
   "dependencies": {
     "node-gd": "~0.2.3",
     "buffertools": "~1.1.1"
+  },
+  "devDependencies": {
+    "mocha": "~1.11.0",
+    "should": "~1.2.2",
+    "underscore": "~1.4.4"
   }
 }
