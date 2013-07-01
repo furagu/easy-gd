@@ -23,7 +23,7 @@ var formats = {
         signature: new Buffer('GIF'),
         createFromPtr: gd.createFromGifPtr,
         ptr: gd.Image.prototype.gifPtr,
-        save: gd.Image.prototype.saveGif,
+        save: namedArgs(gd.Image.prototype.saveGif),
     },
 }
 

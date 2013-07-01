@@ -1,35 +1,10 @@
 var should = require('should'),
     gd = require('../index.js'),
     _ = require('underscore'),
+    fs = require('fs'),
     testData = require('./data.js')
 
 describe('gd', function () {
-    describe('getFormatPtr()', function () {
-        testData.forBufferType(function (buffer, type) {
-            it('should detect ' + type, function () {
-                gd.getFormatPtr(buffer).should.equal(type)
-            })
-        })
-        it('should throw unknown_format error on bad data', function () {
-            _.partial(gd.getFormatPtr, new Buffer('BADDATA')).should.throw('Unknown image format')
-        })
-    })
-
-    describe('createFromPtr()', function () {
-        testData.forBufferType(function (buffer, type) {
-            it('should open ' + type + ' buffer', function () {
-                var image = gd.createFromPtr(buffer)
-                image.should.be.an.instanceof(gd.Image)
-                image.width.should.equal(1)
-                image.height.should.equal(1)
-                image.format.should.equal(type)
-            })
-        })
-        it('should throw unknown_format error on bad data', function () {
-            _.partial(gd.getFormatPtr, new Buffer('BADDATA')).should.throw('Unknown image format')
-        })
-    })
-
     describe('Image.prototype', function () {
         var testImage = gd.createTrueColor(100, 100)
         testImage.filledEllipse(50, 50, 25, 25, testImage.colorAllocate(255, 0, 0))
@@ -79,6 +54,29 @@ describe('gd', function () {
                 var highlyCompressedImage = testImage.ptr({format: 'png', pnglevel: 9}),
                     littleCompressedImage = testImage.ptr({format: 'png', pnglevel: 1})
                 highlyCompressedImage.length.should.be.below(littleCompressedImage.length)
+            })
+        })
+
+        describe('save()', function () {
+            var filename = __dirname + 'save_test.dat',
+                gdOpeners = {
+                    'jpeg': gd.createFromJpeg,
+                    'png':  gd.createFromPng,
+                    'gif':  gd.createFromGif,
+                }
+            after(_.partial(fs.unlinkSync, filename))
+
+            testData.forType(function (type) {
+                it('should write a ' + type + ' image', function (done) {
+                    testImage.save(filename, {format: type}, function (err) {
+                        if (err) return done(err)
+                        var image = gdOpeners[type](filename)
+                        image.should.be.an.instanceof(gd.Image)
+                        image.width.should.equal(testImage.width)
+                        image.height.should.equal(testImage.height)
+                        done()
+                    })
+                })
             })
         })
     })
