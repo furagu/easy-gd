@@ -92,8 +92,8 @@ gd.Image.prototype.resized = function (options) {
     if (rw > this.width && rh > this.height)
         return this
 
-    rw = options.width || 10000
-    rh = options.height || 10000
+    rw = options.width || +Infinity
+    rh = options.height || +Infinity
     rr = rw / rh
     sr = this.width / this.height
 
@@ -103,12 +103,12 @@ gd.Image.prototype.resized = function (options) {
         tr = tw / th
         if (sr >= rr) {
             sh = this.height
-            sw = Math.floor(sh * tScale)
+            sw = Math.floor(sh * tr)
             sy = 0
             sx = Math.floor((this.width - sw) / 2)
         } else {
             sw = this.width
-            sh = Math.floor(sw / tScale)
+            sh = Math.floor(sw / tr)
             sx = 0
             sy = Math.floor((this.height - sh) / 2)
         }
