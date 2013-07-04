@@ -139,9 +139,46 @@ gd.Image.prototype.resizedPtr = function (options) {
     return this.resized(options).ptr(options)
 }
 
+
+gd.colorBrightness = function (color) {
+    if ((color & 0x7F000000) >> 24) return -1; // transparent color, won't count it at all
+    var r = (color & 0xFF0000) >> 16,
+        g = (color & 0x00FF00) >> 8,
+        b = (color & 0x000FFF)
+    return r * 0.299 + g * 0.587 + b * 0.114
+}
+
+gd.Image.prototype.rectBrightness = function (rect) {
+    rect = rect || {x1: 0, y1: 0, x2: this.width, y2: this.height}
+    var x, y, b,
+        brightness = 0,
+        opaque_pixels = (rect.x2 - rect.x1) * (rect.y2 - rect.y1)
+    for (x = rect.x1; x < rect.x2; x++)
+        for (y = rect.y1; y < rect.y2; y++) {
+            b = gd.colorBrightness(this.getPixel(x, y))
+            if (b === -1) opaque_pixels--
+            else brightness += b
+        }
+    return brightness / opaque_pixels
+}
+
+gd.Image.prototype.watermarkRect = function (wm, pos) {
+    var wmx = (this.width - wm.width) * pos.x;
+    var wmy = (this.height - wm.height) * pos.y;
+    return {x1: wmx, y1: wmy, x2: wmx + wm.width, y2: wmy + wm.height};
+}
+
 gd.Image.prototype.watermark = function (wm, pos) {
-    var x = (this.width - wm.width) * pos.x,
-        y = (this.height - wm.height) * pos.y
+    var wmBrightness, posBrightnessDelta, x, y
+    if (pos instanceof Array) {
+        wmBrightness = wm.rectBrightness()
+        posBrightnessDelta = pos.map(function (p) {
+            return Math.abs(this.rectBrightness(this.watermarkRect(wm, p)) - wmBrightness)
+        }, this)
+        pos = pos[posBrightnessDelta.indexOf(Math.max.apply(Math,posBrightnessDelta))]
+    }
+    x = (this.width - wm.width) * pos.x
+    y = (this.height - wm.height) * pos.y
     wm.copy(this, x, y, 0, 0, wm.width, wm.height)
     return this
 }
