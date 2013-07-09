@@ -4,6 +4,7 @@ var should = require('should'),
     fs = require('fs'),
     testData = require('./data.js')
 
+
 describe('gd', function () {
     describe('Image.prototype', function () {
         var testImage = gd.createTrueColor(100, 100)
@@ -126,6 +127,93 @@ describe('gd', function () {
                     cropped = image.resized(target)
                 cropped.width.should.equal(target.width)
                 cropped.height.should.equal(target.height)
+            })
+        })
+
+        describe('watermark()', function () {
+            function create_gradient_image (width, height) {
+                var img = gd.createTrueColor(width, height)
+                return grey_gradient_fill(img, Math.PI/8)
+            }
+
+            function grey_gradient_fill (image, angle) {
+                var width = image.width,
+                    height = image.height,
+                    sin_a = Math.sin(angle),
+                    cos_a = Math.cos(angle),
+                    step  = 255 / (width * cos_a + height * sin_a),
+                    x,
+                    y,
+                    component,
+                    color
+
+                for (x = 0; x < width; x++) {
+                    for (y = 0; y < height; y++) {
+                        component = Math.round(step * (x * sin_a + y * cos_a))
+                        color = image.colorAllocate(component, component, component)
+                        image.setPixel(x, y, color)
+                   }
+                }
+                return image
+            }
+
+            var watermark = gd.createTrueColor(5, 5),
+                watermark_color = watermark.colorAllocate(255, 255, 255)
+            watermark.fill(0, 0, watermark_color)
+
+            function watermark_should_be_at(image, x, y) {
+                var real_x = Math.round((image.width - watermark.width) * x + watermark.width / 2),
+                    real_y = Math.round((image.height - watermark.height) * y + watermark.height / 2)
+                image.getPixel(real_x, real_y).should.equal(watermark_color)
+            }
+
+            it('should return original image', function () {
+                var image = create_gradient_image(100, 100)
+                image.watermark(watermark, {x:0, y:0}).should.equal(image)
+            })
+
+            it('should put watermark on a given single position', function () {
+                var x, y, image
+                for (x = 0; x <= 1; x += 0.2) {
+                    for (y = 0; y <= 1; y += 0.2) {
+                        image = create_gradient_image(50, 50)
+                        image.watermark(watermark, {x:x, y:y})
+                        watermark_should_be_at(image, x, y)
+                    }
+                }
+            })
+
+            it('should choose watermark position by brightness', function () {
+                var image
+                image = create_gradient_image(50, 50)
+                image.watermark(watermark, [
+                    {x: 0, y: 0},
+                    {x: 0, y: 1},
+                    {x: 1, y: 0},
+                    {x: 1, y: 1},
+                ])
+                watermark_should_be_at(image, 0, 0)
+
+                image = create_gradient_image(50, 50)
+                image.watermark(watermark, [
+                    {x: 0, y: 1},
+                    {x: 1, y: 0},
+                    {x: 1, y: 1},
+                ])
+                watermark_should_be_at(image, 1, 0)
+
+                image = create_gradient_image(50, 50)
+                image.watermark(watermark, [
+                    {x: 0, y: 1},
+                    {x: 1, y: 1},
+                ])
+                watermark_should_be_at(image, 0, 1)
+
+                image = create_gradient_image(50, 50)
+                image.watermark(watermark, [
+                    {x: 1, y: 1},
+                ])
+                watermark_should_be_at(image, 1, 1)
             })
         })
     })

@@ -177,8 +177,8 @@ gd.Image.prototype.watermark = function (wm, pos) {
         }, this)
         pos = pos[posBrightnessDelta.indexOf(Math.max.apply(Math,posBrightnessDelta))]
     }
-    x = (this.width - wm.width) * pos.x
-    y = (this.height - wm.height) * pos.y
+    x = Math.round((this.width - wm.width) * pos.x)
+    y = Math.round((this.height - wm.height) * pos.y)
     wm.copy(this, x, y, 0, 0, wm.width, wm.height)
     return this
 }
