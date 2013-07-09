@@ -1,4 +1,29 @@
-easy-gd
-=======
+# easy-gd
 
-High-level functions missing in GD library: open an image of any supported format; resize an image doing no math at all; put a watermark like a boss.
+Original [node-gd](https://github.com/mikesmullin/node-gd) extended with a number of handy functions one would use an image manipulation library for:
+* open images of any supported format
+* resize or crop images doing no boring math
+* put watermarks
+
+# Usage
+```javascript
+// Require library
+gd = require('easy-gd')
+
+// Open an image
+gd.createFrom('photo.jpeg', function (err, image) {
+    // Resize image to fit into 800x600
+    var resized = image.resized({width: 800, height: 600})
+    
+    // Put a watermark at the bottom left corner
+    gd.createFrom('watermark.png', function (err, watermark) {
+        resized.watermark(watermark, {x:1, y:1})
+        
+        // Save result with target format inherited from the source image; {ext} got automatically replaced with 'jpg'
+        resized.save('resized.{ext}', {jpegquality: 90}, function (err, watermark) {
+            console.log('Done')
+        })    
+    })
+})
+
+```
