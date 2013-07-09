@@ -19,7 +19,8 @@ gd.createFrom('photo.jpeg', function (err, image) {
     gd.createFrom('watermark.png', function (err, watermark) {
         resized.watermark(watermark, {x:1, y:1})
         
-        // Save result with target format inherited from the source image; {ext} got automatically replaced with 'jpg'
+        // Save result with target format inherited from the source image
+        // {ext} got automatically replaced with 'jpg'
         resized.save('resized.{ext}', {jpegquality: 90}, function (err, watermark) {
             console.log('Done')
         })    
