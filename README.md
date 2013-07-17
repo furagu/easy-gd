@@ -15,12 +15,13 @@ gd.createFrom('photo.jpeg', function (err, image) {
     // Resize image to fit into 800x600
     var resized = image.resized({width: 800, height: 600})
     
-    // Put a watermark at the bottom left corner
+    // Open watermark image
     gd.createFrom('watermark.png', function (err, watermark) {
+        // Put the watermark at the bottom right corner
         resized.watermark(watermark, {x:1, y:1})
         
         // Save result with target format inherited from the source image
-        // {ext} got automatically replaced with 'jpg'
+        // {ext} gets automatically replaced with 'jpg'
         resized.save('resized.{ext}', {jpegquality: 90}, function (err, watermark) {
             console.log('Done')
         })    
