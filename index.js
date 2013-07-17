@@ -5,21 +5,21 @@ var gd = module.exports = Object.create(require("node-gd")),
 
 var formats = {
     jpeg: {
-        ext: '.jpg',
+        ext: 'jpg',
         signature: new Buffer([0xff, 0xd8, 0xff]),
         createFromPtr: gd.createFromJpegPtr,
         ptr: namedArgs(gd.Image.prototype.jpegPtr, 'jpegquality', -1),
         save: namedArgs(gd.Image.prototype.saveJpeg, 'jpegquality', -1),
     },
     png: {
-        ext: '.png',
+        ext: 'png',
         signature: new Buffer([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
         createFromPtr: gd.createFromPngPtr,
         ptr: namedArgs(gd.Image.prototype.pngPtr, 'pnglevel', -1),
         save: namedArgs(gd.Image.prototype.savePng, 'pnglevel', -1),
     },
     gif: {
-        ext: '.gif',
+        ext: 'gif',
         signature: new Buffer('GIF'),
         createFromPtr: gd.createFromGifPtr,
         ptr: gd.Image.prototype.gifPtr,
@@ -60,11 +60,11 @@ gd.createFrom = function (filename, callback) {
 
 gd.Image.prototype.save = function (filename, options, callback) {
     try {
-        var format = this.targetFormat(options)
+        var format = formats[this.targetFormat(options)]
     } catch (err) {
         return callback(err)
     }
-    return formats[format].save.call(this, filename, options, callback)
+    return format.save.call(this, filename.replace('{ext}', format.ext), options, callback)
 }
 
 gd.Image.prototype.ptr = function (options) {
