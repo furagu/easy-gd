@@ -37,24 +37,23 @@ gd.getFormatPtr = function (buffer) {
     throw gdError('unknown_format', 'Unknown image format')
 }
 
-gd.createFromPtr = function (buffer) {
+gd.createFromPtr = function (buffer, callback) {
     var format, image
-    format = gd.getFormatPtr(buffer)
+    try {
+        format = gd.getFormatPtr(buffer)
+    } catch (err) {
+        return callback(err)
+    }
     image = formats[format].createFromPtr.call(this, buffer)
-    if (!image) throw gdError('open', 'Failed to create image from buffer')
+    if (!image) return callback(gdError('open', 'Failed to create image from buffer'))
     image.format = format
-    return image
+    callback(null, image)
 }
 
 gd.createFrom = function (filename, callback) {
     fs.readFile(filename, function(e, data) {
         if (e) return callback(gdError('read', e))
-        try {
-            var image = gd.createFromPtr(data)
-        } catch (e) {
-            return callback(e)
-        }
-        callback(null, image)
+        gd.createFromPtr(data, callback)
     })
 }
 
