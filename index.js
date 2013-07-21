@@ -63,6 +63,10 @@ gd.createFrom = function (filename, callback) {
 }
 
 gd.Image.prototype.save = function (filename, options, callback) {
+    if (typeof(options) === 'function') {
+        callback = options
+        options = {}
+    }
     try {
         var format = formats[this.targetFormat(options)]
     } catch (err) {
