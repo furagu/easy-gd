@@ -26,7 +26,8 @@
   },
   "dependencies": {
     "node-gd": "~0.2.3",
-    "buffertools": "~1.1.1"
+    "buffertools": "~1.1.1",
+    "exif": "~0.3.3"
   },
   "devDependencies": {
     "mocha": "~1.11.0",

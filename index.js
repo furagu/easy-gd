@@ -1,6 +1,7 @@
 var gd = module.exports = Object.create(require("node-gd")),
     fs = require("fs"),
-    buffertools = require('buffertools')
+    buffertools = require('buffertools'),
+    ExifImage = require('exif').ExifImage
 
 
 var formats = {
@@ -47,7 +48,11 @@ gd.createFromPtr = function (buffer, callback) {
     image = formats[format].createFromPtr.call(this, buffer)
     if (!image) return callback(gdError('open', 'Failed to create image from buffer'))
     image.format = format
-    callback(null, image)
+
+    new ExifImage({image: buffer}, function (err, exifData) {
+        if (err) return callback(null, image) // Ignore exif reading errors
+        return autorotateImage(image, exifData, callback)
+    })
 }
 
 gd.createFrom = function (filename, callback) {
@@ -182,10 +187,30 @@ gd.Image.prototype.watermark = function (wm, pos) {
     return this
 }
 
-function gdError(error, message) {
+function gdError (error, message) {
     var e = new Error(message)
     e.error = error
     return e
+}
+
+function autorotateImage (image, exifData, callback) {
+    var orientations = {
+            3: -180,
+            6: -90,
+            8: -270,
+        },
+        angle,
+        rotated
+
+    if ('Orientation' in exifData.image && exifData.image.Orientation in orientations) {
+        angle = orientations[exifData.image.Orientation]
+        rotated = gd.createTrueColor(angle % 180 ? image.height : image.width, angle % 180 ? image.width : image.height)
+        image.copyRotated(rotated, rotated.width / 2, rotated.height / 2, 0, 0, image.width, image.height, angle)
+        rotated.format = image.format
+        return callback(null, rotated)
+    }
+
+    callback(null, image)
 }
 
 function namedArgs (fn) {
