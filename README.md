@@ -6,7 +6,7 @@ Original [node-gd](https://github.com/mikesmullin/node-gd) extended with a numbe
 * put watermarks
 
 ## Quick Example
-```javascript
+```js
 // Require library
 gd = require('easy-gd')
 
@@ -27,11 +27,90 @@ gd.createFrom('photo.jpeg', function (err, image) {
         })
     })
 })
-
 ```
+
 ## Documentation
 
-### Image reading and writing
+### Reading
+
 * [gd.createFrom](#createFrom)
 * [gd.createFromPtr](#createFromPtr)
 * [gd.getFormatPtr](#getFormatPtr)
+
+### Writing
+
+* [gd.Image.save](#save)
+* [gd.Image.ptr](#ptr)
+
+### Resizing
+
+* [gd.Image.resized](#resized)
+
+### Watermarking
+* [gd.Image.watermark](#watermark)
+
+## Reading
+
+<a name="createFrom" />
+### gd.createFrom(filename, callback)
+Open image file with GD library auto-detecting image format (only GIF, JPEG and PNG are supported).
+
+__Arguments__
+
+* filename – A name of the file to open.
+* callback(err, image) – A callback which is called when the image is loaded or error occured. Image is a conventional gd.Image object extended with _format_ property being 'jpg', 'gif' or 'png'.
+
+__Example__
+
+```js
+gd.createFrom('./picture.jpeg', function (err, image) {
+    if (err) {
+        console.log('Error loading image: ' + err)
+    } else {
+        console.log('%s %dx%d loaded', image.format, image.width, image.height)
+    }
+})
+```
+
+<a name="createFromPtr" />
+### gd.createFromPtr(buffer, callback)
+Open a buffer with GD library auto-detecting image format (only GIF, JPEG and PNG are supported).
+
+__Arguments__
+
+* buffer – A _Buffer_ object to read the image from.
+* callback(err, image) – A callback which is called when the image is loaded or error occured. Image is a conventional gd.Image object extended with _format_ property being 'jpg', 'gif' or 'png'.
+
+__Example__
+
+```js
+// A file came from somewhere
+gd.createFromPtr(file.data, function (err, image) {
+    if (err) {
+        console.log('Error loading image: ' + err)
+    } else {
+        console.log('%s %dx%d loaded', image.format, image.width, image.height)
+    }
+})
+```
+
+<a name="getFormatPtr" />
+### gd.getFormatPtr(buffer)
+Get format of the image stored in buffer. Returns 'jpg', 'gif' or 'png'. Throws exception on parsing error.
+
+__Arguments__
+* buffer – A _buffer_ with an image to parse the format of.
+
+__Example__
+
+```js
+// A file came from somewhere
+try {
+    var format = gd.getFormatPtr(buffer)
+    console.log('Got ' + format)
+} catch (err) {
+    console.log('Error parsing image format: ' + err)
+}
+```
+
+__TO BE CONTINUED__
