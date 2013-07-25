@@ -164,15 +164,13 @@ gd.createFrom('theimage.png', function (err, image) {
     } catch (err) {
         return console.log('Error: ' + err)
     }
-    // Output an image from buffer or any other action
-
+    // Output the image from buffer
 })
-
 ```
 
 <a name="resized" />
 ### gd.Image.resized(options)
-Get scaled or cropped copy of an image.
+Get scaled or cropped copy of an image. Throws on error.
 
 __Arguments__
 * options – An objects representing rezied() settings:
@@ -180,11 +178,11 @@ __Arguments__
     * height (optional) – An integer representing desired image height.
     * method (optional) – resizing method, recognized values are 'crop' and any other for 'scale', including undefined.
 
-Resize() can handle only height or only width options alone, producing results as follows:
+resized() can handle only height or only width options alone, producing result as follows:
 * width given, height given, method not given or not equal to 'crop' – Scale the image proportionally to fit into width x height pixels.
 * width given, height not given or zero, method not given or not equal to 'crop' – Scale the image proportionally to given width, height being computed automatically.
 * width not given or zero, height given, method not given or not equal to 'crop' – Scale the image proportionally to given height, width being computed automatically.
-* width given, height given, method equals to 'crop' – Scale the image proportionally and crop to fit into width x height pixels exactly.
+* width given, height given, method equals to 'crop' – Scale the image proportionally and crop to make it width x height pixels exactly.
 * width given, height not given or zero, method equals to 'crop' – Crop the image width to given, leaving initial height.
 * width not given or zero, height given, method equals to 'crop' – Crop the image height to given, leaving initial width.
 
@@ -193,21 +191,59 @@ __Example__
 ```js
 // Open a 100x50 pixels image
 gd.createFrom('100x50.png', function (err, image) {
-    // Scale to fit 50x50, gets image of 50x25
-    var resized = image.resized({width: 50, height: 50})
+    try{
+        // Scale to fit 50x50, gets image of 50x25
+        var resized = image.resized({width: 50, height: 50})
 
-    // Scale to fit 50 by width, gets image of 50x25
-    var resized = image.resized({width: 50})
+        // Scale to fit 50 by width, gets image of 50x25
+        var resized = image.resized({width: 50})
 
-    // Scale to fit 30 by height, returns image of 60x30
-    var resized = image.resized({height: 30})
+        // Scale to fit 30 by height, returns image of 60x30
+        var resized = image.resized({height: 30})
 
-    // Crop to 50x50
-    var resized = image.resized({width: 50, height: 50, method: 'crop'})
+        // Crop to 50x50
+        var resized = image.resized({width: 50, height: 50, method: 'crop'})
+    } catch (err) {
+        console.log('Error: ' + err)
+    }
 })
-
-
 ```
+
+<a name="resizedPtr" />
+### gd.Image.resizedPtr(options)
+Get a _Buffer_ with binary data of resized copy of the image. Equals to image.resized(options).ptr(options). Throws on error.
+
+__Arguments__
+* options – An objects representing resizedPtr() settings:
+    * width (optional) – An integer representing desired image width.
+    * height (optional) – An integer representing desired image height.
+    * method (optional) – resizing method, recognized values are 'crop' and any other for 'scale', including undefined.
+    * format (optional) – A string with target file format, 'jpeg', 'png' or 'gif' in any letter case.
+    * jpegquality (optional, JPEG format only) – A number from 0 to 100, controlling generated JPEG quality.
+    * pnglevel  (optional, PNG fornat only) – A number from 0 to 9, controlling generated PNG compression level.
+    * defaultFormat (optional) – same as _format_, but is used only if no _format_ option provided and the image.format is undefined.
+
+resizedPtr() can handle only height or only width options alone, producing result as follows:
+* width given, height given, method not given or not equal to 'crop' – Scale the image proportionally to fit into width x height pixels.
+* width given, height not given or zero, method not given or not equal to 'crop' – Scale the image proportionally to given width, height being computed automatically.
+* width not given or zero, height given, method not given or not equal to 'crop' – Scale the image proportionally to given height, width being computed automatically.
+* width given, height given, method equals to 'crop' – Scale the image proportionally and crop to make it width x height pixels exactly.
+* width given, height not given or zero, method equals to 'crop' – Crop the image width to given, leaving initial height.
+* width not given or zero, height given, method equals to 'crop' – Crop the image height to given, leaving initial width.
+
+__Example__
+
+```js
+gd.createFrom('theimage.png', function (err, image) {
+    try {
+        var buffer = image.resizedPtr({format: 'jpeg', jpegquality: 80, width: 800, height:600})
+    } catch (err) {
+        return console.log('Error: ' + err)
+    }
+    // Output the image from buffer
+})
+```
+
 
 
 __TO BE CONTINUED__
