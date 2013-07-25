@@ -11,22 +11,31 @@ describe('gd', function () {
         testImage.filledEllipse(50, 50, 25, 25, testImage.colorAllocate(255, 0, 0))
 
         describe('targetFormat()', function () {
+            it('should lowerace options.format', function () {
+                testImage.targetFormat({format: 'FORMAT'}).should.equal('format')
+            })
+            it('should lowerace options.defaultFormat', function () {
+                testImage.targetFormat({defaultFormat: 'DEFAULTFORMAT'}).should.equal('defaultformat')
+            })
             it('should take format from options.format', function () {
-                testImage.targetFormat({format: 'FORMAT'}).should.equal('FORMAT')
+                testImage.targetFormat({format: 'format'}).should.equal('format')
             })
             it('should take format from options.defaultFormat', function () {
-                testImage.targetFormat({defaultFormat: 'FORMAT'}).should.equal('FORMAT')
+                testImage.targetFormat({defaultFormat: 'format'}).should.equal('format')
+            })
+            it('should lowercace this.format', function () {
+                _.extend(testImage, {format: 'FORMAT'}).targetFormat().should.equal('format')
             })
             it('should take format from this.format', function () {
-                _.extend(testImage, {format: 'FORMAT'}).targetFormat().should.equal('FORMAT')
+                _.extend(testImage, {format: 'format'}).targetFormat().should.equal('format')
             })
             it('should prefer options.format over this.format and options.defaultFormat', function () {
-                _.extend(testImage, {format: 'THISFORMAT'})
-                    .targetFormat({format: 'FORMAT', defaultFormat: 'DEFAULTFORMAT'}).should.equal('FORMAT')
+                _.extend(testImage, {format: 'thisformat'})
+                    .targetFormat({format: 'format', defaultFormat: 'defaultformat'}).should.equal('format')
             })
             it('should prefer this.format over options.defaultFormat', function () {
-                _.extend(testImage, {format: 'THISFORMAT'})
-                    .targetFormat({defaultFormat: 'DEFAULTFORMAT'}).should.equal('THISFORMAT')
+                _.extend(testImage, {format: 'thisformat'})
+                    .targetFormat({defaultFormat: 'defaultformat'}).should.equal('thisformat')
             })
             delete testImage.format
         })
