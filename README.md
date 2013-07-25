@@ -120,6 +120,7 @@ Write gd.Image to a file. All the GD image objects has this method.
 Options are not necessary for the images created with [gd.createFrom](#createFrom) or [gd.createFromPtr](#createFromPtr), otherwise at least _format_ option is required.
 
 __Arguments__
+
 * filename – A file to save the image to. "{ext}" substring in the filename will be replaced with an actual file extention based on the chosen format.
 * options – An object representing save() settings:
     * format – A string with target file format, 'jpeg', 'png' or 'gif' in any letter case.
@@ -128,6 +129,7 @@ __Arguments__
     * defaultFormat – same as _format_, but is used only if no _format_ option provided and the image.format is undefined.
 * callback(err) – A callback which is called when the image is saved or error occured.
 
+__Example__
 
 ```js
 // Convert the image to lossy, but lighter format
@@ -135,6 +137,34 @@ gd.createFrom('theimage.png', function (err, image) {
     image.save('theimage.{ext}', {format: 'jpeg', jpegquality: 80}, function (err) {
         console.log(err || 'Success!')
     })
+})
+
+```
+
+<a name="ptr" />
+### gd.Image.ptr(options)
+Get a _Buffer_ with binary image data in given format. Throws on error.
+Options are not necessary for the images created with [gd.createFrom](#createFrom) or [gd.createFromPtr](#createFromPtr), otherwise at least _format_ option is required.
+
+__Arguments__
+
+* options – An object representing save() settings:
+    * format – A string with target file format, 'jpeg', 'png' or 'gif' in any letter case.
+    * jpegquality (JPEG format only) – A number from 0 to 100, controlling generated JPEG quality.
+    * pnglevel (PNG fornat only) – A number from 0 to 9, controlling generated PNG compression level.
+    * defaultFormat – same as _format_, but is used only if no _format_ option provided and the image.format is undefined.
+
+__Example__
+
+```js
+gd.createFrom('theimage.png', function (err, image) {
+    try {
+        var buffer = image.ptr({format: 'jpeg', jpegquality: 80})
+    } catch (err) {
+        return console.log('Error: ' + err)
+    }
+    // Output an image from buffer or any other action
+
 })
 
 ```
