@@ -45,6 +45,7 @@ gd.createFrom('photo.jpeg', function (err, image) {
 ### Resizing
 
 * [gd.Image.resized](#resized)
+* [gd.Image.resizedPtr](#resizedPtr)
 
 ### Watermarking
 * [gd.Image.watermark](#watermark)
@@ -123,10 +124,10 @@ __Arguments__
 
 * filename – A file to save the image to. "{ext}" substring in the filename will be replaced with an actual file extention based on the chosen format.
 * options – An object representing save() settings:
-    * format – A string with target file format, 'jpeg', 'png' or 'gif' in any letter case.
-    * jpegquality (JPEG format only) – A number from 0 to 100, controlling generated JPEG quality.
-    * pnglevel (PNG fornat only) – A number from 0 to 9, controlling generated PNG compression level.
-    * defaultFormat – same as _format_, but is used only if no _format_ option provided and the image.format is undefined.
+    * format (optional) – A string with target file format, 'jpeg', 'png' or 'gif' in any letter case.
+    * jpegquality (optional, JPEG format only) – A number from 0 to 100, controlling generated JPEG quality.
+    * pnglevel  (optional, PNG fornat only) – A number from 0 to 9, controlling generated PNG compression level.
+    * defaultFormat (optional) – same as _format_, but is used only if no _format_ option provided and the image.format is undefined.
 * callback(err) – A callback which is called when the image is saved or error occured.
 
 __Example__
@@ -142,17 +143,17 @@ gd.createFrom('theimage.png', function (err, image) {
 ```
 
 <a name="ptr" />
-### gd.Image.ptr(options)
+### gd.Image.ptr([options])
 Get a _Buffer_ with binary image data in given format. Throws on error.
 Options are not necessary for the images created with [gd.createFrom](#createFrom) or [gd.createFromPtr](#createFromPtr), otherwise at least _format_ option is required.
 
 __Arguments__
 
 * options – An object representing save() settings:
-    * format – A string with target file format, 'jpeg', 'png' or 'gif' in any letter case.
-    * jpegquality (JPEG format only) – A number from 0 to 100, controlling generated JPEG quality.
-    * pnglevel (PNG fornat only) – A number from 0 to 9, controlling generated PNG compression level.
-    * defaultFormat – same as _format_, but is used only if no _format_ option provided and the image.format is undefined.
+    * format (optional) – A string with target file format, 'jpeg', 'png' or 'gif' in any letter case.
+    * jpegquality (optional, JPEG format only) – A number from 0 to 100, controlling generated JPEG quality.
+    * pnglevel  (optional, PNG fornat only) – A number from 0 to 9, controlling generated PNG compression level.
+    * defaultFormat (optional) – same as _format_, but is used only if no _format_ option provided and the image.format is undefined.
 
 __Example__
 
@@ -166,6 +167,45 @@ gd.createFrom('theimage.png', function (err, image) {
     // Output an image from buffer or any other action
 
 })
+
+```
+
+<a name="resized" />
+### gd.Image.resized(options)
+Get scaled or cropped copy of an image.
+
+__Arguments__
+* options – An objects representing rezied() settings:
+    * width (optional) – An integer representing desired image width.
+    * height (optional) – An integer representing desired image height.
+    * method (optional) – resizing method, recognized values are 'crop' and any other for 'scale', including undefined.
+
+Resize() can handle only height or only width options alone, producing results as follows:
+* width given, height given, method not given or not equal to 'crop' – Scale the image proportionally to fit into width x height pixels.
+* width given, height not given or zero, method not given or not equal to 'crop' – Scale the image proportionally to given width, height being computed automatically.
+* width not given or zero, height given, method not given or not equal to 'crop' – Scale the image proportionally to given height, width being computed automatically.
+* width given, height given, method equals to 'crop' – Scale the image proportionally and crop to fit into width x height pixels exactly.
+* width given, height not given or zero, method equals to 'crop' – Crop the image width to given, leaving initial height.
+* width not given or zero, height given, method equals to 'crop' – Crop the image height to given, leaving initial width.
+
+__Example__
+
+```js
+// Open a 100x50 pixels image
+gd.createFrom('100x50.png', function (err, image) {
+    // Scale to fit 50x50, gets image of 50x25
+    var resized = image.resized({width: 50, height: 50})
+
+    // Scale to fit 50 by width, gets image of 50x25
+    var resized = image.resized({width: 50})
+
+    // Scale to fit 30 by height, returns image of 60x30
+    var resized = image.resized({height: 30})
+
+    // Crop to 50x50
+    var resized = image.resized({width: 50, height: 50, method: 'crop'})
+})
+
 
 ```
 
