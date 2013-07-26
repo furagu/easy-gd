@@ -272,8 +272,8 @@ image.watermark(watermark, [{x:0, y:0}, {x:0, y:1}, {x:1, y:1}, {x:1, y:0}])
 
 ## Contributors
 
-* [Alexander Schepanovski](/Suor)
-* [Egor Balyshev](/furagu)
+* [Alexander Schepanovski](https://github.com/Suor)
+* [Egor Balyshev](https://github.com/furagu)
 
 ## License
 
