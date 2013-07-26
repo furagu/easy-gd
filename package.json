@@ -1,7 +1,7 @@
 {
   "name": "easy-gd",
-  "version": "0.0.0",
-  "description": "High-level functions missing in GD library: open an image of any supported format; resize an image doing no math at all; put a watermark like a boss.",
+  "version": "0.0.1",
+  "description": "Node-gd extended with features making image processing easier: open an image of any supported format; resize an image doing no math at all; put watermarks like a boss.",
   "main": "index.js",
   "scripts": {
     "test": "make test"
