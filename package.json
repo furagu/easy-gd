@@ -18,7 +18,12 @@
     "easy"
   ],
   "author": "Egor Balyshev",
-  "license": "MIT",
+  "licenses" : [
+        {
+            "type" : "MIT",
+            "url" : "https://github.com/Meta-Design/easy-gd/master/LICENSE"
+        }
+  ],
   "readmeFilename": "README.md",
   "gitHead": "113915ebcfc7728fa17ebc533590af2d1c91e197",
   "bugs": {
