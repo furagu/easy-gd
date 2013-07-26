@@ -198,7 +198,7 @@ gd.createFrom('100x50.png', function (err, image) {
         // Scale to fit 50 by width, gets image of 50x25
         var resized = image.resized({width: 50})
 
-        // Scale to fit 30 by height, returns image of 60x30
+        // Scale to fit 30 by height, gets image of 60x30
         var resized = image.resized({height: 30})
 
         // Crop to 50x50
@@ -214,6 +214,7 @@ gd.createFrom('100x50.png', function (err, image) {
 Get a _Buffer_ with binary data of resized copy of the image. Equals to image.resized(options).ptr(options). Throws on error.
 
 __Arguments__
+
 * options – An objects representing resizedPtr() settings:
     * width (optional) – An integer representing desired image width.
     * height (optional) – An integer representing desired image height.
@@ -244,6 +245,27 @@ gd.createFrom('theimage.png', function (err, image) {
 })
 ```
 
+<a name="watermark" />
+### gd.Image.watermark(watermark, position)
+Put a watermark on the image. Modifies the image and returns it. Capable of automatic selection of the most conrast place to put a watermark at.
 
+__Arguments__
 
-__TO BE CONTINUED__
+* watermark – A gd.Image representing a watermark.
+* position – An object representing watermark positon or an array of such objects. Position is defined by two properties, x and y, being floating point numbers from 0 to 1. {x: 0, y:0 } is the left top corner of the image, {x: 1, y: 1} is the right bottom. If an array of positions given, watermark() examines brightness of the watermark and the image and selects position with the biggest brightness difference.
+
+__Example__
+
+```js
+// Open or create an image and the watermark
+
+// Put the watermark at the bottom right corner
+image.watermark(watermark, {x:1, y:1})
+
+// Put the watermark at the center
+image.watermark(watermark, {x:0.5, y:0.5})
+
+// Put the watermark at one of the corners of the image where the watermark will be the most contrast
+image.watermark(watermark, [{x:0, y:0}, {x:0, y:1}, {x:1, y:1}, {x:1, y:0}])
+
+```
