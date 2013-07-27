@@ -112,6 +112,8 @@ try {
 }
 ```
 
+## Writing
+
 <a name="save" />
 ### gd.Image.save(filename, [options,] callback)
 Write gd.Image to a file. All the GD image objects has this method.
@@ -164,6 +166,8 @@ gd.createFrom('theimage.png', function (err, image) {
     // Output the image from buffer
 })
 ```
+
+## Resizing
 
 <a name="resized" />
 ### gd.Image.resized(options)
@@ -244,6 +248,8 @@ gd.createFrom('theimage.png', function (err, image) {
     // Output the image from buffer
 })
 ```
+
+## Watermarking
 
 <a name="watermark" />
 ### gd.Image.watermark(watermark, position)
