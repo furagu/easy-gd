@@ -257,7 +257,7 @@ Put a watermark on the image. Modifies the image and returns it. Capable of auto
 
 __Arguments__
 
-* watermark – A gd.Image representing a watermark.
+* watermark – A _gd.Image_ representing a watermark.
 * position – An object representing watermark positon or an array of such objects. Position is defined by two properties, x and y, being floating point numbers from 0 to 1. {x: 0, y:0 } is the left top corner of the image, {x: 1, y: 1} is the right bottom. If an array of positions given, watermark() examines brightness of the watermark and the image and selects position with the biggest brightness difference.
 
 __Example__
