@@ -253,7 +253,7 @@ gd.createFrom('theimage.png', function (err, image) {
 
 <a name="watermark" />
 ### gd.Image.watermark(watermark, position)
-Put a watermark on the image. Modifies the image and returns it. Capable of automatic selection of the most conrast place to put a watermark at.
+Put a watermark on the image. Modifies the image and returns it. Capable of automatic selection of the most contrast place to put a watermark at.
 
 __Arguments__
 
