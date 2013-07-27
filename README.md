@@ -1,9 +1,6 @@
 # easy-gd
 
-Original [node-gd](https://github.com/mikesmullin/node-gd) extended with a number of handy functions one would use an image manipulation library for:
-* open images of any supported format
-* resize or crop images doing no boring math
-* put watermarks
+[node-gd](https://npmjs.org/package/node-gd) extended with features making image processing easier: open an image of any supported format; resize an image doing no math at all; put watermarks like a boss.
 
 ## Quick Example
 ```js
@@ -54,7 +51,7 @@ gd.createFrom('photo.jpeg', function (err, image) {
 
 <a name="createFrom" />
 ### gd.createFrom(filename, callback)
-Open image file with GD library, auto-detecting image format (only GIF, JPEG and PNG are supported). Automatically rotates image if EXIF Orientation tag presets (mirrored images are not supported, rotated only).
+Open image file with GD library, auto-detecting image format (only GIF, JPEG and PNG are supported). Automatically rotates image if Exif Orientation tag presents (mirrored images are not supported, rotated only).
 
 __Arguments__
 
@@ -75,7 +72,7 @@ gd.createFrom('./picture.jpeg', function (err, image) {
 
 <a name="createFromPtr" />
 ### gd.createFromPtr(buffer, callback)
-Open a buffer with GD library, auto-detecting image format (only GIF, JPEG and PNG are supported). Automatically rotates image if EXIF Orientation tag presets (mirrored images are not supported, rotated only).
+Open a buffer with GD library, auto-detecting image format (only GIF, JPEG and PNG are supported). Automatically rotates image if Exif Orientation tag presents (mirrored images are not supported, rotated only).
 
 __Arguments__
 
@@ -101,7 +98,7 @@ Get format of the image stored in buffer. Returns 'jpg', 'gif' or 'png'. Throws 
 
 __Arguments__
 
-* buffer – A _buffer_ with an image to parse the format of.
+* buffer – A _Buffer_ object with an image to parse the format of.
 
 __Example__
 
@@ -178,7 +175,7 @@ __Arguments__
     * height (optional) – An integer representing desired image height.
     * method (optional) – resizing method, recognized values are 'crop' and any other for 'scale', including undefined.
 
-resized() can handle only height or only width options alone, producing result as follows:
+resized() can handle only height or only width options alone, producing result as follows
 * width given, height given, method not given or not equal to 'crop' – Scale the image proportionally to fit into width x height pixels.
 * width given, height not given or zero, method not given or not equal to 'crop' – Scale the image proportionally to given width, height being computed automatically.
 * width not given or zero, height given, method not given or not equal to 'crop' – Scale the image proportionally to given height, width being computed automatically.
@@ -224,7 +221,7 @@ __Arguments__
     * pnglevel  (optional, PNG fornat only) – A number from 0 to 9, controlling generated PNG compression level.
     * defaultFormat (optional) – same as _format_, but is used only if no _format_ option provided and the image.format is undefined.
 
-resizedPtr() can handle only height or only width options alone, producing result as follows:
+resizedPtr() can handle only height or only width options alone, producing result as follows
 * width given, height given, method not given or not equal to 'crop' – Scale the image proportionally to fit into width x height pixels.
 * width given, height not given or zero, method not given or not equal to 'crop' – Scale the image proportionally to given width, height being computed automatically.
 * width not given or zero, height given, method not given or not equal to 'crop' – Scale the image proportionally to given height, width being computed automatically.
