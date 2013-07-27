@@ -56,7 +56,7 @@ Open image file with GD library, auto-detecting image format (only GIF, JPEG and
 __Arguments__
 
 * filename – A name of the file to open.
-* callback(err, image) – A callback which is called when the image is loaded or error occured. Image is a conventional gd.Image object extended with _format_ property, being 'jpg', 'gif' or 'png'.
+* callback(err, image) – A callback which is called when the image is loaded or error occured. Image is a conventional _gd.Image_ object extended with _format_ property, being 'jpg', 'gif' or 'png'.
 
 __Example__
 
@@ -72,12 +72,12 @@ gd.createFrom('./picture.jpeg', function (err, image) {
 
 <a name="createFromPtr" />
 ### gd.createFromPtr(buffer, callback)
-Open a buffer with GD library, auto-detecting image format (only GIF, JPEG and PNG are supported). Automatically rotates image if Exif Orientation tag presents (mirrored images are not supported, rotated only).
+Open a buffer with GD library, auto-detecting image format (only GIF, JPEG and PNG are supported). Automatically rotates image if Exif _Orientation_ tag presents (mirrored images are not supported, rotated only).
 
 __Arguments__
 
 * buffer – A _Buffer_ object to read the image from.
-* callback(err, image) – A callback which is called when the image is loaded or error occured. Image is a conventional gd.Image object extended with _format_ property, being 'jpg', 'gif' or 'png'.
+* callback(err, image) – A callback which is called when the image is loaded or error occured. Image is a conventional _gd.Image_ object extended with _format_ property, being 'jpg', 'gif' or 'png'.
 
 __Example__
 
@@ -94,11 +94,11 @@ gd.createFromPtr(file.data, function (err, image) {
 
 <a name="getFormatPtr" />
 ### gd.getFormatPtr(buffer)
-Get format of the image stored in buffer. Returns 'jpg', 'gif' or 'png'. Throws exception on parsing error.
+Get format of the image stored in buffer. Returns 'jpg', 'gif' or 'png'. Throws on error.
 
 __Arguments__
 
-* buffer – A _Buffer_ object with an image to parse the format of.
+* buffer – A _Buffer_ object with an image to get the format of.
 
 __Example__
 
@@ -115,17 +115,17 @@ try {
 <a name="save" />
 ### gd.Image.save(filename, [options,] callback)
 Write gd.Image to a file. All the GD image objects has this method.
-Options are not necessary for the images created with [gd.createFrom](#createFrom) or [gd.createFromPtr](#createFromPtr), otherwise at least _format_ option is required.
+Options are not necessary for the images created with [gd.createFrom](#createFrom) or [gd.createFromPtr](#createFromPtr), otherwise at least _format_ is required.
 
 __Arguments__
 
-* filename – A file to save the image to. "{ext}" substring in the filename will be replaced with an actual file extention based on the chosen format.
+* filename – A file to save the image to. '{ext}' substring in the filename will be replaced with an actual file extention based on the chosen format.
 * options – An object representing save() settings:
     * format (optional) – A string with target file format, 'jpeg', 'png' or 'gif' in any letter case.
     * jpegquality (optional, JPEG format only) – A number from 0 to 100, controlling generated JPEG quality.
     * pnglevel  (optional, PNG fornat only) – A number from 0 to 9, controlling generated PNG compression level.
     * defaultFormat (optional) – same as _format_, but is used only if no _format_ option provided and the image.format is undefined.
-* callback(err) – A callback which is called when the image is saved or error occured.
+* callback(err) – A callback which is called when the image is written or some error occured.
 
 __Example__
 
@@ -141,8 +141,8 @@ gd.createFrom('theimage.png', function (err, image) {
 
 <a name="ptr" />
 ### gd.Image.ptr([options])
-Get a _Buffer_ with binary image data in given format. Throws on error.
-Options are not necessary for the images created with [gd.createFrom](#createFrom) or [gd.createFromPtr](#createFromPtr), otherwise at least _format_ option is required.
+Get a buffer with binary image data in given format. Throws on error.
+Options are not necessary for the images created with [gd.createFrom](#createFrom) or [gd.createFromPtr](#createFromPtr), otherwise at least _format_ is required.
 
 __Arguments__
 
@@ -170,18 +170,20 @@ gd.createFrom('theimage.png', function (err, image) {
 Get scaled or cropped copy of an image. Throws on error.
 
 __Arguments__
+
 * options – An objects representing rezied() settings:
     * width (optional) – An integer representing desired image width.
     * height (optional) – An integer representing desired image height.
     * method (optional) – resizing method, recognized values are 'crop' and any other for 'scale', including undefined.
 
-resized() can handle only height or only width options alone, producing result as follows
-* width given, height given, method not given or not equal to 'crop' – Scale the image proportionally to fit into width x height pixels.
-* width given, height not given or zero, method not given or not equal to 'crop' – Scale the image proportionally to given width, height being computed automatically.
-* width not given or zero, height given, method not given or not equal to 'crop' – Scale the image proportionally to given height, width being computed automatically.
-* width given, height given, method equals to 'crop' – Scale the image proportionally and crop to make it width x height pixels exactly.
-* width given, height not given or zero, method equals to 'crop' – Crop the image width to given, leaving initial height.
-* width not given or zero, height given, method equals to 'crop' – Crop the image height to given, leaving initial width.
+resized() can handle only height or only width options alone, producing result as follows:
+
+* _width_ and _height_ – Scale the image proportionally to fit into width x height pixels.
+* _width_ only – Scale the image proportionally to given width, height being computed automatically.
+* _height_ only – Scale the image proportionally to given height, width being computed automatically.
+* _width_ and _height_, _method='crop'_ – Scale the image proportionally and crop to make it width x height pixels exactly.
+* _width_ only, _method='crop'_ – Crop the image width to given, leaving initial height.
+* _height_ only, _method='crop'_ – Crop the image height to given, leaving initial width.
 
 __Example__
 
@@ -221,13 +223,14 @@ __Arguments__
     * pnglevel  (optional, PNG fornat only) – A number from 0 to 9, controlling generated PNG compression level.
     * defaultFormat (optional) – same as _format_, but is used only if no _format_ option provided and the image.format is undefined.
 
-resizedPtr() can handle only height or only width options alone, producing result as follows
-* width given, height given, method not given or not equal to 'crop' – Scale the image proportionally to fit into width x height pixels.
-* width given, height not given or zero, method not given or not equal to 'crop' – Scale the image proportionally to given width, height being computed automatically.
-* width not given or zero, height given, method not given or not equal to 'crop' – Scale the image proportionally to given height, width being computed automatically.
-* width given, height given, method equals to 'crop' – Scale the image proportionally and crop to make it width x height pixels exactly.
-* width given, height not given or zero, method equals to 'crop' – Crop the image width to given, leaving initial height.
-* width not given or zero, height given, method equals to 'crop' – Crop the image height to given, leaving initial width.
+resizedPtr() can handle only height or only width options alone, producing result as follows:
+
+* _width_ and _height_ – Scale the image proportionally to fit into width x height pixels.
+* _width_ only – Scale the image proportionally to given width, height being computed automatically.
+* _height_ only – Scale the image proportionally to given height, width being computed automatically.
+* _width_ and _height_, _method='crop'_ – Scale the image proportionally and crop to make it width x height pixels exactly.
+* _width_ only, _method='crop'_ – Crop the image width to given, leaving initial height.
+* _height_ only, _method='crop'_ – Crop the image height to given, leaving initial width.
 
 __Example__
 

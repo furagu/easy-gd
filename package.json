@@ -1,6 +1,6 @@
 {
   "name": "easy-gd",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Node-gd extended with features making image processing easier: open an image of any supported format; resize an image doing no math at all; put watermarks like a boss.",
   "main": "index.js",
   "scripts": {
@@ -21,7 +21,7 @@
   "licenses" : [
         {
             "type" : "MIT",
-            "url" : "https://github.com/Meta-Design/easy-gd/master/LICENSE"
+            "url" : "https://raw.github.com/Meta-Design/easy-gd/master/LICENSE"
         }
   ],
   "readmeFilename": "README.md",
