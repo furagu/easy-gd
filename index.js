@@ -38,7 +38,7 @@ gd.getFormatPtr = function (buffer) {
     throw gdError('unknown_format', 'Unknown image format')
 }
 
-gd.createFromPtr = function (buffer, callback) {
+gd.createFromPtr = function (buffer, callback, autorotate) {
     var format, image
     try {
         format = gd.getFormatPtr(buffer)
@@ -49,16 +49,20 @@ gd.createFromPtr = function (buffer, callback) {
     if (!image) return callback(gdError('open', 'Failed to create image from buffer'))
     image.format = format
 
-    new ExifImage({image: buffer}, function (err, exifData) {
-        if (err) return callback(null, image) // Ignore exif reading errors
-        return autorotateImage(image, exifData, callback)
-    })
+    if (autorotate) {
+        new ExifImage({image: buffer}, function (err, exifData) {
+            if (err) return callback(null, image) // Ignore exif reading errors
+            return autorotateImage(image, exifData, callback)
+        });
+    } else {
+        callback(null, image);
+    }
 }
 
-gd.createFrom = function (filename, callback) {
+gd.createFrom = function (filename, callback, autorotate) {
     fs.readFile(filename, function(e, data) {
         if (e) return callback(gdError('read', e))
-        gd.createFromPtr(data, callback)
+        gd.createFromPtr(data, callback, autorotate)
     })
 }
 
