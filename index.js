@@ -1,7 +1,8 @@
 var gd = module.exports = Object.create(require("node-gd")),
     fs = require("fs"),
     buffertools = require('buffertools'),
-    ExifImage = require('exif').ExifImage
+    ExifImage = require('exif').ExifImage,
+    _ = require('underscore')
 
 
 var formats = {
@@ -38,8 +39,15 @@ gd.getFormatPtr = function (buffer) {
     throw gdError('unknown_format', 'Unknown image format')
 }
 
-gd.createFromPtr = function (buffer, callback) {
+gd.createFromPtr = function (buffer, options, callback) {
     var format, image
+    if (typeof options === 'function') {
+        callback = options
+        options = {}
+    }
+    _(options).defaults({
+        autorotate: true,
+    })
     try {
         format = gd.getFormatPtr(buffer)
     } catch (err) {
@@ -49,10 +57,13 @@ gd.createFromPtr = function (buffer, callback) {
     if (!image) return callback(gdError('open', 'Failed to create image from buffer'))
     image.format = format
 
-    new ExifImage({image: buffer}, function (err, exifData) {
-        if (err) return callback(null, image) // Ignore exif reading errors
-        return autorotateImage(image, exifData, callback)
-    })
+    if (options.autorotate) {
+        new ExifImage({image: buffer}, function (err, exifData) {
+            if (err) return callback(null, image) // Ignore exif reading errors
+            return autorotateImage(image, exifData, callback)
+        })
+    }
+    else return callback(null, image)
 }
 
 gd.createFrom = function (filename, callback) {
@@ -63,7 +74,7 @@ gd.createFrom = function (filename, callback) {
 }
 
 gd.Image.prototype.save = function (filename, options, callback) {
-    if (typeof(options) === 'function') {
+    if (typeof options === 'function') {
         callback = options
         options = {}
     }

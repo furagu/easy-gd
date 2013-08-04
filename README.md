@@ -71,12 +71,14 @@ gd.createFrom('./picture.jpeg', function (err, image) {
 ```
 
 <a name="createFromPtr" />
-### gd.createFromPtr(buffer, callback)
-Open a buffer with GD library, auto-detecting image format (only GIF, JPEG and PNG are supported). Automatically rotates image if Exif _Orientation_ tag presents (mirrored images are not supported, rotated only).
+### gd.createFromPtr(buffer, [options,] callback)
+Open a buffer with GD library, auto-detecting image format (only GIF, JPEG and PNG are supported). By default automatically rotates image if Exif _Orientation_ tag presents (mirrored images are not supported, rotated only). Autorotation could be turned off with ```autorotate: false`` option.
 
 __Arguments__
 
 * buffer – A _Buffer_ object to read the image from.
+* options – An object representing createFromPtr() settings:
+    * autorotate (optional, true by default) – A boolean, controlling image autorotation feature. Set it to false to disable autorotation.
 * callback(err, image) – A callback which is called when the image is loaded or error occured. Image is a conventional _gd.Image_ object extended with _format_ property, being 'jpg', 'gif' or 'png'.
 
 __Example__
@@ -84,6 +86,15 @@ __Example__
 ```js
 // A file came from somewhere
 gd.createFromPtr(file.data, function (err, image) {
+    if (err) {
+        console.log('Error loading image: ' + err)
+    } else {
+        console.log('%s %dx%d loaded', image.format, image.width, image.height)
+    }
+})
+
+// Same without automatic image rotation
+gd.createFromPtr(file.data, {autorotate: false}, function (err, image) {
     if (err) {
         console.log('Error loading image: ' + err)
     } else {

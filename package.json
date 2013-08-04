@@ -1,6 +1,6 @@
 {
   "name": "easy-gd",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Node-gd extended with features making image processing easier: open an image of any supported format; resize an image doing no math at all; put watermarks like a boss.",
   "main": "index.js",
   "scripts": {
@@ -32,11 +32,11 @@
   "dependencies": {
     "node-gd": "~0.2.3",
     "buffertools": "~1.1.1",
-    "exif": "~0.3.3"
+    "exif": "~0.3.3",
+    "underscore": "~1.4.4"
   },
   "devDependencies": {
     "mocha": "~1.11.0",
-    "should": "~1.2.2",
-    "underscore": "~1.4.4"
+    "should": "~1.2.2"
   }
 }

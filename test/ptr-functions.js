@@ -26,6 +26,33 @@ describe('gd', function () {
                     done()
                 })
             })
+            it('should open ' + type + ' buffer with empty options', function (done) {
+                var image = gd.createFromPtr(buffer, {}, function (err, image) {
+                    image.should.be.an.instanceof(gd.Image)
+                    image.width.should.equal(1)
+                    image.height.should.equal(1)
+                    image.format.should.equal(type)
+                    done()
+                })
+            })
+            it('should open ' + type + ' buffer with `autorotate` option turned off', function (done) {
+                var image = gd.createFromPtr(buffer, {autorotate: false}, function (err, image) {
+                    image.should.be.an.instanceof(gd.Image)
+                    image.width.should.equal(1)
+                    image.height.should.equal(1)
+                    image.format.should.equal(type)
+                    done()
+                })
+            })
+            it('should open ' + type + ' buffer with `autorotate` option turned on', function (done) {
+                var image = gd.createFromPtr(buffer, {autorotate: true}, function (err, image) {
+                    image.should.be.an.instanceof(gd.Image)
+                    image.width.should.equal(1)
+                    image.height.should.equal(1)
+                    image.format.should.equal(type)
+                    done()
+                })
+            })
         })
         it('should return unknown_format error on bad data', function (done) {
             gd.createFromPtr(new Buffer('BADDATA'), function (err, image) {
