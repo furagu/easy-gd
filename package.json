@@ -1,6 +1,6 @@
 {
   "name": "easy-gd",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Node-gd extended with features making image processing easier: open an image of any supported format; resize an image doing no math at all; put watermarks like a boss.",
   "main": "index.js",
   "scripts": {
