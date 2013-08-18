@@ -12,30 +12,30 @@ describe('gd', function () {
 
         describe('targetFormat()', function () {
             it('should lowerace options.format', function () {
-                testImage.targetFormat({format: 'FORMAT'}).should.equal('format')
+                testImage.targetFormat({format: 'JPEG'}).should.equal('jpeg')
             })
             it('should lowerace options.defaultFormat', function () {
-                testImage.targetFormat({defaultFormat: 'DEFAULTFORMAT'}).should.equal('defaultformat')
+                testImage.targetFormat({defaultFormat: 'GIF'}).should.equal('gif')
             })
             it('should take format from options.format', function () {
-                testImage.targetFormat({format: 'format'}).should.equal('format')
+                testImage.targetFormat({format: 'jpeg'}).should.equal('jpeg')
             })
             it('should take format from options.defaultFormat', function () {
-                testImage.targetFormat({defaultFormat: 'format'}).should.equal('format')
+                testImage.targetFormat({defaultFormat: 'jpeg'}).should.equal('jpeg')
             })
             it('should lowercace this.format', function () {
-                _.extend(testImage, {format: 'FORMAT'}).targetFormat().should.equal('format')
+                _.extend(testImage, {format: 'PNG'}).targetFormat().should.equal('png')
             })
             it('should take format from this.format', function () {
-                _.extend(testImage, {format: 'format'}).targetFormat().should.equal('format')
+                _.extend(testImage, {format: 'jpeg'}).targetFormat().should.equal('jpeg')
             })
             it('should prefer options.format over this.format and options.defaultFormat', function () {
-                _.extend(testImage, {format: 'thisformat'})
-                    .targetFormat({format: 'format', defaultFormat: 'defaultformat'}).should.equal('format')
+                _.extend(testImage, {format: 'GIF'})
+                    .targetFormat({format: 'PNG', defaultFormat: 'JPEG'}).should.equal('png')
             })
             it('should prefer this.format over options.defaultFormat', function () {
-                _.extend(testImage, {format: 'thisformat'})
-                    .targetFormat({defaultFormat: 'defaultformat'}).should.equal('thisformat')
+                _.extend(testImage, {format: 'GIF'})
+                    .targetFormat({defaultFormat: 'PNG'}).should.equal('gif')
             })
             delete testImage.format
         })
