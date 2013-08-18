@@ -99,7 +99,7 @@ gd.Image.prototype.targetFormat = function (options) {
     format = options.format || this.format || options.defaultFormat
     if (!format) throw gdError('format_required', 'Image format required')
     format = format.toLowerCase()
-    if (!format in formats) throw gdError('unknown_format', 'Unknown format ' + format)
+    if (!(format in formats)) throw gdError('unknown_format', 'Unknown format ' + format)
     return format
 }
 
