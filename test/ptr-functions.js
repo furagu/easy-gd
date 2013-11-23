@@ -1,11 +1,11 @@
 var should = require('should'),
     gd = require('../index.js'),
     _ = require('underscore'),
-    testData = require('./data.js')
+    samples = require('./samples.js')
 
 describe('gd', function () {
     describe('getFormatPtr()', function () {
-        testData.forBufferType(function (buffer, type) {
+        _.each(samples.buffersByType, function (buffer, type) {
             it('should detect ' + type, function () {
                 gd.getFormatPtr(buffer).should.equal(type)
             })
@@ -16,7 +16,7 @@ describe('gd', function () {
     })
 
     describe('createFromPtr()', function () {
-        testData.forBufferType(function (buffer, type) {
+        _.each(samples.buffersByType, function (buffer, type) {
             it('should open ' + type + ' buffer', function (done) {
                 var image = gd.createFromPtr(buffer, function (err, image) {
                     image.should.be.an.instanceof(gd.Image)

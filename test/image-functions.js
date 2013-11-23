@@ -2,8 +2,7 @@ var should = require('should'),
     gd = require('../index.js'),
     _ = require('underscore'),
     fs = require('fs'),
-    testData = require('./data.js')
-
+    samples = require('./samples.js')
 
 describe('gd', function () {
     describe('Image.prototype', function () {
@@ -47,7 +46,7 @@ describe('gd', function () {
                     'gif':  gd.createFromGifPtr,
                 }
 
-            testData.forType(function (type) {
+            _.each(samples.types, function (type) {
                 it('should create a ' + type + ' image', function () {
                     var image = gdOpeners[type](testImage.ptr({format: type}))
                     image.should.be.an.instanceof(gd.Image)
@@ -76,7 +75,7 @@ describe('gd', function () {
                 }
             after(_.partial(fs.unlinkSync, filename))
 
-            testData.forType(function (type) {
+            _.each(samples.types, function (type) {
                 it('should write a ' + type + ' image', function (done) {
                     testImage.save(filename, {format: type}, function (err) {
                         if (err) return done(err)

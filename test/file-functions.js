@@ -1,15 +1,11 @@
 var should = require('should'),
     gd = require('../index.js'),
-    fs = require('fs'),
-    testData = require('./data.js')
+    _ = require('underscore'),
+    samples = require('./samples.js')
 
 describe('gd', function () {
-    before(function () {
-        testData.forFileData(fs.writeFileSync)
-    })
-
     describe('createFrom', function () {
-        testData.forFileType(function (filename, type) {
+        _.each(samples.filesByType, function (filename, type) {
             it('should open ' + type + ' file', function (done) {
                 gd.createFrom(filename, function (err, image) {
                     if (err) return done(err)
@@ -21,9 +17,5 @@ describe('gd', function () {
                 })
             })
         })
-    })
-
-    after(function () {
-        testData.forFileData(fs.unlinkSync)
     })
 })
