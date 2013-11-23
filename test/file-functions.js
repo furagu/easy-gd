@@ -4,7 +4,7 @@ var should = require('should'),
     samples = require('./samples.js')
 
 describe('gd', function () {
-    describe('createFrom', function () {
+    describe('createFrom()', function () {
         _.each(samples.filesByType, function (filename, type) {
             it('should open ' + type + ' file', function (done) {
                 gd.createFrom(filename, function (err, image) {
