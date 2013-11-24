@@ -1,6 +1,6 @@
 {
   "name": "easy-gd",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Node-gd extended with features making image processing easier: open an image of any supported format; resize an image doing no math at all; put watermarks like a boss.",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Meta-Design/easy-gd.git"
+    "url": "https://github.com/furagu/easy-gd.git"
   },
   "keywords": [
     "graphics",
@@ -18,22 +18,21 @@
     "easy"
   ],
   "author": "Egor Balyshev",
-  "licenses" : [
-        {
-            "type" : "MIT",
-            "url" : "https://raw.github.com/Meta-Design/easy-gd/master/LICENSE"
-        }
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://raw.github.com/furagu/easy-gd/master/LICENSE"
+    }
   ],
   "readmeFilename": "README.md",
-  "gitHead": "113915ebcfc7728fa17ebc533590af2d1c91e197",
   "bugs": {
-    "url": "https://github.com/Meta-Design/easy-gd/issues"
+    "url": "https://github.com/furagu/easy-gd/issues"
   },
   "dependencies": {
     "node-gd": "~0.2.3",
     "buffertools": "~1.1.1",
-    "exif": "~0.3.3",
-    "underscore": "~1.4.4"
+    "underscore": "~1.4.4",
+    "exif-parser": "~0.1.6"
   },
   "devDependencies": {
     "mocha": "~1.11.0",

@@ -1,7 +1,7 @@
 var gd = module.exports = Object.create(require("node-gd")),
     fs = require("fs"),
     buffertools = require('buffertools'),
-    ExifImage = require('exif').ExifImage,
+    exifParser = require('exif-parser'),
     _ = require('underscore')
 
 
@@ -41,6 +41,7 @@ gd.getFormatPtr = function (buffer) {
 
 gd.createFromPtr = function (buffer, options, callback) {
     var format, image
+    // TODO: take out options/callback logic and default values
     if (typeof options === 'function') {
         callback = options
         options = {}
@@ -57,19 +58,25 @@ gd.createFromPtr = function (buffer, options, callback) {
     if (!image) return callback(gdError('open', 'Failed to create image from buffer'))
     image.format = format
 
-    if (options.autorotate) {
-        new ExifImage({image: buffer}, function (err, exifData) {
-            if (err) return callback(null, image) // Ignore exif reading errors
-            return autorotateImage(image, exifData, callback)
-        })
+    if (options.autorotate && format === 'jpeg') {
+        try {
+            var exif = exifParser.create(buffer).parse()
+        } catch (err) {
+            return callback(null, image)
+        }
+        return autorotateImage(image, exif, callback)
     }
-    else return callback(null, image)
+    return callback(null, image)
 }
 
-gd.createFrom = function (filename, callback) {
+gd.createFrom = function (filename, options, callback) {
+    if (typeof options === 'function') {
+        callback = options
+        options = {}
+    }
     fs.readFile(filename, function(e, data) {
         if (e) return callback(gdError('read', e))
-        gd.createFromPtr(data, callback)
+        gd.createFromPtr(data, options, callback)
     })
 }
 
@@ -209,7 +216,7 @@ function gdError (error, message) {
     return e
 }
 
-function autorotateImage (image, exifData, callback) {
+function autorotateImage (image, exif, callback) {
     var orientations = {
             3: -180,
             6: -90,
@@ -218,8 +225,8 @@ function autorotateImage (image, exifData, callback) {
         angle,
         rotated
 
-    if ('Orientation' in exifData.image && exifData.image.Orientation in orientations) {
-        angle = orientations[exifData.image.Orientation]
+    if ('Orientation' in exif.tags && exif.tags.Orientation in orientations) {
+        angle = orientations[exif.tags.Orientation]
         rotated = gd.createTrueColor(angle % 180 ? image.height : image.width, angle % 180 ? image.width : image.height)
         image.copyRotated(rotated, rotated.width / 2, rotated.height / 2, 0, 0, image.width, image.height, angle)
         rotated.format = image.format

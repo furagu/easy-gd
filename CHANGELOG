@@ -1,0 +1,5 @@
+0.0.7
+- fixed multiple callback issue https://github.com/furagu/easy-gd/issues/1
+- added `options` argument to gd.createFrom()
+- switched from exif to exif-parser lib
+- added tests for autorotate feature

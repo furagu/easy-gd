@@ -50,12 +50,14 @@ gd.createFrom('photo.jpeg', function (err, image) {
 ## Reading
 
 <a name="createFrom" />
-### gd.createFrom(filename, callback)
-Open image file with GD library, auto-detecting image format (only GIF, JPEG and PNG are supported). Automatically rotates image if Exif Orientation tag presents (mirrored images are not supported, rotated only).
+### gd.createFrom(filename, [options,] callback)
+Open image file with GD library, auto-detecting image format (only GIF, JPEG and PNG are supported). By default automatically rotates image if Exif _Orientation_ tag presents (mirrored images are not supported, rotated only). Autorotation could be turned off with ```autorotate: false`` option.
 
 __Arguments__
 
 * filename – A name of the file to open.
+* options – An object representing createFromPtr() settings:
+    * autorotate (optional, true by default) – A boolean, controlling image autorotation feature. Set it to false to disable autorotation.
 * callback(err, image) – A callback which is called when the image is loaded or error occured. Image is a conventional _gd.Image_ object extended with _format_ property, being 'jpg', 'gif' or 'png'.
 
 __Example__
