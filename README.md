@@ -56,7 +56,7 @@ Open image file with GD library, auto-detecting image format (only GIF, JPEG and
 __Arguments__
 
 * filename – A name of the file to open.
-* options – An object representing createFromPtr() settings:
+* options – An object representing createFrom() settings:
     * autorotate (optional, true by default) – A boolean, controlling image autorotation feature. Set it to false to disable autorotation.
 * callback(err, image) – A callback which is called when the image is loaded or error occured. Image is a conventional _gd.Image_ object extended with _format_ property, being 'jpg', 'gif' or 'png'.
 
