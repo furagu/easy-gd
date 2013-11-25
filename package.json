@@ -36,6 +36,8 @@
   },
   "devDependencies": {
     "mocha": "~1.11.0",
-    "should": "~1.2.2"
+    "should": "~1.2.2",
+    "benchmark": "~1.0.0",
+    "resize": "~0.7.2"
   }
 }
