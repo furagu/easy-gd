@@ -95,6 +95,7 @@ gd.Image.prototype.save = function (filename, options, callback) {
 
 gd.Image.prototype.ptr = function (options) {
     var format, data
+    options = options || {}
     format = this.targetFormat(options)
     data = formats[format].ptr.call(this, options)
     return new Buffer(data, 'binary')
