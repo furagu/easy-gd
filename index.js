@@ -29,6 +29,44 @@ var formats = {
     },
 }
 
+var GdError = Object.create(new Error)
+
+var openDefaults = {
+    autorotate: true,
+}
+
+gd.open = optionallyAsync(function open(source, options) {
+    options = _(options || {}).defaults(openDefaults)
+
+    // TODO: source could be a buffer
+    try {
+        var imageData = fs.readFileSync(source)
+    } catch (e) {
+        if (e.code === 'ENOENT') throw error(gd.DOESNOTEXIST)
+        throw error(gd.BADFILE, e.message)
+    }
+    if (!imageData.length) throw error(gd.NODATA)
+
+    var format = detectFormat(imageData)
+    var image = formats[format].createFromPtr.call(gd, imageData)
+    if (!image) throw error(gd.BADIMAGE)
+    image.format = format
+
+    //TODO: process options.autorotate
+
+    return image
+}, GdError, gd)
+
+function detectFormat(buffer) {
+    var name, signature
+    for (name in formats) {
+        signature = formats[name].signature
+        if (buffer.slice(0, signature.length).equals(signature))
+            return name
+    }
+    throw error(gd.BADFORMAT)
+}
+
 gd.getFormatPtr = function (buffer) {
     var name, signature
     for (name in formats) {
@@ -211,6 +249,31 @@ gd.Image.prototype.watermark = function (wm, pos) {
     return this
 }
 
+var errorsDefinition = [
+    ['DOESNOTEXIST',    'File does not exist.'],
+    ['NODATA',          'Empty source file or buffer.'],
+    ['BADFILE',         'Open error.'],
+    ['BADFORMAT',       'Unsupported image format (or not an image at all).'],
+    ['BADIMAGE',        'Corrupted or incomplete image.'],
+]
+
+var errorMessages = _.object(
+    errorsDefinition.map(function (error, index) {
+        var code = index + 1,
+            name = error[0],
+            message = error[1]
+        gd[name] = code
+        return [code, name + ', ' + message]
+    })
+)
+
+function error(code, message) {
+    var e = Object.create(GdError)
+    e.message = message || errorMessages[code]
+    e.code = code
+    return e
+}
+
 function gdError (error, message) {
     var e = new Error(message)
     e.error = error
@@ -248,6 +311,21 @@ function namedArgs (fn) {
         args = args.concat(argSpec.map(function (s) {return namedArgs[ s[0] ] || s[1]}))
         if (callback) args.push(callback)
         return fn.apply(this, args)
+    }
+}
+
+function optionallyAsync(fn, errorProto, context) {
+    return function () {
+        if (typeof arguments[arguments.length - 1] !== 'function') return fn.apply(context, arguments)
+        var args = Array.prototype.slice.call(arguments),
+            callback = args.pop()
+        try {
+            var result = fn.apply(context, arguments)
+            return callback(null, result)
+        } catch (e) {
+            if (errorProto.isPrototypeOf(e)) return callback(e)
+            throw e
+        }
     }
 }
 
