@@ -11,17 +11,33 @@ describe('gd', function () {
             testError(done, 'DOESNOTEXIST', gd.open, samples.notExistingFile)
         })
 
+        //TODO: tests for BADFILE error
+
         it('should return/throw gd.NODATA error/exception on open of empty file', function (done) {
             testError(done, 'NODATA', gd.open, samples.emptyFile)
+        })
+
+        it('should return/throw gd.NODATA error/exception on open of empty buffer', function (done) {
+            testError(done, 'NODATA', gd.open, new Buffer(0))
         })
 
         it('should return/throw gd.BADFORMAT error/exception on open of non-image file', function (done) {
             testError(done, 'BADFORMAT', gd.open, samples.nonImageFile)
         })
 
+        it('should return/throw gd.BADFORMAT error/exception on open of non-image buffer', function (done) {
+            testError(done, 'BADFORMAT', gd.open, new Buffer('NO IMAGE HERE'))
+        })
+
         _.each(samples.incompleteFilesByType, function (filename, type) {
             it('should return/throw gd.BADIMAGE error/exception on open of incomplete ' + type + ' file', function (done) {
                 testError(done, 'BADIMAGE', gd.open, filename)
+            })
+        })
+
+        _.each(samples.incompleteBuffersByType, function (buffer, type) {
+            it('should return/throw gd.BADIMAGE error/exception on open of incomplete ' + type + ' buffer', function (done) {
+                testError(done, 'BADIMAGE', gd.open, buffer)
             })
         })
 
@@ -39,6 +55,19 @@ describe('gd', function () {
             })
         })
 
+        _.each(samples.buffersByType, function (buffer, type) {
+            it('should sync open ' + type + ' buffer', function () {
+                var image = gd.open(buffer)
+                validateImage(image, type)
+            })
+
+            it('should async open ' + type + ' buffer', function (done) {
+                var image = gd.open(buffer, function (err, image) {
+                    validateImage(image, type)
+                    done()
+                })
+            })
+        })
     })
 })
 
@@ -53,17 +82,18 @@ function validateImage(image, type) {
 function testError(done, errorName, fn) {
     var args = Array.prototype.slice.call(arguments, 3)
 
-    function syncTest() {
+    function syncRun() {
         fn.apply(gd, args)
     }
-    syncTest.should.throw(new RegExp('^' + errorName))
+    syncRun.should.throw(new RegExp('^' + errorName))
     try {
-        syncTest()
+        syncRun()
     } catch (e) {
+        e.should.have.property('code')
         e.code.should.be.equal(gd[errorName])
     }
 
-    args.push(function asyncTestCallback (err, image) {
+    args.push(function asyncRunCallback (err, image) {
         err.should.be.an.instanceof(Error)
         err.should.have.property('code')
         err.code.should.be.equal(gd[errorName])

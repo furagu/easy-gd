@@ -10,6 +10,7 @@ var _ = require('underscore'),
     exifBuffers = exifFiles.map(function (file) {return fs.readFileSync(file)}),
 
     incompleteFiles = types.map(function (type) {return __dirname + '/samples/incomplete.' + type})
+    incompleteBuffers = incompleteFiles.map(function (file) {return fs.readFileSync(file)}),
 
 module.exports = {
     types: types,
@@ -24,4 +25,5 @@ module.exports = {
     nonImageFile:    __dirname + '/samples/non-image.txt',
 
     incompleteFilesByType:  _.object(types, incompleteFiles),
+    incompleteBuffersByType: _.object(types, incompleteBuffers),
 }

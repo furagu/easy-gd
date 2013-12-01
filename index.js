@@ -38,13 +38,7 @@ var openDefaults = {
 gd.open = optionallyAsync(function open(source, options) {
     options = _(options || {}).defaults(openDefaults)
 
-    // TODO: source could be a buffer
-    try {
-        var imageData = fs.readFileSync(source)
-    } catch (e) {
-        if (e.code === 'ENOENT') throw error(gd.DOESNOTEXIST)
-        throw error(gd.BADFILE, e.message)
-    }
+    var imageData = loadImageData(source)
     if (!imageData.length) throw error(gd.NODATA)
 
     var format = detectFormat(imageData)
@@ -56,6 +50,20 @@ gd.open = optionallyAsync(function open(source, options) {
 
     return image
 }, GdError, gd)
+
+function loadImageData(source) {
+    if (source instanceof Buffer) return source
+
+    if (typeof source === 'string') {
+        try {
+            return fs.readFileSync(source)
+        } catch (e) {
+            if (e.code === 'ENOENT') throw error(gd.DOESNOTEXIST)
+            throw error(gd.BADFILE, e.message)
+        }
+    }
+    throw new Error('BAD SOURCE TYPE')
+}
 
 function detectFormat(buffer) {
     var name, signature
