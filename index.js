@@ -55,6 +55,7 @@ function loadImageData(source) {
 
     if (typeof source === 'string') {
         try {
+            // FAIL: no async here, optionallyAsync is useless. Make loadImageData return with callback or a promice
             return fs.readFileSync(source)
         } catch (e) {
             if (e.code === 'ENOENT') throw GdError(gd.DOESNOTEXIST)
