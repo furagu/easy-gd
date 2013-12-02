@@ -1,5 +1,6 @@
-var gd = module.exports = Object.create(require("node-gd")),
-    fs = require("fs"),
+var gd = module.exports = Object.create(require('node-gd')),
+    fs = require('fs'),
+    util = require('util'),
     buffertools = require('buffertools'),
     exifParser = require('exif-parser'),
     _ = require('underscore')
@@ -29,9 +30,6 @@ var formats = {
     },
 }
 
-// TODO: use util.inherits
-var GdError = Object.create(new Error)
-
 var openDefaults = {
     autorotate: true,
 }
@@ -40,11 +38,11 @@ gd.open = optionallyAsync(function open(source, options) {
     options = _(options || {}).defaults(openDefaults)
 
     var imageData = loadImageData(source)
-    if (!imageData.length) throw error(gd.NODATA)
+    if (!imageData.length) throw GdError(gd.NODATA)
 
     var format = detectFormat(imageData)
     var image = formats[format].createFromPtr.call(gd, imageData)
-    if (!image) throw error(gd.BADIMAGE)
+    if (!image) throw GdError(gd.BADIMAGE)
     image.format = format
 
     //TODO: process options.autorotate
@@ -59,8 +57,8 @@ function loadImageData(source) {
         try {
             return fs.readFileSync(source)
         } catch (e) {
-            if (e.code === 'ENOENT') throw error(gd.DOESNOTEXIST)
-            throw error(gd.BADFILE, e.message)
+            if (e.code === 'ENOENT') throw GdError(gd.DOESNOTEXIST)
+            throw GdError(gd.BADFILE, e.message)
         }
     }
     throw new Error('BAD SOURCE TYPE')
@@ -73,7 +71,7 @@ function detectFormat(buffer) {
         if (buffer.slice(0, signature.length).equals(signature))
             return name
     }
-    throw error(gd.BADFORMAT)
+    throw GdError(gd.BADFORMAT)
 }
 
 gd.getFormatPtr = function (buffer) {
@@ -276,12 +274,12 @@ var errorMessages = _.object(
     })
 )
 
-function error(code, message) {
-    var e = Object.create(GdError)
-    e.message = message || errorMessages[code]
-    e.code = code
-    return e
+function GdError(code, message) {
+    if (!(this instanceof GdError)) return new GdError(code, message)
+    this.message = message || errorMessages[code]
+    this.code = code
 }
+util.inherits(GdError, Error)
 
 function gdError (error, message) {
     var e = new Error(message)
@@ -323,7 +321,7 @@ function namedArgs (fn) {
     }
 }
 
-function optionallyAsync(fn, errorProto, context) {
+function optionallyAsync(fn, ErrorToCatch, context) {
     return function () {
         if (typeof arguments[arguments.length - 1] !== 'function') return fn.apply(context, arguments)
         var args = Array.prototype.slice.call(arguments),
@@ -332,7 +330,7 @@ function optionallyAsync(fn, errorProto, context) {
             var result = fn.apply(context, arguments)
             return callback(null, result)
         } catch (e) {
-            if (errorProto.isPrototypeOf(e)) return callback(e)
+            if (e instanceof ErrorToCatch) return callback(e)
             throw e
         }
     }
