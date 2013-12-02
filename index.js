@@ -29,6 +29,7 @@ var formats = {
     },
 }
 
+// TODO: use util.inherits
 var GdError = Object.create(new Error)
 
 var openDefaults = {
