@@ -21,7 +21,12 @@ describe('gd', function () {
             testErrorSync('DOESNOTEXIST', gd.open, samples.notExistingFile)
         })
 
-        //TODO: tests for BADFILE error
+        it('should return gd.BADFILE error on reading directory instead of file', function (done) {
+            testErrorAsync(done, 'BADFILE', gd.open, '.')
+        })
+        it('should throw gd.BADFILE exception when reading directory instead of file', function () {
+            testErrorSync('BADFILE', gd.open, '.')
+        })
 
         it('should return gd.NODATA error on open of empty file', function (done) {
             testErrorAsync(done, 'NODATA', gd.open, samples.emptyFile)

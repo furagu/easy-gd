@@ -62,21 +62,21 @@ function readSource(source, async, callback) {
                 if (err) return wrapFileReadingError(err, callback)
                 return callback(null, data)
             })
-        } else {
-            try {
-                var data = fs.readFileSync(source)
-            } catch (e) {
-                return wrapFileReadingError(e, callback)
-            }
-            return callback(null, data)
         }
+        try {
+            var data = fs.readFileSync(source)
+        } catch (e) {
+            return wrapFileReadingError(e, callback)
+        }
+        return callback(null, data)
     }
+
     return callback(GdError(gd.BADSOURCE))
 }
 
 function wrapFileReadingError(error, callback) {
     if (error.code === 'ENOENT') return callback(GdError(gd.DOESNOTEXIST))
-    return callback(GdError(gd.BADFILE, e.message))
+    return callback(GdError(gd.BADFILE, error.message))
 }
 
 function openImage(imageData, options) {
@@ -295,19 +295,21 @@ var errorsDefinition = [
     ['BADIMAGE',        'Corrupted or incomplete image.'],
 ]
 
-var errorMessages = _.object(
-    errorsDefinition.map(function (error, index) {
-        var code = index + 1,
-            name = error[0],
-            message = error[1]
-        gd[name] = code
-        return [code, name + ', ' + message]
-    })
-)
+var errorMessages = {},
+    errorNames = {}
+
+errorsDefinition.forEach(function (error, index) {
+    var code = index + 1,
+        name = error[0],
+        message = error[1]
+    errorMessages[code] = name + ', ' + message
+    errorNames[code] = name
+    gd[name] = code
+})
 
 function GdError(code, message) {
     if (!(this instanceof GdError)) return new GdError(code, message)
-    this.message = message || errorMessages[code]
+    this.message = message ? errorNames[code] + ', ' + message : errorMessages[code]
     this.code = code
 }
 util.inherits(GdError, Error)
