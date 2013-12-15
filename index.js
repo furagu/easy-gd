@@ -4,6 +4,7 @@ var gd = module.exports = Object.create(require('node-gd')),
     buffertools = require('buffertools'),
     exifParser = require('exif-parser'),
     vargs = require('vargs-callback'),
+    clone = require('clone'),
     _ = require('underscore')
 
 
@@ -32,7 +33,7 @@ var formats = {
 }
 
 var openDefaults = {
-    autorotate: true,
+    autoOrient: true,
 }
 
 gd.open = vargs(function open(source, options, callback) {
@@ -89,7 +90,21 @@ function openImage(imageData, options) {
     if (!image) throw GdError(gd.BADIMAGE)
     image.format = format
 
-    //TODO: process options.autorotate
+    if (format === 'jpeg') {
+        try {
+            image.exif = exifParser.create(imageData).parse()
+        } catch (err) {
+            image.exif = null
+        }
+    }
+
+    if (options.autoOrient && image.exif) {
+        try {
+            return image.autoOrient()
+        } catch (e) {
+            return image
+        }
+    }
 
     return image
 }
@@ -265,13 +280,13 @@ gd.Image.prototype.rectBrightness = function (rect) {
     return brightness / opaque_pixels
 }
 
-gd.Image.prototype.watermarkRect = function (wm, pos) {
+gd.Image.prototype.watermarkRect = function watermarkRect(wm, pos) {
     var wmx = (this.width - wm.width) * pos.x;
     var wmy = (this.height - wm.height) * pos.y;
     return {x1: wmx, y1: wmy, x2: wmx + wm.width, y2: wmy + wm.height};
 }
 
-gd.Image.prototype.watermark = function (wm, pos) {
+gd.Image.prototype.watermark = function watermark(wm, pos) {
     var wmBrightness, posBrightnessDelta, x, y
     if (pos instanceof Array) {
         wmBrightness = wm.rectBrightness()
@@ -286,6 +301,55 @@ gd.Image.prototype.watermark = function (wm, pos) {
     return this
 }
 
+gd.Image.prototype.autoOrient = function autoOrient() {
+    var orientations = {
+            1:  0,
+            3: -180,
+            6: -90,
+            8: -270,
+        }
+
+    var exif = this.exif
+    if (!exif) throw GdError(gd.NOEXIF)
+
+    if ('Orientation' in exif.tags && exif.tags.Orientation) {
+        if (!(exif.tags.Orientation in orientations)) throw GdError(gd.BADORIENT)
+        var angle = orientations[exif.tags.Orientation]
+        if (!angle) return this
+
+        var rotated = gd.createTrueColor(angle % 180 ? this.height : this.width, angle % 180 ? this.width : this.height)
+        this.copyRotated(rotated, rotated.width / 2, rotated.height / 2, 0, 0, this.width, this.height, angle)
+        rotated.format = this.format
+        rotated.exif = clone(this.exif)
+        rotated.exif.tags.Orientation = 1
+        return rotated
+    }
+
+    return this
+}
+
+function autorotateImage (image, exif, callback) {
+    var orientations = {
+            3: -180,
+            6: -90,
+            8: -270,
+        },
+        angle,
+        rotated
+
+    if ('Orientation' in exif.tags && exif.tags.Orientation in orientations) {
+        angle = orientations[exif.tags.Orientation]
+        rotated = gd.createTrueColor(angle % 180 ? image.height : image.width, angle % 180 ? image.width : image.height)
+        image.copyRotated(rotated, rotated.width / 2, rotated.height / 2, 0, 0, image.width, image.height, angle)
+        rotated.format = image.format
+        return callback(null, rotated)
+    }
+
+    callback(null, image)
+}
+
+
+
 var errorsDefinition = [
     ['BADSOURCE',       'Unknown source type.'],
     ['DOESNOTEXIST',    'File does not exist.'],
@@ -293,6 +357,8 @@ var errorsDefinition = [
     ['BADFILE',         'Open error.'],
     ['BADFORMAT',       'Unsupported image format (or not an image at all).'],
     ['BADIMAGE',        'Corrupted or incomplete image.'],
+    ['NOEXIF',          'Image does not contain Exif data.'],
+    ['BADORIENT',       'Unsupported image Exif orientation tag.'],
 ]
 
 var errorMessages = {},
