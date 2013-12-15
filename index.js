@@ -3,6 +3,7 @@ var gd = module.exports = Object.create(require('node-gd')),
     util = require('util'),
     buffertools = require('buffertools'),
     exifParser = require('exif-parser'),
+    vargs = require('vargs-callback'),
     _ = require('underscore')
 
 
@@ -34,10 +35,53 @@ var openDefaults = {
     autorotate: true,
 }
 
-gd.open = optionallyAsync(function open(source, options) {
+gd.open = vargs(function open(source, options, callback) {
+    var async = !!callback
+    return readSource(source, async, function (err, imageData) {
+        if (err) {
+            if (async) return callback(err)
+            throw err
+        }
+        try {
+            var image = openImage(imageData, options)
+            if (async) return callback(null, image)
+            return image
+        } catch (e) {
+            if (async) return callback(e)
+            throw e
+        }
+    })
+})
+
+function readSource(source, async, callback) {
+    if (source instanceof Buffer) return callback(null, source)
+
+    if (typeof source === 'string') {
+        if (async) {
+            return fs.readFile(source, function (err, data) {
+                if (err) return wrapFileReadingError(err, callback)
+                return callback(null, data)
+            })
+        } else {
+            try {
+                var data = fs.readFileSync(source)
+            } catch (e) {
+                return wrapFileReadingError(e, callback)
+            }
+            return callback(null, data)
+        }
+    }
+    return callback(GdError(gd.BADSOURCE))
+}
+
+function wrapFileReadingError(error, callback) {
+    if (error.code === 'ENOENT') return callback(GdError(gd.DOESNOTEXIST))
+    return callback(GdError(gd.BADFILE, e.message))
+}
+
+function openImage(imageData, options) {
     options = _(options || {}).defaults(openDefaults)
 
-    var imageData = loadImageData(source)
     if (!imageData.length) throw GdError(gd.NODATA)
 
     var format = detectFormat(imageData)
@@ -48,21 +92,6 @@ gd.open = optionallyAsync(function open(source, options) {
     //TODO: process options.autorotate
 
     return image
-}, GdError, gd)
-
-function loadImageData(source) {
-    if (source instanceof Buffer) return source
-
-    if (typeof source === 'string') {
-        try {
-            // FAIL: no async here, optionallyAsync is useless. Make loadImageData return with callback or a promice
-            return fs.readFileSync(source)
-        } catch (e) {
-            if (e.code === 'ENOENT') throw GdError(gd.DOESNOTEXIST)
-            throw GdError(gd.BADFILE, e.message)
-        }
-    }
-    throw new Error('BAD SOURCE TYPE')
 }
 
 function detectFormat(buffer) {
@@ -258,6 +287,7 @@ gd.Image.prototype.watermark = function (wm, pos) {
 }
 
 var errorsDefinition = [
+    ['BADSOURCE',       'Unknown source type.'],
     ['DOESNOTEXIST',    'File does not exist.'],
     ['NODATA',          'Empty source file or buffer.'],
     ['BADFILE',         'Open error.'],
@@ -319,21 +349,6 @@ function namedArgs (fn) {
         args = args.concat(argSpec.map(function (s) {return namedArgs[ s[0] ] || s[1]}))
         if (callback) args.push(callback)
         return fn.apply(this, args)
-    }
-}
-
-function optionallyAsync(fn, ErrorToCatch, context) {
-    return function () {
-        if (typeof arguments[arguments.length - 1] !== 'function') return fn.apply(context, arguments)
-        var args = Array.prototype.slice.call(arguments),
-            callback = args.pop()
-        try {
-            var result = fn.apply(context, arguments)
-            return callback(null, result)
-        } catch (e) {
-            if (e instanceof ErrorToCatch) return callback(e)
-            throw e
-        }
     }
 }
 

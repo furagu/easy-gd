@@ -32,7 +32,8 @@
     "node-gd": "~0.2.3",
     "buffertools": "~1.1.1",
     "underscore": "~1.4.4",
-    "exif-parser": "~0.1.6"
+    "exif-parser": "~0.1.6",
+    "vargs-callback": "~0.2.3"
   },
   "devDependencies": {
     "mocha": "~1.11.0",
