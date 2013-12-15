@@ -328,28 +328,6 @@ gd.Image.prototype.autoOrient = function autoOrient() {
     return this
 }
 
-function autorotateImage (image, exif, callback) {
-    var orientations = {
-            3: -180,
-            6: -90,
-            8: -270,
-        },
-        angle,
-        rotated
-
-    if ('Orientation' in exif.tags && exif.tags.Orientation in orientations) {
-        angle = orientations[exif.tags.Orientation]
-        rotated = gd.createTrueColor(angle % 180 ? image.height : image.width, angle % 180 ? image.width : image.height)
-        image.copyRotated(rotated, rotated.width / 2, rotated.height / 2, 0, 0, image.width, image.height, angle)
-        rotated.format = image.format
-        return callback(null, rotated)
-    }
-
-    callback(null, image)
-}
-
-
-
 var errorsDefinition = [
     ['BADSOURCE',       'Unknown source type.'],
     ['DOESNOTEXIST',    'File does not exist.'],
