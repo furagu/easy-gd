@@ -12,6 +12,18 @@ var Benchmark = require('benchmark')
     stream = require('stream'),
     util = require('util')
 
+/*
+In orger to run the benchmark please install the following libraries into your system:
+    GraphicsMagick
+    ImageMagick
+    cairo
+
+Mac OS X ports installation:
+    port install GraphicsMagick +universal
+    port install ImageMagick +universal
+    port install cairo +universal
+*/
+
 
 util.inherits(BufferStream, stream.Readable);
 function BufferStream(buffer, opt) {
@@ -27,6 +39,7 @@ BufferStream.prototype._read = function() {
 var samplePath = __dirname + '/samples/',
     samples = _.filter(fs.readdirSync(samplePath), function (file) {return /\.(png|jpg)$/.test(file)}).sort()
 
+// TODO: im and rsz seem to leak a lot of memory. It would be nice to log the memory footprint.
 
 async.eachSeries(samples, function (sample, done) {
     var imageData = fs.readFileSync(samplePath + sample)
@@ -74,7 +87,7 @@ async.eachSeries(samples, function (sample, done) {
     )
 
     .on('start', function (event) {
-        console.log('Testing ' + sample)
+        console.log('Testing %s (%d bytes)', sample, imageData.length)
     })
     .on('cycle', function (event) {
         console.log(String(event.target))
