@@ -224,5 +224,7 @@ describe('gd', function () {
                 watermark_should_be_at(image, 1, 1)
             })
         })
+
+        // TODO: test the autoOrient() method
     })
 })

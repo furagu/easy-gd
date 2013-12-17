@@ -91,17 +91,18 @@ function openImage(imageData, options) {
 
     if (format === 'jpeg') {
         try {
-            image.exif = exifParser.create(imageData).parse()
-        } catch (err) {
-            image.exif = null
+            var exif = exifParser.create(imageData).parse()
+        } catch (e) {
+            // ignore exif parsing errors
         }
+        if (!_.isEmpty(exif.tags)) image.exif = exif.tags
     }
 
     if (options.autoOrient && image.exif) {
         try {
             return image.autoOrient()
         } catch (e) {
-            return image
+            // ignore auto orientation errors
         }
     }
 
@@ -331,16 +332,16 @@ gd.Image.prototype.autoOrient = function autoOrient() {
     var exif = this.exif
     if (!exif) throw GdError(gd.NOEXIF)
 
-    if ('Orientation' in exif.tags && exif.tags.Orientation) {
-        if (!(exif.tags.Orientation in orientations)) throw GdError(gd.BADORIENT)
-        var angle = orientations[exif.tags.Orientation]
+    if (exif.Orientation) {
+        if (!(exif.Orientation in orientations)) throw GdError(gd.BADORIENT)
+        var angle = orientations[exif.Orientation]
         if (!angle) return this
 
         var rotated = gd.createTrueColor(angle % 180 ? this.height : this.width, angle % 180 ? this.width : this.height)
         this.copyRotated(rotated, rotated.width / 2, rotated.height / 2, 0, 0, this.width, this.height, angle)
         rotated.format = this.format
         rotated.exif = clone(this.exif)
-        rotated.exif.tags.Orientation = 1
+        rotated.exif.Orientation = 1
         return rotated
     }
 
