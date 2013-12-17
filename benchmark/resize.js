@@ -40,6 +40,7 @@ var samplePath = __dirname + '/samples/',
     samples = _.filter(fs.readdirSync(samplePath), function (file) {return /\.(png|jpg)$/.test(file)}).sort()
 
 // TODO: im and rsz seem to leak a lot of memory. It would be nice to log the memory footprint.
+// TODO: save resized image to a buffer and make an assertion on buffer length to be shure every library works properly
 
 async.eachSeries(samples, function (sample, done) {
     var imageData = fs.readFileSync(samplePath + sample)
