@@ -104,11 +104,26 @@ describe('gd', function () {
             })
 
             it('should async open ' + type + ' buffer', function (done) {
-                var image = gd.open(buffer, function (err, image) {
+                gd.open(buffer, function (err, image) {
                     validateImage(image, type)
                     done()
                 })
             })
+        })
+
+        _.each(samples.filesByType, function (filename, type) {
+            it('should async open ' + type + ' stream', function (done) {
+                var stream = fs.createReadStream(filename)
+                gd.open(stream, function (err, image) {
+                    validateImage(image, type)
+                    done()
+                })
+            })
+        })
+
+        it('should throw gd.NOSYNCSTREAM exception on sync open of a stream', function () {
+            var stream = fs.createReadStream(samples.emptyFile)
+            testErrorSync('NOSYNCSTREAM', gd.open, stream)
         })
     })
 })

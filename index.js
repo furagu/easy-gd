@@ -1,5 +1,6 @@
 var gd = module.exports = Object.create(require('node-gd')),
     fs = require('fs'),
+    stream = require('stream'),
     util = require('util'),
     buffertools = require('buffertools'),
     exifParser = require('exif-parser'),
@@ -58,26 +59,24 @@ function readSource(source, async, callback) {
     if (source instanceof Buffer) return callback(null, source)
 
     if (typeof source === 'string') {
-        if (async) {
-            return fs.readFile(source, function (err, data) {
-                if (err) return wrapFileReadingError(err, callback)
-                return callback(null, data)
-            })
+        if (async) return readStream(fs.createReadStream(source), callback)
+
+        if (!async) {
+            try {
+                var data = fs.readFileSync(source)
+            } catch (e) {
+                return wrapFileReadingError(e, callback)
+            }
+            return callback(null, data)
         }
-        try {
-            var data = fs.readFileSync(source)
-        } catch (e) {
-            return wrapFileReadingError(e, callback)
-        }
-        return callback(null, data)
+    }
+
+    if (source instanceof stream.Readable) {
+        if (!async) throw GdError(gd.NOSYNCSTREAM)
+        return readStream(source, callback)
     }
 
     return callback(GdError(gd.BADSOURCE))
-}
-
-function wrapFileReadingError(error, callback) {
-    if (error.code === 'ENOENT') return callback(GdError(gd.DOESNOTEXIST))
-    return callback(GdError(gd.BADFILE, error.message))
 }
 
 function openImage(imageData, options) {
@@ -109,10 +108,30 @@ function openImage(imageData, options) {
     return image
 }
 
+function readStream(stream, callback) {
+    var dataRead = Buffer(0)
+
+    stream.on('data', function (chunk) {
+        dataRead = dataRead.concat(chunk)
+    })
+
+    stream.on('end', function () {
+        return callback(null, dataRead)
+    })
+
+    stream.on('error', function (error) {
+        return wrapFileReadingError(error, callback)
+    })
+}
+
+function wrapFileReadingError(error, callback) {
+    if (error.code === 'ENOENT') return callback(GdError(gd.DOESNOTEXIST))
+    return callback(GdError(gd.BADFILE, error.message))
+}
+
 function detectFormat(buffer) {
-    var name, signature
-    for (name in formats) {
-        signature = formats[name].signature
+    for (var name in formats) {
+        var signature = formats[name].signature
         if (buffer.slice(0, signature.length).equals(signature))
             return name
     }
@@ -337,6 +356,7 @@ var errorsDefinition = [
     ['BADIMAGE',        'Corrupted or incomplete image.'],
     ['NOEXIF',          'Image does not contain Exif data.'],
     ['BADORIENT',       'Unsupported image Exif orientation tag.'],
+    ['NOSYNCSTREAM',    'Stream cannot be opened synchronously.'],
 ]
 
 var errorMessages = {},
