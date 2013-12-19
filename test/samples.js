@@ -5,7 +5,7 @@ var _ = require('underscore'),
     files = types.map(function (type) {return __dirname + '/samples/1x1.' + type}),
     buffers = files.map(function (file) {return fs.readFileSync(file)}),
 
-    orientations = [3, 6, 9],
+    orientations = [3, 6, 8],
     exifFiles = orientations.map(function (orientation) {return __dirname + '/samples/exif-orientation-' + orientation + '.jpg'}),
     exifBuffers = exifFiles.map(function (file) {return fs.readFileSync(file)}),
 
