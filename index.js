@@ -306,19 +306,45 @@ gd.Image.prototype.watermarkRect = function watermarkRect(wm, pos) {
     return {x1: wmx, y1: wmy, x2: wmx + wm.width, y2: wmy + wm.height};
 }
 
-gd.Image.prototype.watermark = function watermark(wm, pos) {
-    var wmBrightness, posBrightnessDelta, x, y
-    if (pos instanceof Array) {
-        wmBrightness = wm.rectBrightness()
-        posBrightnessDelta = pos.map(function (p) {
-            return Math.abs(this.rectBrightness(this.watermarkRect(wm, p)) - wmBrightness)
-        }, this)
-        pos = pos[posBrightnessDelta.indexOf(Math.max.apply(Math,posBrightnessDelta))]
-    }
-    x = Math.round((this.width - wm.width) * pos.x)
-    y = Math.round((this.height - wm.height) * pos.y)
-    wm.copy(this, x, y, 0, 0, wm.width, wm.height)
-    return this
+gd.Image.prototype.watermark = vargs(function watermark(source, pos, callback) {
+    pos = pos || {x: 0.5, y:0.5}
+    var async = !!callback
+    var image = this
+
+    return readImage(source, async, function applyWatermark(err, wm) {
+        if (err) {
+            if (async) return callback(err)
+            throw err
+        }
+        if (pos instanceof Array) {
+            var wmBrightness = wm.rectBrightness()
+            var posBrightnessDelta = pos.map(function (p) {
+                return Math.abs(image.rectBrightness(image.watermarkRect(wm, p)) - wmBrightness)
+            }, image)
+            pos = pos[posBrightnessDelta.indexOf(Math.max.apply(Math,posBrightnessDelta))]
+        }
+        var x = Math.round((image.width - wm.width) * pos.x)
+        var y = Math.round((image.height - wm.height) * pos.y)
+
+        wm.copy(image, x, y, 0, 0, wm.width, wm.height)
+
+        if (async) return callback(null, image)
+        return image
+    })
+})
+
+function readImage(source, async, callback) {
+    if (source instanceof gd.Image) return callback(null, source)
+
+    return readSource(source, async, function loadImage(err, sourceBuffer) {
+        var image = gd.open(sourceBuffer)
+        return callback(null, image)
+    })
+}
+
+function loadImage(source, callback) {
+    if (source instanceof gd.Image) return callback(null, source)
+    return gd.open(source, callback)
 }
 
 gd.Image.prototype.autoOrient = function autoOrient() {

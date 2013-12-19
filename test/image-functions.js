@@ -140,14 +140,18 @@ describe('gd', function () {
         })
 
         describe('watermark()', function () {
-            var watermark = gd.createTrueColor(5, 5),
-                watermark_color = watermark.colorAllocate(255, 255, 255)
-            watermark.fill(0, 0, watermark_color)
+            var watermark = gd.open(samples.watermark)
 
             // TODO: is this really supposed to be so? Generally, mutators are evil.
             it('should return original image', function () {
                 var image = createGradientImage(100, 100)
                 image.watermark(watermark, {x:0, y:0}).should.equal(image)
+            })
+
+            it('should put the watermark at the center of the image by default', function () {
+                var image = createGradientImage(100, 100)
+                image.watermark(watermark)
+                watermarkShouldBeAt(image, watermark, 0.5, 0.5)
             })
 
             it('should put watermark on a given single position', function () {
@@ -194,9 +198,32 @@ describe('gd', function () {
                 watermarkShouldBeAt(image, watermark, 1, 1)
             })
 
-            it('should accept a buffer as the sync/async watermark source')
-            it('should accept a stream as the async watermark source')
-            it('should accept a filename as the sync/async watermark source')
+            it('should accept stream as an async watermark source', function (done) {
+                var source = fs.createReadStream(samples.watermark)
+                source.LE_DEBUG = samples.watermark
+                testWatermarkSourceAsync(done, source, watermark)
+            })
+
+            it('should accept filename as a sync watermark source', function () {
+                var source = samples.watermark
+                testWatermarkSourceSync(source)
+            })
+
+            it('should accept buffer as a sync watermark source', function () {
+                var source = fs.readFileSync(samples.watermark)
+                testWatermarkSourceSync(source)
+            })
+
+            it('should accept filename as an async watermark source', function (done) {
+                var source = samples.watermark
+                testWatermarkSourceAsync(done, source, watermark)
+            })
+
+            it('should accept buffer as an async watermark source', function (done) {
+                var source = fs.readFileSync(samples.watermark)
+                testWatermarkSourceAsync(done, source, watermark)
+            })
+
         })
 
         describe('autoOrient()', function () {
@@ -242,6 +269,25 @@ describe('gd', function () {
         })
     })
 })
+
+
+function testWatermarkSourceAsync(done, source, watermark) {
+    var x = 0,
+        y = 0
+    createGradientImage(50, 50).watermark(source, {x:x, y:y}, function (err, image) {
+        watermarkShouldBeAt(image, watermark, x, y)
+        done()
+    })
+}
+
+function testWatermarkSourceSync(source) {
+    var x = 0,
+        y = 0,
+        watermark = gd.open(source),
+        image = createGradientImage(50, 50)
+    image.watermark(source, {x:x, y:y})
+    watermarkShouldBeAt(image, watermark, x, y)
+}
 
 function createGradientImage (width, height) {
     var img = gd.createTrueColor(width, height)

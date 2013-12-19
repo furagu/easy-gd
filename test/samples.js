@@ -26,4 +26,6 @@ module.exports = {
 
     incompleteFilesByType:  _.object(types, incompleteFiles),
     incompleteBuffersByType: _.object(types, incompleteBuffers),
+
+    watermark: __dirname + '/samples/watermark.png',
 }
