@@ -33,7 +33,7 @@ var buffer = image.save()
 image.save('resized.jpg')
 ```
 
-## Chain synchronous processing
+## Synchronous processing via chains
 
 ```js
 gd.open('kitten.jpg')
@@ -42,7 +42,7 @@ gd.open('kitten.jpg')
   .save('kitten-large.jpg')
 ```
 
-## Pipe asynchronous processing
+## Asynchronous processing via pipes
 
 ```js
 fs.createReadStream('puppy.jpg')
