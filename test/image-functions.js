@@ -193,6 +193,10 @@ describe('gd', function () {
                 ])
                 watermarkShouldBeAt(image, watermark, 1, 1)
             })
+
+            it('should accept a buffer as the sync/async watermark source')
+            it('should accept a stream as the async watermark source')
+            it('should accept a filename as the sync/async watermark source')
         })
 
         describe('autoOrient()', function () {
@@ -225,7 +229,7 @@ describe('gd', function () {
                     }).should.not.throw
                 })
 
-                it('should throw  gd.BADORIENT on image containing Exif Orientation of [2, 4, 5, 7]', function () {
+                it('should throw gd.BADORIENT on image containing Exif Orientation of [2, 4, 5, 7]', function () {
                     var image = gd.open(samples.filesByExifOrientation[3])
                     _.each([2, 4, 5, 7], function (orientation) {
                         image.exif.Orientation = orientation
