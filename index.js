@@ -204,12 +204,21 @@ gd.Image.prototype.save = vargs(function save(target, options, callback) {
         throw e
     }
 
-    // TODO: always use format.ptr and save resulting buffer into target
+    var imageData = Buffer(format.ptr.call(this, options), 'binary')
 
     if (typeof target === 'undefined') {
-        var data = format.ptr.call(this, options)
-        if (async) return callback(null, data)
-        return data
+        if (async) return callback(null, imageData)
+        return imageData
+    }
+
+    if (typeof target === 'string') {
+        if (async) return fs.writeFile(target, imageData, callback)
+        try {
+            fs.writeFileSync(target, imageData)
+        } catch (e) {
+            throw GdError(gd.FILEWRITE, e.message)
+        }
+        return this
     }
 
     return format.save.call(this, target.replace('{ext}', format.ext), options, callback)
@@ -397,6 +406,7 @@ var errorsDefinition = [
     ['NOEXIF',          'Image does not contain Exif data.'],
     ['BADORIENT',       'Unsupported image Exif orientation tag.'],
     ['NOSYNCSTREAM',    'Stream cannot be opened synchronously.'],
+    ['FILEWRITE',       'File writing error.'],
 ]
 
 var errorMessages = {},

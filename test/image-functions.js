@@ -71,46 +71,52 @@ describe('gd', function () {
             it('should syncronously return a buffer when called with empty target argument', function () {
                 _.each(samples.types, function (type) {
                     var buffer = testImage.save({format: type})
-                    var image = gdImageFromBuffer(buffer, type)
-                    image.should.be.an.instanceof(gd.Image)
-                    image.width.should.equal(testImage.width)
-                    image.height.should.equal(testImage.height)
+                    checkGeneratedImage(testImage, buffer, type)
                 })
             })
 
             _.each(samples.types, function (type) {
-                it('should asyncronously return a ' + type + ' buffer when called with empty target argument', function (done) {
+                it('should asyncronously return a ' + type + ' buffer when called with empty target argument and a callback', function (done) {
                     var buffer = testImage.save({format: type}, function (err, buffer) {
-                        var image = gdImageFromBuffer(buffer, type)
-                        image.should.be.an.instanceof(gd.Image)
-                        image.width.should.equal(testImage.width)
-                        image.height.should.equal(testImage.height)
+                        checkGeneratedImage(testImage, buffer, type)
                         done()
                     })
                 })
             })
 
-            var filename = __dirname + 'save_test.dat',
-                gdOpeners = {
-                    'jpeg': gd.createFromJpeg,
-                    'png':  gd.createFromPng,
-                    'gif':  gd.createFromGif,
-                }
+            it('should synchronously write to a file', function () {
+                _.each(samples.types, function (type) {
+                    var tmpFilename = __dirname + '/save_sync_test.' + type
+                    testImage.save(tmpFilename, {format: type})
 
-            after(_.partial(fs.unlinkSync, filename))
+                    var buffer = fs.readFileSync(tmpFilename)
+                    fs.unlinkSync(tmpFilename)
+                    checkGeneratedImage(testImage, buffer, type)
+                })
+            })
 
             _.each(samples.types, function (type) {
-                it('should write a ' + type + ' image', function (done) {
-                    testImage.save(filename, {format: type}, function (err) {
-                        if (err) return done(err)
-                        var image = gdOpeners[type](filename)
-                        image.should.be.an.instanceof(gd.Image)
-                        image.width.should.equal(testImage.width)
-                        image.height.should.equal(testImage.height)
+                it('should asynchronously write to a file', function (done) {
+                    var tmpFilename = __dirname + '/save_async_test.' + type
+                    testImage.save(tmpFilename, {format: type}, function (err) {
+                        var buffer = fs.readFileSync(tmpFilename)
+                        fs.unlinkSync(tmpFilename)
+                        checkGeneratedImage(testImage, buffer, type)
                         done()
                     })
                 })
             })
+
+            it('should asycnronously write to a stream')
+
+            it('should throw gd.FILEWRITE exception when failed to synchronously save to a file')
+            it('should return gd.FILEWRITE error when failed to asynchronously save to a file')
+
+            it('should return the image object when it makes sense')
+            it('should detect destination format by filename extension')
+
+            it('should throw gd.NOFORMAT exception when no target format set')
+            it('should return gd.NOFORMAT error when no target format set')
         })
 
         describe('resize()', function () {
@@ -359,6 +365,13 @@ function testErrorSync(errorName, fn) {
         e.should.have.property('code')
         e.code.should.be.equal(gd[errorName])
     }
+}
+
+function checkGeneratedImage(originalImage, generatedBuffer, imageType) {
+    var image = gdImageFromBuffer(generatedBuffer, imageType)
+    image.should.be.an.instanceof(gd.Image)
+    image.width.should.equal(originalImage.width)
+    image.height.should.equal(originalImage.height)
 }
 
 function gdImageFromBuffer(buffer, type) {
