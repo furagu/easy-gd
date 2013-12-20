@@ -90,7 +90,7 @@ describe('gd', function () {
             })
         })
 
-        describe('resized()', function () {
+        describe('resize()', function () {
             function Image (width, height) {
                 return gd.createTrueColor(width, height)
             }
@@ -101,39 +101,39 @@ describe('gd', function () {
 
             it('should require a target image format', function () {
                 ;(function () {
-                    Image(100, 200).resized({width:10, height:10})
+                    Image(100, 200).resize({width:10, height:10})
                 }).should.throw('Image format required')
             })
 
             it('should save image ratio on resize', function () {
                 var image = Image(200, 100),
-                    resized = image.resized(target)
+                    resized = image.resize(target)
                 Ratio(resized).should.equal(Ratio(image))
             })
             it('should scale the image by height if image ratio is less than target size ratio', function () {
-                Image(100, 200).resized(target).height.should.equal(target.height)
+                Image(100, 200).resize(target).height.should.equal(target.height)
             })
             it('should scale the image by width if image ratio is greater than target size ratio', function () {
-                Image(200, 100).resized(target).width.should.equal(target.width)
+                Image(200, 100).resize(target).width.should.equal(target.width)
             })
             it('should resize by width option only and save image ratio', function () {
                 var target = {width:50, format: 'png'},
                     image = Image(200, 100),
-                    resized = image.resized(target)
+                    resized = image.resize(target)
                 resized.width.should.equal(target.width)
                 Ratio(resized).should.equal(Ratio(image))
             })
             it('should resize by height option only and save image ratio', function () {
                 var target = {height:50, format: 'png'},
                     image = Image(200, 100),
-                    resized = image.resized(target)
+                    resized = image.resize(target)
                 resized.height.should.equal(target.height)
                 Ratio(resized).should.equal(Ratio(image))
             })
             it('should crop the image if "method" option is set to "crop"', function () {
                 var image = Image(200, 100),
                     target = {width: 30, height: 20, method: 'crop', format: 'png'},
-                    cropped = image.resized(target)
+                    cropped = image.resize(target)
                 cropped.width.should.equal(target.width)
                 cropped.height.should.equal(target.height)
             })

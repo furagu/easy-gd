@@ -221,7 +221,7 @@ gd.Image.prototype.targetFormat = function (options) {
     return format
 }
 
-gd.Image.prototype.resized = function (options) {
+gd.Image.prototype.resize = function (options) {
     var rw, rh, rr,
         sw, sh, sr, sx, sy,
         tw, th, tr,
@@ -273,8 +273,8 @@ gd.Image.prototype.resized = function (options) {
     return target
 }
 
-gd.Image.prototype.resizedPtr = function (options) {
-    return this.resized(options).ptr(options)
+gd.Image.prototype.resizePtr = function (options) {
+    return this.resize(options).ptr(options)
 }
 
 
