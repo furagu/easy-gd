@@ -190,18 +190,31 @@ gd.createFrom = function (filename, options, callback) {
     })
 }
 
-gd.Image.prototype.save = function (filename, options, callback) {
-    if (typeof options === 'function') {
-        callback = options
-        options = {}
+gd.Image.prototype.save = vargs(function save(target, options, callback) {
+    if (typeof target === 'object' && typeof options === 'undefined') {
+        options = target
+        target = undefined
     }
+    var async = !!callback
+
     try {
         var format = formats[this.targetFormat(options)]
-    } catch (err) {
-        return callback(err)
+    } catch (e) {
+        if (async) return callback(e)
+        throw e
     }
-    return format.save.call(this, filename.replace('{ext}', format.ext), options, callback)
-}
+
+    // TODO: always use format.ptr and save resulting buffer into target
+
+    if (typeof target === 'undefined') {
+        var data = format.ptr.call(this, options)
+        if (async) return callback(null, data)
+        return data
+    }
+
+    return format.save.call(this, target.replace('{ext}', format.ext), options, callback)
+})
+
 
 gd.Image.prototype.ptr = function (options) {
     var format, data

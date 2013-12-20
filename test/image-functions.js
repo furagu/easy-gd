@@ -68,12 +68,35 @@ describe('gd', function () {
         })
 
         describe('save()', function () {
+            it('should syncronously return a buffer when called with empty target argument', function () {
+                _.each(samples.types, function (type) {
+                    var buffer = testImage.save({format: type})
+                    var image = gdImageFromBuffer(buffer, type)
+                    image.should.be.an.instanceof(gd.Image)
+                    image.width.should.equal(testImage.width)
+                    image.height.should.equal(testImage.height)
+                })
+            })
+
+            _.each(samples.types, function (type) {
+                it('should asyncronously return a ' + type + ' buffer when called with empty target argument', function (done) {
+                    var buffer = testImage.save({format: type}, function (err, buffer) {
+                        var image = gdImageFromBuffer(buffer, type)
+                        image.should.be.an.instanceof(gd.Image)
+                        image.width.should.equal(testImage.width)
+                        image.height.should.equal(testImage.height)
+                        done()
+                    })
+                })
+            })
+
             var filename = __dirname + 'save_test.dat',
                 gdOpeners = {
                     'jpeg': gd.createFromJpeg,
                     'png':  gd.createFromPng,
                     'gif':  gd.createFromGif,
                 }
+
             after(_.partial(fs.unlinkSync, filename))
 
             _.each(samples.types, function (type) {
@@ -336,4 +359,13 @@ function testErrorSync(errorName, fn) {
         e.should.have.property('code')
         e.code.should.be.equal(gd[errorName])
     }
+}
+
+function gdImageFromBuffer(buffer, type) {
+    var openers = {
+            'jpeg': gd.createFromJpegPtr,
+            'png':  gd.createFromPngPtr,
+            'gif':  gd.createFromGifPtr,
+        }
+    return openers[type](buffer)
 }
