@@ -2,7 +2,20 @@ var should = require('should'),
     gd = require('../index.js'),
     _ = require('underscore'),
     fs = require('fs'),
+    util = require('util'),
+    stream = require('stream'),
     samples = require('./samples.js')
+
+function CollectorStream(options) {
+    stream.Writable.call(this, options)
+    this.collected = Buffer(0)
+}
+util.inherits(CollectorStream, stream.Writable)
+
+CollectorStream.prototype._write = function _write(chunk, encoding, callback) {
+    this.collected = this.collected.concat(chunk)
+    callback()
+}
 
 
 describe('gd', function () {
@@ -96,7 +109,7 @@ describe('gd', function () {
             })
 
             _.each(samples.types, function (type) {
-                it('should asynchronously write to a file', function (done) {
+                it('should asynchronously write a ' + type + ' to a file', function (done) {
                     var tmpFilename = __dirname + '/save_async_test.' + type
                     testImage.save(tmpFilename, {format: type}, function (err) {
                         var buffer = fs.readFileSync(tmpFilename)
@@ -107,7 +120,24 @@ describe('gd', function () {
                 })
             })
 
-            it('should asycnronously write to a stream')
+            _.each(samples.types, function (type) {
+                it('should asycnronously write a ' + type + ' to a stream', function (done) {
+                    var stream = new CollectorStream()
+                    stream.on('finish', function () {
+                        checkGeneratedImage(testImage, this.collected, type)
+                        done()
+                    })
+                    testImage.save(stream, {format: type}, function (err) {
+                        should(err).equal(null)
+                    })
+                })
+            })
+
+            it('should throw gd.NOSYNCSTREAM exception on sync save to a stream', function () {
+                testErrorSync('NOSYNCSTREAM', function () {
+                    testImage.save(new CollectorStream())
+                })
+            })
 
             it('should throw gd.FILEWRITE exception when failed to synchronously save to a file')
             it('should return gd.FILEWRITE error when failed to asynchronously save to a file')
@@ -117,6 +147,9 @@ describe('gd', function () {
 
             it('should throw gd.NOFORMAT exception when no target format set')
             it('should return gd.NOFORMAT error when no target format set')
+
+            it('should throw gd.BADTARGET exception when target is not a file, a buffer or a writable stream')
+            it('should asynchronously return gd.BADTARGET error when target is not a file, a buffer or a writable stream')
         })
 
         describe('resize()', function () {

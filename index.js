@@ -191,7 +191,7 @@ gd.createFrom = function (filename, options, callback) {
 }
 
 gd.Image.prototype.save = vargs(function save(target, options, callback) {
-    if (typeof target === 'object' && typeof options === 'undefined') {
+    if (typeof target === 'object' && !(target instanceof stream.Writable) && typeof options === 'undefined') {
         options = target
         target = undefined
     }
@@ -221,7 +221,11 @@ gd.Image.prototype.save = vargs(function save(target, options, callback) {
         return this
     }
 
-    return format.save.call(this, target.replace('{ext}', format.ext), options, callback)
+    if (target instanceof stream.Writable) {
+        if (!async) throw GdError(gd.NOSYNCSTREAM)
+        target.end(imageData)
+        callback(null)
+    }
 })
 
 
