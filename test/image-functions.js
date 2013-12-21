@@ -4,19 +4,8 @@ var should = require('should'),
     fs = require('fs'),
     util = require('util'),
     stream = require('stream'),
-    samples = require('./samples.js')
-
-function CollectorStream(options) {
-    stream.Writable.call(this, options)
-    this.collected = Buffer(0)
-}
-util.inherits(CollectorStream, stream.Writable)
-
-CollectorStream.prototype._write = function _write(chunk, encoding, callback) {
-    this.collected = this.collected.concat(chunk)
-    callback()
-}
-
+    samples = require('./samples.js'),
+    h = require('./helpers.js')
 
 describe('gd', function () {
     describe('Image.prototype', function () {
@@ -81,6 +70,9 @@ describe('gd', function () {
         })
 
         describe('save()', function () {
+            var testImage = gd.createTrueColor(100, 100)
+            testImage.filledEllipse(50, 50, 25, 25, testImage.colorAllocate(255, 0, 0))
+
             it('should syncronously return a buffer when called with empty target argument', function () {
                 _.each(samples.types, function (type) {
                     var buffer = testImage.save({format: type})
@@ -97,10 +89,10 @@ describe('gd', function () {
                 })
             })
 
-            it('should synchronously write to a file', function () {
-                _.each(samples.types, function (type) {
+            _.each(samples.types, function (type) {
+                it('should synchronously write a ' + type + ' file', function () {
                     var tmpFilename = __dirname + '/save_sync_test.' + type
-                    testImage.save(tmpFilename, {format: type})
+                    testImage.save(tmpFilename)
 
                     var buffer = fs.readFileSync(tmpFilename)
                     fs.unlinkSync(tmpFilename)
@@ -122,7 +114,7 @@ describe('gd', function () {
 
             _.each(samples.types, function (type) {
                 it('should asycnronously write a ' + type + ' to a stream', function (done) {
-                    var stream = new CollectorStream()
+                    var stream = h.CollectorStream()
                     stream.on('finish', function () {
                         checkGeneratedImage(testImage, this.collected, type)
                         done()
@@ -134,22 +126,97 @@ describe('gd', function () {
             })
 
             it('should throw gd.NOSYNCSTREAM exception on sync save to a stream', function () {
-                testErrorSync('NOSYNCSTREAM', function () {
-                    testImage.save(new CollectorStream())
+                h.testErrorSync('NOSYNCSTREAM', function () {
+                    testImage.save(h.CollectorStream(), {format: 'jpeg'})
                 })
             })
 
-            it('should throw gd.FILEWRITE exception when failed to synchronously save to a file')
-            it('should return gd.FILEWRITE error when failed to asynchronously save to a file')
+            it('should throw gd.FILEWRITE exception when failed to synchronously save to a file', function () {
+                h.testErrorSync('FILEWRITE', function () {
+                    testImage.save('nosuchdir/some.jpg')
+                })
+            })
 
-            it('should return the image object when it makes sense')
-            it('should detect destination format by filename extension')
+            it('should return gd.FILEWRITE error when failed to asynchronously save to a file', function (done) {
+                h.testErrorAsync('FILEWRITE', done, function (callback) {
+                    testImage.save('nosuchdir/some.jpg', callback)
+                })
+            })
 
-            it('should throw gd.NOFORMAT exception when no target format set')
-            it('should return gd.NOFORMAT error when no target format set')
+            _.each({'.jpeg': 'jpeg', '.jpg': 'jpeg', '.gif': 'gif', '.png': 'png'}, function (format, extname) {
+                it('should detect ' + format + ' destination format by ' + extname + ' filename extension', function () {
+                    _.each([extname, extname.toUpperCase()], function (extname) {
+                        var tmpFilename = __dirname + '/format_detection_test' + extname
+                        testImage.save(tmpFilename)
+                        gd.open(tmpFilename).format.should.be.equal(format)
+                        fs.unlinkSync(tmpFilename)
+                    })
+                })
+            })
 
-            it('should throw gd.BADTARGET exception when target is not a file, a buffer or a writable stream')
-            it('should asynchronously return gd.BADTARGET error when target is not a file, a buffer or a writable stream')
+            it('should throw gd.FORMATREQUIRED exception when no target format set', function () {
+                h.testErrorSync('FORMATREQUIRED', function () {
+                    var buffer = testImage.save()
+                })
+            })
+
+            it('should return gd.FORMATREQUIRED error when no target format set', function (done) {
+                h.testErrorAsync('FORMATREQUIRED', done, function (callback) {
+                    testImage.save(h.CollectorStream(), callback)
+                })
+            })
+
+            it('should throw gd.BADFORMAT exception when unknown target format set', function () {
+                h.testErrorSync('BADFORMAT', function () {
+                    var buffer = testImage.save({format: 'tiff'})
+                })
+            })
+
+            it('should return gd.BADFORMAT error when unknown target format set', function (done) {
+                h.testErrorAsync('BADFORMAT', done, function (callback) {
+                    testImage.save({format: 'tiff'}, callback)
+                })
+            })
+
+            it('should throw gd.BADTARGET exception when target is not a file, a buffer or a writable stream', function () {
+                h.testErrorSync('BADTARGET', function () {
+                    var buffer = testImage.save(0xDEADBEEF, {format: 'jpeg'})
+                })
+            })
+
+            it('should asynchronously return gd.BADTARGET error when target is not a file, a buffer or a writable stream', function (done) {
+                h.testErrorAsync('BADTARGET', done, function (callback) {
+                    testImage.save(0xDEADBEEF, {format: 'jpeg'}, callback)
+                })
+            })
+
+            it('should return the image object when synchronously saving to file', function () {
+                var tmpFilename = './return_value_test.jpg'
+                var image = testImage.save(tmpFilename)
+                image.should.be.equal(testImage)
+                fs.unlinkSync(tmpFilename)
+            })
+
+            it('should return the image object when asynchronously saving to file', function () {
+                var tmpFilename = './return_value_test.jpg'
+                var image = testImage.save(tmpFilename, function () {
+                    fs.unlinkSync(tmpFilename)
+                })
+                image.should.be.equal(testImage)
+            })
+
+            it('should return the image object when saving to stream', function () {
+                var stream = h.CollectorStream()
+                var image = testImage.save(stream, {format: 'jpeg'}, function () {})
+                image.should.be.equal(testImage)
+            })
+
+            it('should return the image object when asynchronously saving to buffer', function () {
+                var image = testImage.save({format: 'jpeg'}, function (err, buffer) {})
+                image.should.be.equal(testImage)
+            })
+
+            it('should use format from the file extension, the options.format, the image.format and the options.defaultFormat')
         })
 
         describe('resize()', function () {
@@ -305,7 +372,7 @@ describe('gd', function () {
                 })
 
                 it('should throw gd.NOEXIF on image containing no Exif data', function () {
-                    testErrorSync('NOEXIF', function () {
+                    h.testErrorSync('NOEXIF', function () {
                         gd.open(samples.filesByType['png']).autoOrient()
                     })
                 })
@@ -322,7 +389,7 @@ describe('gd', function () {
                     var image = gd.open(samples.filesByExifOrientation[3])
                     _.each([2, 4, 5, 7], function (orientation) {
                         image.exif.Orientation = orientation
-                        testErrorSync('BADORIENT', function () {
+                        h.testErrorSync('BADORIENT', function () {
                             image.autoOrient()
                         })
                     })
@@ -381,23 +448,6 @@ function watermarkShouldBeAt(image, watermark, x, y) {
     var real_x = Math.round((image.width - watermark.width) * x + watermark.width / 2),
         real_y = Math.round((image.height - watermark.height) * y + watermark.height / 2)
     image.getPixel(real_x, real_y).should.equal(watermark.getPixel(Math.round(watermark.width / 2), Math.round(watermark.height / 2)))
-}
-
-function testErrorSync(errorName, fn) {
-    var args = Array.prototype.slice.call(arguments, 2)
-
-    function syncRun() {
-        fn.apply(gd, args)
-    }
-
-    syncRun.should.throw(new RegExp('^' + errorName))
-
-    try {
-        syncRun()
-    } catch (e) {
-        e.should.have.property('code')
-        e.code.should.be.equal(gd[errorName])
-    }
 }
 
 function checkGeneratedImage(originalImage, generatedBuffer, imageType) {

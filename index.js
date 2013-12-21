@@ -1,5 +1,6 @@
 var gd = module.exports = Object.create(require('node-gd')),
     fs = require('fs'),
+    path = require('path'),
     stream = require('stream'),
     util = require('util'),
     buffertools = require('buffertools'),
@@ -33,6 +34,9 @@ var formats = {
     },
 }
 
+var formatsByExtname = _.object(_.map(formats, function (format, name) {return ['.' + format.ext, format]}))
+formatsByExtname['.jpeg'] = formatsByExtname['.jpg']
+
 var openDefaults = {
     autoOrient: true,
 }
@@ -60,15 +64,12 @@ function readSource(source, async, callback) {
 
     if (typeof source === 'string') {
         if (async) return readStream(fs.createReadStream(source), callback)
-
-        if (!async) {
-            try {
-                var data = fs.readFileSync(source)
-            } catch (e) {
-                return wrapFileReadingError(e, callback)
-            }
-            return callback(null, data)
+        try {
+            var data = fs.readFileSync(source)
+        } catch (e) {
+            return wrapFileReadingError(e, callback)
         }
+        return callback(null, data)
     }
 
     if (source instanceof stream.Readable) {
@@ -195,10 +196,12 @@ gd.Image.prototype.save = vargs(function save(target, options, callback) {
         options = target
         target = undefined
     }
+    options = options || {}
+
     var async = !!callback
 
     try {
-        var format = formats[this.targetFormat(options)]
+        var format = getSaveFormat(this, options, typeof target === 'string' ? target : '')
     } catch (e) {
         if (async) return callback(e)
         throw e
@@ -207,12 +210,18 @@ gd.Image.prototype.save = vargs(function save(target, options, callback) {
     var imageData = Buffer(format.ptr.call(this, options), 'binary')
 
     if (typeof target === 'undefined') {
-        if (async) return callback(null, imageData)
+        if (async) {
+            callback(null, imageData)
+            return this
+        }
         return imageData
     }
 
     if (typeof target === 'string') {
-        if (async) return fs.writeFile(target, imageData, callback)
+        if (async) {
+            fs.writeFile(target, imageData, wrapError(callback, gd.FILEWRITE))
+            return this
+        }
         try {
             fs.writeFileSync(target, imageData)
         } catch (e) {
@@ -225,9 +234,34 @@ gd.Image.prototype.save = vargs(function save(target, options, callback) {
         if (!async) throw GdError(gd.NOSYNCSTREAM)
         target.end(imageData)
         callback(null)
+        return this
     }
+
+    if (async) return callback(GdError(gd.BADTARGET))
+    throw GdError(gd.BADTARGET)
 })
 
+function wrapError(callback, errorCode) {
+    return function (err) {
+        if (err) err = GdError(errorCode, err.message)
+        return callback.apply(this, [err].concat(Array.prototype.slice.call(arguments, 1)))
+    }
+}
+
+function getSaveFormat(image, options, filename) {
+    if (filename) {
+        var extname = path.extname(filename).toLowerCase()
+        if (extname in formatsByExtname) return formatsByExtname[extname]
+    }
+
+    var format = options.format || image.format
+    if (format) {
+        if (format in formats) return formats[format]
+        throw GdError(gd.BADFORMAT, 'Unknown format ' + format)
+    }
+
+    throw GdError(gd.FORMATREQUIRED)
+}
 
 gd.Image.prototype.ptr = function (options) {
     var format, data
@@ -237,6 +271,7 @@ gd.Image.prototype.ptr = function (options) {
     return new Buffer(data, 'binary')
 }
 
+//TODO: get rid of defaultFormat
 gd.Image.prototype.targetFormat = function (options) {
     var format
     options = options || {}
@@ -409,8 +444,10 @@ var errorsDefinition = [
     ['BADIMAGE',        'Corrupted or incomplete image.'],
     ['NOEXIF',          'Image does not contain Exif data.'],
     ['BADORIENT',       'Unsupported image Exif orientation tag.'],
-    ['NOSYNCSTREAM',    'Stream cannot be opened synchronously.'],
+    ['NOSYNCSTREAM',    'Stream cannot be read or written synchronously.'],
     ['FILEWRITE',       'File writing error.'],
+    ['FORMATREQUIRED',  'Output image format required.'],
+    ['BADTARGET',       'Unknown target type.']
 ]
 
 var errorMessages = {},
