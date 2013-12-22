@@ -258,6 +258,12 @@ gd.Image.prototype.resize = function resize(options) {
     return target
 }
 
+gd.Image.prototype.crop = function crop(options) {
+    var cropOptions = _.clone(options)
+    cropOptions.method = 'crop'
+    return this.resize(cropOptions)
+}
+
 gd.colorBrightness = function (color) {
     if ((color & 0x7F000000) >> 24) return -1; // transparent color, won't count it at all
     var r = (color & 0xFF0000) >> 16,

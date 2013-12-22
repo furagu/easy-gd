@@ -189,12 +189,6 @@ describe('gd', function () {
         })
 
         describe('resize()', function () {
-            function Image (width, height) {
-                return gd.createTrueColor(width, height)
-            }
-            function Ratio (image) {
-                return image.width / image.height
-            }
             var target = {width: 50, height: 50}
 
             it('should save image ratio on resize', function () {
@@ -243,7 +237,24 @@ describe('gd', function () {
         })
 
         describe('crop()', function () {
-            it('should crop the image')
+            it('should crop horizontal images', function () {
+                var cropped = Image(100, 100).crop({width: 30, height: 10})
+                cropped.width.should.equal(30)
+                cropped.height.should.equal(10)
+            })
+
+            it('should crop vertical images', function () {
+                var cropped = Image(100, 100).crop({width: 10, height: 30})
+                cropped.width.should.equal(10)
+                cropped.height.should.equal(30)
+            })
+
+            it('should not modify options passed', function () {
+                var options = {width: 10, height: 20},
+                    optionsCopy = _.clone(options)
+                Image(100, 100).crop(options)
+                options.should.eql(optionsCopy)
+            })
         })
 
         describe('watermark()', function () {
@@ -469,4 +480,12 @@ function gdImageFromBuffer(buffer, type) {
             'gif':  gd.createFromGifPtr,
         }
     return openers[type](buffer)
+}
+
+function Image (width, height) {
+    return gd.createTrueColor(width, height)
+}
+
+function Ratio (image) {
+    return image.width / image.height
 }
