@@ -333,28 +333,31 @@ describe('gd', function () {
                     image.getPixel(1, 0).should.not.be.equal(0)
                     image.exif.Orientation.should.be.eql(orientation)
                 })
+            })
 
-                it('should throw gd.NOEXIF on image containing no Exif data', function () {
-                    h.testErrorSync('NOEXIF', function () {
-                        gd.open(samples.filesByType['png']).autoOrient()
-                    })
-                })
+            it('should return the original if there are no Exif data in the image', function () {
+                var image = gd.open(samples.filesByType.png)
+                image.autoOrient().should.be.equal(image)
+            })
 
-                it('should not throw on image containing no Exif Orientation tag', function () {
-                    ;(function () {
-                        var image = gd.open(samples.filesByExifOrientation[3])
-                        delete image.exif.Orientation
+            it('should return the original if there are no Orientation tag in the Exif data', function () {
+                var image = gd.open(samples.filesByExifOrientation[3], {autoOrient: false})
+                delete image.exif.Orientation
+                image.autoOrient().should.be.equal(image)
+            })
+
+            it('should return the original if Exif Orientation tag has value of 1', function () {
+                var image = gd.open(samples.filesByExifOrientation[3], {autoOrient: false})
+                image.exif.Orientation = 1
+                image.autoOrient().should.be.equal(image)
+            })
+
+            it('should throw gd.BADORIENT on image containing Exif Orientation of [2, 4, 5, 7]', function () {
+                var image = gd.open(samples.filesByExifOrientation[3])
+                _.each([2, 4, 5, 7], function (orientation) {
+                    image.exif.Orientation = orientation
+                    h.testErrorSync('BADORIENT', function () {
                         image.autoOrient()
-                    }).should.not.throw
-                })
-
-                it('should throw gd.BADORIENT on image containing Exif Orientation of [2, 4, 5, 7]', function () {
-                    var image = gd.open(samples.filesByExifOrientation[3])
-                    _.each([2, 4, 5, 7], function (orientation) {
-                        image.exif.Orientation = orientation
-                        h.testErrorSync('BADORIENT', function () {
-                            image.autoOrient()
-                        })
                     })
                 })
             })

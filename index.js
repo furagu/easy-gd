@@ -209,14 +209,11 @@ function getSaveFormat(image, options, filename) {
     throw GdError(gd.FORMATREQUIRED)
 }
 
-gd.Image.prototype.resize = function (options) {
+gd.Image.prototype.resize = function resize(options) {
     var rw, rh, rr,
         sw, sh, sr, sx, sy,
         tw, th, tr,
         target
-
-    if (rw > this.width && rh > this.height)
-        return this
 
     rw = options.width || +Infinity
     rh = options.height || +Infinity
@@ -273,12 +270,14 @@ gd.Image.prototype.rectBrightness = function (rect) {
     rect = rect || {x1: 0, y1: 0, x2: this.width, y2: this.height}
     var x, y, b,
         brightness = 0,
-        opaque_pixels = (rect.x2 - rect.x1) * (rect.y2 - rect.y1)
+        opaque_pixels = 0
     for (x = rect.x1; x < rect.x2; x++)
         for (y = rect.y1; y < rect.y2; y++) {
             b = gd.colorBrightness(this.getPixel(x, y))
-            if (b === -1) opaque_pixels--
-            else brightness += b
+            if (b >= 0) {
+                brightness += b
+                opaque_pixels += 1
+            }
         }
     return brightness / opaque_pixels
 }
@@ -327,20 +326,17 @@ function readImage(source, async, callback) {
 
 gd.Image.prototype.autoOrient = function autoOrient() {
     var orientations = {
-            1:  0,
             3: -180,
             6: -90,
             8: -270,
         }
 
     var exif = this.exif
-    if (!exif) throw GdError(gd.NOEXIF)
+    if (!exif) return this
 
-    if (exif.Orientation) {
+    if (exif.Orientation && exif.Orientation !== 1) {
         if (!(exif.Orientation in orientations)) throw GdError(gd.BADORIENT)
         var angle = orientations[exif.Orientation]
-        if (!angle) return this
-
         var rotated = gd.createTrueColor(angle % 180 ? this.height : this.width, angle % 180 ? this.width : this.height)
         this.copyRotated(rotated, rotated.width / 2, rotated.height / 2, 0, 0, this.width, this.height, angle)
         rotated.format = this.format
@@ -359,7 +355,6 @@ var errorsDefinition = [
     ['BADFILE',         'Open error.'],
     ['BADFORMAT',       'Unsupported image format (or not an image at all).'],
     ['BADIMAGE',        'Corrupted or incomplete image.'],
-    ['NOEXIF',          'Image does not contain Exif data.'],
     ['BADORIENT',       'Unsupported image Exif orientation tag.'],
     ['NOSYNCSTREAM',    'Stream cannot be read or written synchronously.'],
     ['FILEWRITE',       'File writing error.'],
