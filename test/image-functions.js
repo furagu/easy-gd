@@ -12,63 +12,6 @@ describe('gd', function () {
         var testImage = gd.createTrueColor(100, 100)
         testImage.filledEllipse(50, 50, 25, 25, testImage.colorAllocate(255, 0, 0))
 
-        describe('targetFormat()', function () {
-            it('should lowerace options.format', function () {
-                testImage.targetFormat({format: 'JPEG'}).should.equal('jpeg')
-            })
-            it('should lowerace options.defaultFormat', function () {
-                testImage.targetFormat({defaultFormat: 'GIF'}).should.equal('gif')
-            })
-            it('should take format from options.format', function () {
-                testImage.targetFormat({format: 'jpeg'}).should.equal('jpeg')
-            })
-            it('should take format from options.defaultFormat', function () {
-                testImage.targetFormat({defaultFormat: 'jpeg'}).should.equal('jpeg')
-            })
-            it('should lowercace this.format', function () {
-                _.extend(testImage, {format: 'PNG'}).targetFormat().should.equal('png')
-            })
-            it('should take format from this.format', function () {
-                _.extend(testImage, {format: 'jpeg'}).targetFormat().should.equal('jpeg')
-            })
-            it('should prefer options.format over this.format and options.defaultFormat', function () {
-                _.extend(testImage, {format: 'GIF'})
-                    .targetFormat({format: 'PNG', defaultFormat: 'JPEG'}).should.equal('png')
-            })
-            it('should prefer this.format over options.defaultFormat', function () {
-                _.extend(testImage, {format: 'GIF'})
-                    .targetFormat({defaultFormat: 'PNG'}).should.equal('gif')
-            })
-            delete testImage.format
-        })
-
-        describe('ptr()', function () {
-            var gdOpeners = {
-                    'jpeg': gd.createFromJpegPtr,
-                    'png':  gd.createFromPngPtr,
-                    'gif':  gd.createFromGifPtr,
-                }
-
-            _.each(samples.types, function (type) {
-                it('should create a ' + type + ' image', function () {
-                    var image = gdOpeners[type](testImage.ptr({format: type}))
-                    image.should.be.an.instanceof(gd.Image)
-                    image.width.should.equal(testImage.width)
-                    image.height.should.equal(testImage.height)
-                })
-            })
-            it('should set jpeg quality with jpegquality option', function () {
-                var highQualityImage = testImage.ptr({format: 'jpeg', jpegquality: 99}),
-                    lowQualityImage  = testImage.ptr({format: 'jpeg', jpegquality: 1})
-                lowQualityImage.length.should.be.below(highQualityImage.length)
-            })
-            it('should set png compression level with pnglevel option', function () {
-                var highlyCompressedImage = testImage.ptr({format: 'png', pnglevel: 9}),
-                    littleCompressedImage = testImage.ptr({format: 'png', pnglevel: 1})
-                highlyCompressedImage.length.should.be.below(littleCompressedImage.length)
-            })
-        })
-
         describe('save()', function () {
             var testImage = gd.createTrueColor(100, 100)
             testImage.filledEllipse(50, 50, 25, 25, testImage.colorAllocate(255, 0, 0))
@@ -252,13 +195,7 @@ describe('gd', function () {
             function Ratio (image) {
                 return image.width / image.height
             }
-            var target = {width: 50, height: 50, format: 'png'}
-
-            it('should require a target image format', function () {
-                ;(function () {
-                    Image(100, 200).resize({width:10, height:10})
-                }).should.throw('Image format required')
-            })
+            var target = {width: 50, height: 50}
 
             it('should save image ratio on resize', function () {
                 var image = Image(200, 100),

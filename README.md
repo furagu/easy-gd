@@ -1,3 +1,5 @@
+_Note: this documentation covers 0.0.7 version which could be found at [npmjs.org/package/easy-gd](https://npmjs.org/package/easy-gd) or installed with ``npm install easy-gd``._
+
 # easy-gd
 
 [node-gd](https://npmjs.org/package/node-gd) extended with features making image processing easier: open an image of any supported format; resize an image doing no math at all; put watermarks like a boss.
