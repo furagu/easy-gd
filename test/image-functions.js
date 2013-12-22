@@ -92,10 +92,11 @@ describe('gd', function () {
             _.each(samples.types, function (type) {
                 it('should synchronously write a ' + type + ' file', function () {
                     var tmpFilename = __dirname + '/save_sync_test.' + type
+                    after(_.partial(fs.unlinkSync, tmpFilename))
+
                     testImage.save(tmpFilename)
 
                     var buffer = fs.readFileSync(tmpFilename)
-                    fs.unlinkSync(tmpFilename)
                     checkGeneratedImage(testImage, buffer, type)
                 })
             })
@@ -216,7 +217,32 @@ describe('gd', function () {
                 image.should.be.equal(testImage)
             })
 
-            it('should use format from the file extension, the options.format, the image.format and the options.defaultFormat')
+            it('should choose the format in this order: file extension, options.format, image.format', function () {
+                var image = h.generateImage(),
+                    jpegFilename = 'choose_format.jpg',
+                    tmpFilename = 'choose_format.tmp'
+                image.format = 'gif'
+                after(_.partial(fs.unlinkSync, jpegFilename))
+                after(_.partial(fs.unlinkSync, tmpFilename))
+
+                image.save(jpegFilename, {format: 'png'})
+                gd.open(jpegFilename).format.should.be.equal('jpeg')
+
+                image.save(tmpFilename, {format: 'png'})
+                gd.open(tmpFilename).format.should.be.equal('png')
+
+                image.save(tmpFilename)
+                gd.open(tmpFilename).format.should.be.equal('gif')
+            })
+
+            it('should set jpeg quality with `quality` option'/*, function () {
+                var image = h.generateImage()
+                    highQualityJpeg = image.save({format: 'jpeg', quality: 99}),
+                    lowQualityJpeg  = image.save({format: 'jpeg', quality: 1})
+                lowQualityJpeg.length.should.be.below(highQualityJpeg.length)
+            }*/)
+
+            it('should set png compression level with `compression` option')
         })
 
         describe('resize()', function () {

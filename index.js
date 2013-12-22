@@ -343,7 +343,7 @@ gd.colorBrightness = function (color) {
     if ((color & 0x7F000000) >> 24) return -1; // transparent color, won't count it at all
     var r = (color & 0xFF0000) >> 16,
         g = (color & 0x00FF00) >> 8,
-        b = (color & 0x000FFF)
+        b = (color & 0x0000FF)
     return r * 0.299 + g * 0.587 + b * 0.114
 }
 
@@ -401,11 +401,6 @@ function readImage(source, async, callback) {
         var image = gd.open(sourceBuffer)
         return callback(null, image)
     })
-}
-
-function loadImage(source, callback) {
-    if (source instanceof gd.Image) return callback(null, source)
-    return gd.open(source, callback)
 }
 
 gd.Image.prototype.autoOrient = function autoOrient() {
