@@ -4,7 +4,7 @@ var should = require('should'),
     samples = require('./samples.js')
 
 describe('gd', function () {
-    describe('open', function () {
+    describe('open()', function () {
         _.each(samples.filesByType, function (filename, type) {
             it('should not set exif property on images with no Exif data', function () {
                 gd.open(filename).should.not.have.property('exif')
