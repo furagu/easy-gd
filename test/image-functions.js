@@ -202,33 +202,48 @@ describe('gd', function () {
                     resized = image.resize(target)
                 Ratio(resized).should.equal(Ratio(image))
             })
+
             it('should scale the image by height if image ratio is less than target size ratio', function () {
                 Image(100, 200).resize(target).height.should.equal(target.height)
             })
+
             it('should scale the image by width if image ratio is greater than target size ratio', function () {
                 Image(200, 100).resize(target).width.should.equal(target.width)
             })
+
             it('should resize by width option only and save image ratio', function () {
-                var target = {width:50, format: 'png'},
+                var target = {width: 50},
                     image = Image(200, 100),
                     resized = image.resize(target)
                 resized.width.should.equal(target.width)
                 Ratio(resized).should.equal(Ratio(image))
             })
+
             it('should resize by height option only and save image ratio', function () {
-                var target = {height:50, format: 'png'},
+                var target = {height: 50},
                     image = Image(200, 100),
                     resized = image.resize(target)
                 resized.height.should.equal(target.height)
                 Ratio(resized).should.equal(Ratio(image))
             })
-            it('should crop the image if "method" option is set to "crop"', function () {
-                var image = Image(200, 100),
-                    target = {width: 30, height: 20, method: 'crop', format: 'png'},
-                    cropped = image.resize(target)
+
+            it('should crop the image if `method` option is set to `crop`', function () {
+                var image = Image(100, 100),
+                    target = {width: 30, height: 10, method: 'crop'},
+                    cropped
+                cropped = image.resize(target)
+                cropped.width.should.equal(target.width)
+                cropped.height.should.equal(target.height)
+
+                target = {width: 10, height: 30, method: 'crop'}
+                cropped = image.resize(target)
                 cropped.width.should.equal(target.width)
                 cropped.height.should.equal(target.height)
             })
+        })
+
+        describe('crop()', function () {
+            it('should crop the image')
         })
 
         describe('watermark()', function () {
@@ -237,7 +252,7 @@ describe('gd', function () {
             // TODO: is this really supposed to be so? Generally, mutators are evil.
             it('should return original image', function () {
                 var image = createGradientImage(100, 100)
-                image.watermark(watermark, {x:0, y:0}).should.equal(image)
+                image.watermark(watermark, {x: 0, y: 0}).should.equal(image)
             })
 
             it('should put the watermark at the center of the image by default', function () {
@@ -251,7 +266,7 @@ describe('gd', function () {
                 for (x = 0; x <= 1; x += 0.2) {
                     for (y = 0; y <= 1; y += 0.2) {
                         image = createGradientImage(50, 50)
-                        image.watermark(watermark, {x:x, y:y})
+                        image.watermark(watermark, {x: x, y: y})
                         watermarkShouldBeAt(image, watermark, x, y)
                     }
                 }
