@@ -178,14 +178,19 @@ describe('gd', function () {
                 gd.open(tmpFilename).format.should.be.equal('gif')
             })
 
-            it('should set jpeg quality with `quality` option'/*, function () {
-                var image = h.generateImage()
-                    highQualityJpeg = image.save({format: 'jpeg', quality: 99}),
+            it('should set jpeg quality with `quality` option', function () {
+                var image = h.generateImage(),
+                    highQualityJpeg = image.save({format: 'jpeg', quality: 100}),
                     lowQualityJpeg  = image.save({format: 'jpeg', quality: 1})
                 lowQualityJpeg.length.should.be.below(highQualityJpeg.length)
-            }*/)
+            })
 
-            it('should set png compression level with `compression` option')
+            it('should set png compression type with `compression` option', function () {
+                var image = h.generateImage(),
+                    highCompressionPng = image.save({format: 'png', compression: 9}),
+                    lowCompressionPng  = image.save({format: 'png', compression: 1})
+                highCompressionPng.length.should.be.below(lowCompressionPng.length)
+            })
         })
 
         describe('resize()', function () {
@@ -249,7 +254,7 @@ describe('gd', function () {
                 cropped.height.should.equal(30)
             })
 
-            it('should not modify options passed', function () {
+            it('should not modify the options passed', function () {
                 var options = {width: 10, height: 20},
                     optionsCopy = _.clone(options)
                 Image(100, 100).crop(options)

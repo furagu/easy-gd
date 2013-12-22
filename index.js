@@ -13,19 +13,23 @@ var gd = module.exports = Object.create(require('node-gd')),
 var formats = {
     jpeg: {
         ext: 'jpg',
-        signature: new Buffer([0xff, 0xd8, 0xff]),
+        signature: Buffer([0xff, 0xd8, 0xff]),
         createFromPtr: gd.createFromJpegPtr,
-        ptr: namedArgs(gd.Image.prototype.jpegPtr, 'jpegquality', -1),
+        ptr: function jpegPtr(options) {
+            return gd.Image.prototype.jpegPtr.call(this, options.quality || -1)
+        },
     },
     png: {
         ext: 'png',
-        signature: new Buffer([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+        signature: Buffer([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
         createFromPtr: gd.createFromPngPtr,
-        ptr: namedArgs(gd.Image.prototype.pngPtr, 'pnglevel', -1),
+        ptr: function pngPtr(options) {
+            return gd.Image.prototype.pngPtr.call(this, options.compression || -1)
+        },
     },
     gif: {
         ext: 'gif',
-        signature: new Buffer('GIF'),
+        signature: Buffer('GIF'),
         createFromPtr: gd.createFromGifPtr,
         ptr: gd.Image.prototype.gifPtr,
     },
@@ -391,26 +395,3 @@ function GdError(code, message) {
     this.code = code
 }
 util.inherits(GdError, Error)
-
-function namedArgs (fn) {
-    var slice = Array.prototype.slice,
-        pop = Array.prototype.pop,
-        argSpec = chunk(slice.call(arguments, 1), 2)
-    return function () {
-        var callback = arguments[arguments.length - 1] instanceof Function ? pop.apply(arguments) : null,
-            namedArgs = pop.apply(arguments),
-            args = slice.call(arguments)
-        args = args.concat(argSpec.map(function (s) {return namedArgs[ s[0] ] || s[1]}))
-        if (callback) args.push(callback)
-        return fn.apply(this, args)
-    }
-}
-
-function chunk (arr, len) {
-    var chunks = [],
-        i = 0,
-        n = arr.length
-    while (i < n)
-        chunks.push(arr.slice(i, i += len))
-    return chunks
-}
