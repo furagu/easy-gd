@@ -24,7 +24,7 @@ describe('gd', function () {
             })
 
             _.each(samples.types, function (type) {
-                it('should asyncronously return a ' + type + ' buffer when called with empty target argument and a callback', function (done) {
+                it('should asynchronously return a ' + type + ' buffer when called with empty target argument and a callback', function (done) {
                     var buffer = testImage.save({format: type}, function (err, buffer) {
                         checkGeneratedImage(testImage, buffer, type)
                         done()
@@ -292,8 +292,7 @@ describe('gd', function () {
 
             it('should accept stream as an async watermark source', function (done) {
                 var source = fs.createReadStream(samples.watermark)
-                source.LE_DEBUG = samples.watermark
-                testWatermarkSourceAsync(done, source, watermark)
+                testWatermarkSourceAsync(done, source, gd.open(samples.watermark))
             })
 
             it('should accept filename as a sync watermark source', function () {
@@ -308,14 +307,39 @@ describe('gd', function () {
 
             it('should accept filename as an async watermark source', function (done) {
                 var source = samples.watermark
-                testWatermarkSourceAsync(done, source, watermark)
+                testWatermarkSourceAsync(done, source, gd.open(samples.watermark))
             })
 
             it('should accept buffer as an async watermark source', function (done) {
                 var source = fs.readFileSync(samples.watermark)
-                testWatermarkSourceAsync(done, source, watermark)
+                testWatermarkSourceAsync(done, source, gd.open(samples.watermark))
             })
 
+            it('should throw an exception when bad watermark source given', function () {
+                ;(function () {
+                    createGradientImage(50, 50).watermark(samples.notExistingFile)
+                }).should.throw(/^DOESNOTEXIST/)
+
+                ;(function () {
+                    createGradientImage(50, 50).watermark(samples.nonImageFile)
+                }).should.throw(/^BADFORMAT/)
+            })
+
+            it('should asynchronously return an error when non-existing watermark source given', function (done) {
+                createGradientImage(50, 50).watermark(samples.notExistingFile, function (err, image) {
+                    err.should.be.instanceof(Error)
+                    err.message.should.match(/^DOESNOTEXIST/)
+                    done()
+                })
+            })
+
+            it('should asynchronously return an error when non-image watermark source given', function (done) {
+                createGradientImage(50, 50).watermark(samples.nonImageFile, function (err, image) {
+                    err.should.be.instanceof(Error)
+                    err.message.should.match(/^BADFORMAT/)
+                    done()
+                })
+            })
         })
 
         describe('autoOrient()', function () {

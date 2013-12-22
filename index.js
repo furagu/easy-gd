@@ -319,7 +319,12 @@ function readImage(source, async, callback) {
     if (source instanceof gd.Image) return callback(null, source)
 
     return readSource(source, async, function loadImage(err, sourceBuffer) {
-        var image = gd.open(sourceBuffer)
+        if (err) return callback(err)
+        try {
+            var image = gd.open(sourceBuffer)
+        } catch (e) {
+            return callback(e)
+        }
         return callback(null, image)
     })
 }
