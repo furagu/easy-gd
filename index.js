@@ -7,6 +7,7 @@ var gd = module.exports = Object.create(require('node-gd')),
     exifParser = require('exif-parser'),
     vargs = require('vargs-callback'),
     clone = require('clone'),
+    async = require('async'),
     _ = require('underscore')
 
 
@@ -41,6 +42,43 @@ formatsByExtname['.jpeg'] = formatsByExtname['.jpg']
 var openDefaults = {
     autoOrient: true,
 }
+
+
+function GdTransform(options) {
+    if (!(this instanceof GdTransform)) return new GdTransform(options)
+    stream.Transform.call(this, options)
+    this.buffer = Buffer(0)
+    this.actions = [function open(callback) {
+            gd.open(this.buffer, callback)
+        }.bind(this)
+    ]
+}
+util.inherits(GdTransform, stream.Transform)
+
+GdTransform.prototype._transform = function _transform(chunk, encoding, done) {
+    if (!(chunk instanceof Buffer)) chunk = Buffer(chunk, encoding)
+    this.buffer = this.buffer.concat(chunk)
+    done()
+}
+
+GdTransform.prototype._flush = function _flush(done) {
+    this.actions.push(function save(image, callback) {
+        this.push(image.save({format: 'jpeg'}))
+        callback()
+    }.bind(this))
+    async.waterfall(this.actions, done)
+}
+
+GdTransform.prototype.resize = function resize(options) {
+    this.actions.push(function resize(image, callback) {
+        callback(null, image.resize(options))
+    })
+    return this
+}
+
+
+gd.transformer = GdTransform
+
 
 gd.open = vargs(function open(source, options, callback) {
     var async = !!callback

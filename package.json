@@ -34,7 +34,8 @@
     "underscore": "~1.4.4",
     "exif-parser": "~0.1.6",
     "vargs-callback": "~0.2.3",
-    "clone": "~0.1.11"
+    "clone": "~0.1.11",
+    "async": "~0.2.9"
   },
   "devDependencies": {
     "mocha": "~1.11.0",
