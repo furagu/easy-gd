@@ -69,13 +69,19 @@ GdTransform.prototype._flush = function _flush(done) {
     async.waterfall(this.actions, done)
 }
 
-GdTransform.prototype.resize = function resize(options) {
-    this.actions.push(function resize(image, callback) {
-        callback(null, image.resize(options))
+GdTransform.prototype.resize = function (options) {
+    this.actions.push(function (image, callback) {
+        image.resize(options, callback)
     })
     return this
 }
 
+GdTransform.prototype.watermark = function (source, pos) {
+    this.actions.push(function (image, callback) {
+        image.watermark(source, pos, callback)
+    })
+    return this
+}
 
 gd.transformer = GdTransform
 
@@ -245,7 +251,7 @@ function getSaveFormat(image, options, filename) {
     throw GdError(gd.FORMATREQUIRED)
 }
 
-gd.Image.prototype.resize = function resize(options) {
+gd.Image.prototype.resize = vargs(function resize(options, callback) {
     var rw, rh, rr,
         sw, sh, sr, sx, sy,
         tw, th, tr,
@@ -291,8 +297,9 @@ gd.Image.prototype.resize = function resize(options) {
     target.alphaBlending(1)
     this.copyResampled(target, 0, 0, sx, sy, tw, th, sw, sh)
 
+    if (callback) return callback(null, target)
     return target
-}
+})
 
 gd.Image.prototype.crop = function crop(options) {
     var cropOptions = _.clone(options)

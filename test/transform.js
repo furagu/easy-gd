@@ -24,9 +24,15 @@ describe('gd', function () {
             var source = fs.createReadStream(__dirname + '/samples/lemongrab.jpg')
 
             source
-                .pipe(gd.transformer().resize({width: 100}).resize({height: 100}))
+                .pipe(gd.transformer()
+                        .resize({width: 100})
+                        .resize({height: 100})
+                        .watermark(__dirname + '/samples/watermark.png')
+                )
                 .pipe(resized)
         })
+
+        // TODO: accurate watermark test
     })
 })
 
