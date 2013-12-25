@@ -83,17 +83,13 @@ gd.transformer = GdTransform
 gd.open = vargs(function open(source, options, callback) {
     var async = !!callback
     return readSource(source, async, function (err, imageData) {
-        if (err) {
-            if (async) return callback(err)
-            throw err
-        }
+        if (err) return error(err, callback)
         try {
             var image = openImage(imageData, options)
             if (async) return callback(null, image)
             return image
         } catch (e) {
-            if (async) return callback(e)
-            throw e
+            return error(e, callback)
         }
     })
 })
@@ -191,8 +187,7 @@ gd.Image.prototype.save = vargs(function save(target, options, callback) {
     try {
         var format = getSaveFormat(this, options, typeof target === 'string' ? target : '')
     } catch (e) {
-        if (async) return callback(e)
-        throw e
+        return error(e, callback)
     }
 
     var imageData = Buffer(format.ptr.call(this, options), 'binary')
@@ -225,8 +220,7 @@ gd.Image.prototype.save = vargs(function save(target, options, callback) {
         return this
     }
 
-    if (async) return callback(GdError(gd.BADTARGET))
-    throw GdError(gd.BADTARGET)
+    return error(GdError(gd.BADTARGET), callback)
 })
 
 function wrapError(callback, errorCode) {
@@ -342,10 +336,7 @@ gd.Image.prototype.watermark = vargs(function watermark(source, pos, callback) {
     var image = this
 
     return readImage(source, async, function applyWatermark(err, wm) {
-        if (err) {
-            if (async) return callback(err)
-            throw err
-        }
+        if (err) return error(err, callback)
         if (pos instanceof Array) {
             var wmBrightness = wm.rectBrightness()
             var posBrightnessDelta = pos.map(function (p) {
@@ -433,3 +424,8 @@ function GdError(code, message) {
     this.code = code
 }
 util.inherits(GdError, Error)
+
+function error(error, callback) {
+    if (callback) return callback(error)
+    throw error
+}
