@@ -6,7 +6,7 @@ var gd = module.exports = Object.create(require('node-gd')),
     buffertools = require('buffertools'),
     exifParser = require('exif-parser'),
     vargs = require('vargs-callback'),
-    clone = require('clone'),
+    clone = require('clone'), // TODO maybe _.clone would be sufficient?
     async = require('async'),
     _ = require('underscore')
 
@@ -69,19 +69,15 @@ GdTransform.prototype._flush = function _flush(done) {
     async.waterfall(this.actions, done)
 }
 
-GdTransform.prototype.resize = function (options) {
-    this.actions.push(function (image, callback) {
-        image.resize(options, callback)
-    })
-    return this
-}
-
-GdTransform.prototype.watermark = function (source, pos) {
-    this.actions.push(function (image, callback) {
-        image.watermark(source, pos, callback)
-    })
-    return this
-}
+_.each(['resize', 'watermark', 'crop'], function (method) {
+    GdTransform.prototype[method] = function () {
+        var args = Array.prototype.slice.apply(arguments)
+        this.actions.push(function (image, callback) {
+            image[method].apply(image, args.concat([callback]))
+        })
+        return this
+    }
+})
 
 gd.transformer = GdTransform
 
@@ -251,6 +247,7 @@ function getSaveFormat(image, options, filename) {
     throw GdError(gd.FORMATREQUIRED)
 }
 
+// TODO: tests for callback version
 gd.Image.prototype.resize = vargs(function resize(options, callback) {
     var rw, rh, rr,
         sw, sh, sr, sx, sy,
@@ -301,10 +298,11 @@ gd.Image.prototype.resize = vargs(function resize(options, callback) {
     return target
 })
 
-gd.Image.prototype.crop = function crop(options) {
+// TODO: tests for callback version
+gd.Image.prototype.crop = function crop(options, callback) {
     var cropOptions = _.clone(options)
     cropOptions.method = 'crop'
-    return this.resize(cropOptions)
+    return this.resize(cropOptions, callback)
 }
 
 gd.colorBrightness = function (color) {
@@ -338,6 +336,7 @@ gd.Image.prototype.watermarkRect = function watermarkRect(wm, pos) {
 }
 
 gd.Image.prototype.watermark = vargs(function watermark(source, pos, callback) {
+    // TODO: separate defaults for x and y
     pos = pos || {x: 0.5, y:0.5}
     var async = !!callback
     var image = this

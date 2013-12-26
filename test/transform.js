@@ -25,8 +25,9 @@ describe('gd', function () {
 
             source
                 .pipe(gd.transformer()
-                        .resize({width: 100})
-                        .resize({height: 100})
+                        .resize({width: 200})
+                        .resize({height: 200})
+                        .crop({width:100, height: 100})
                         .watermark(__dirname + '/samples/watermark.png')
                 )
                 .pipe(resized)
