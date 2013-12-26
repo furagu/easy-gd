@@ -29,6 +29,8 @@ describe('gd', function () {
                         .resize({height: 200})
                         .crop({width:100, height: 100})
                         .watermark(__dirname + '/samples/watermark.png')
+                        .format('jpeg')
+                        .quality(100)
                 )
                 .pipe(resized)
         })
