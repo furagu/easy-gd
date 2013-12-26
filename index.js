@@ -8,6 +8,7 @@ var gd = module.exports = Object.create(require('node-gd')),
     vargs = require('vargs-callback'),
     clone = require('clone'), // TODO maybe _.clone would be sufficient?
     async = require('async'),
+    assert = require('assert'),
     _ = require('underscore')
 
 
@@ -49,7 +50,7 @@ function GdTransform(options) {
     stream.Transform.call(this, options)
     this.buffer = Buffer(0)
     this.actions = []
-    this.imageOptions = {format: 'jpeg', quality: 90}
+    this.imageOptions = {}
 }
 util.inherits(GdTransform, stream.Transform)
 
@@ -90,8 +91,13 @@ _.each(['resize', 'watermark', 'crop'], function (method) {
     }
 })
 
-gd.transformer = GdTransform
-
+_.each(_.filter(_.keys(GdTransform.prototype), function (name) {return name.indexOf('_') !== 0}), function (method) {
+    assert(!(method in gd), 'gd and GdTransform method name clash!')
+    gd[method] = function () {
+        var transform = GdTransform()
+        return transform[method].apply(transform, arguments)
+    }
+})
 
 gd.open = vargs(function open(source, options, callback) {
     var async = !!callback
