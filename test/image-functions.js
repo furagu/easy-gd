@@ -69,20 +69,20 @@ describe('gd', function () {
                 })
             })
 
-            it('should throw gd.NOSYNCSTREAM exception on sync save to a stream', function () {
-                h.testErrorSync('NOSYNCSTREAM', function () {
+            it('should throw gd.SynchronousStreamAccessError exception on sync save to a stream', function () {
+                h.testErrorSync(gd.SynchronousStreamAccessError, function () {
                     testImage.save(h.CollectorStream(), {format: 'jpeg'})
                 })
             })
 
-            it('should throw gd.FILEWRITE exception when failed to synchronously save to a file', function () {
-                h.testErrorSync('FILEWRITE', function () {
+            it('should throw gd.FileWriteError exception when failed to synchronously save to a file', function () {
+                h.testErrorSync(gd.FileWriteError, function () {
                     testImage.save('nosuchdir/some.jpg')
                 })
             })
 
-            it('should return gd.FILEWRITE error when failed to asynchronously save to a file', function (done) {
-                h.testErrorAsync('FILEWRITE', done, function (callback) {
+            it('should return gd.FileWriteError error when failed to asynchronously save to a file', function (done) {
+                h.testErrorAsync(gd.FileWriteError, done, function (callback) {
                     testImage.save('nosuchdir/some.jpg', callback)
                 })
             })
@@ -98,38 +98,38 @@ describe('gd', function () {
                 })
             })
 
-            it('should throw gd.FORMATREQUIRED exception when no target format set', function () {
-                h.testErrorSync('FORMATREQUIRED', function () {
+            it('should throw gd.DestinationFormatRequiredError exception when no target format set', function () {
+                h.testErrorSync(gd.DestinationFormatRequiredError, function () {
                     var buffer = testImage.save()
                 })
             })
 
-            it('should return gd.FORMATREQUIRED error when no target format set', function (done) {
-                h.testErrorAsync('FORMATREQUIRED', done, function (callback) {
+            it('should return gd.DestinationFormatRequiredError error when no target format set', function (done) {
+                h.testErrorAsync(gd.DestinationFormatRequiredError, done, function (callback) {
                     testImage.save(h.CollectorStream(), callback)
                 })
             })
 
-            it('should throw gd.BADFORMAT exception when unknown target format set', function () {
-                h.testErrorSync('BADFORMAT', function () {
+            it('should throw gd.UnknownImageFormatError exception when unknown target format set', function () {
+                h.testErrorSync(gd.UnknownImageFormatError, function () {
                     var buffer = testImage.save({format: 'tiff'})
                 })
             })
 
-            it('should return gd.BADFORMAT error when unknown target format set', function (done) {
-                h.testErrorAsync('BADFORMAT', done, function (callback) {
+            it('should return gd.UnknownImageFormatError error when unknown target format set', function (done) {
+                h.testErrorAsync(gd.UnknownImageFormatError, done, function (callback) {
                     testImage.save({format: 'tiff'}, callback)
                 })
             })
 
-            it('should throw gd.BADTARGET exception when target is not a file, a buffer or a writable stream', function () {
-                h.testErrorSync('BADTARGET', function () {
+            it('should throw gd.UnknownDestinationTypeError exception when target is not a file, a buffer or a writable stream', function () {
+                h.testErrorSync(gd.UnknownDestinationTypeError, function () {
                     var buffer = testImage.save(0xDEADBEEF, {format: 'jpeg'})
                 })
             })
 
-            it('should asynchronously return gd.BADTARGET error when target is not a file, a buffer or a writable stream', function (done) {
-                h.testErrorAsync('BADTARGET', done, function (callback) {
+            it('should asynchronously return gd.UnknownDestinationTypeError error when target is not a file, a buffer or a writable stream', function (done) {
+                h.testErrorAsync(gd.UnknownDestinationTypeError, done, function (callback) {
                     testImage.save(0xDEADBEEF, {format: 'jpeg'}, callback)
                 })
             })
@@ -347,28 +347,23 @@ describe('gd', function () {
             })
 
             it('should throw an exception when bad watermark source given', function () {
-                ;(function () {
+                h.testErrorSync(gd.FileDoesNotExistError, function () {
                     createGradientImage(50, 50).watermark(samples.notExistingFile)
-                }).should.throw(/^DOESNOTEXIST/)
-
-                ;(function () {
+                })
+                h.testErrorSync(gd.UnknownImageFormatError, function () {
                     createGradientImage(50, 50).watermark(samples.nonImageFile)
-                }).should.throw(/^BADFORMAT/)
-            })
-
-            it('should asynchronously return an error when non-existing watermark source given', function (done) {
-                createGradientImage(50, 50).watermark(samples.notExistingFile, function (err, image) {
-                    err.should.be.instanceof(Error)
-                    err.message.should.match(/^DOESNOTEXIST/)
-                    done()
                 })
             })
 
-            it('should asynchronously return an error when non-image watermark source given', function (done) {
-                createGradientImage(50, 50).watermark(samples.nonImageFile, function (err, image) {
-                    err.should.be.instanceof(Error)
-                    err.message.should.match(/^BADFORMAT/)
-                    done()
+            it('should asynchronously return gd.FileDoesNotExistError when non-existing watermark source given', function (done) {
+                h.testErrorAsync(gd.FileDoesNotExistError, done, function (callback) {
+                    createGradientImage(50, 50).watermark(samples.notExistingFile, callback)
+                })
+            })
+
+            it('should asynchronously return gd.UnknownImageFormatError when non-image watermark source given', function (done) {
+                h.testErrorAsync(gd.UnknownImageFormatError, done, function (callback) {
+                    createGradientImage(50, 50).watermark(samples.nonImageFile, callback)
                 })
             })
         })
@@ -407,11 +402,11 @@ describe('gd', function () {
                 image.autoOrient().should.be.equal(image)
             })
 
-            it('should throw gd.BADORIENT on image containing Exif Orientation of [2, 4, 5, 7]', function () {
+            it('should throw gd.UnsupportedOrientationError on image containing Exif Orientation of [2, 4, 5, 7]', function () {
                 var image = gd.open(samples.filesByExifOrientation[3])
                 _.each([2, 4, 5, 7], function (orientation) {
                     image.exif.Orientation = orientation
-                    h.testErrorSync('BADORIENT', function () {
+                    h.testErrorSync(gd.UnsupportedOrientationError, function () {
                         image.autoOrient()
                     })
                 })

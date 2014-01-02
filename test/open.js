@@ -2,75 +2,112 @@ var should = require('should'),
     _ = require('underscore'),
     fs = require('fs'),
     gd = require('../index.js'),
-    samples = require('./samples.js')
+    samples = require('./samples.js'),
+    h = require('./helpers.js')
 
 
 describe('gd', function () {
     describe('open()', function () {
-        it('should return gd.BADSOURCE error on unsupported source type', function (done) {
-            testErrorAsync(done, 'BADSOURCE', gd.open, {some: 'object'})
+        it('should return gd.UnknownSourceTypeError error on unsupported source type', function (done) {
+            h.testErrorAsync(gd.UnknownSourceTypeError, done, function (callback) {
+                gd.open({some: 'object'}, callback)
+            })
         })
-        it('should throw gd.BADSOURCE exception on unsupported source type', function () {
-            testErrorSync('BADSOURCE', gd.open, {some: 'object'})
-        })
-
-        it('should return gd.DOESNOTEXIST error on open of not existing file', function (done) {
-            testErrorAsync(done, 'DOESNOTEXIST', gd.open, samples.notExistingFile)
-        })
-        it('should throw gd.DOESNOTEXIST exception on open of not existing file', function () {
-            testErrorSync('DOESNOTEXIST', gd.open, samples.notExistingFile)
+        it('should throw gd.UnknownSourceTypeError exception on unsupported source type', function () {
+            h.testErrorSync(gd.UnknownSourceTypeError, function () {
+                gd.open({some: 'object'})
+            })
         })
 
-        it('should return gd.BADFILE error on reading directory instead of file', function (done) {
-            testErrorAsync(done, 'BADFILE', gd.open, '.')
+        it('should return gd.FileDoesNotExistError error on open of not existing file', function (done) {
+            h.testErrorAsync(gd.FileDoesNotExistError, done, function (callback) {
+                gd.open(samples.notExistingFile, callback)
+            })
         })
-        it('should throw gd.BADFILE exception when reading directory instead of file', function () {
-            testErrorSync('BADFILE', gd.open, '.')
-        })
-
-        it('should return gd.NODATA error on open of empty file', function (done) {
-            testErrorAsync(done, 'NODATA', gd.open, samples.emptyFile)
-        })
-        it('should throw gd.NODATA exception on open of empty file', function () {
-            testErrorSync('NODATA', gd.open, samples.emptyFile)
+        it('should throw gd.FileDoesNotExistError exception on open of not existing file', function () {
+            h.testErrorSync(gd.FileDoesNotExistError, function () {
+                gd.open(samples.notExistingFile)
+            })
         })
 
-        it('should return gd.NODATA error on open of empty buffer', function (done) {
-            testErrorAsync(done, 'NODATA', gd.open, new Buffer(0))
+        it('should return gd.FileOpenError error on reading directory instead of file', function (done) {
+            h.testErrorAsync(gd.FileOpenError, done, function (callback) {
+                gd.open('.', callback)
+            })
         })
-        it('should throw gd.NODATA exception on open of empty buffer', function () {
-            testErrorSync('NODATA', gd.open, new Buffer(0))
-        })
-
-        it('should return gd.BADFORMAT error on open of non-image file', function (done) {
-            testErrorAsync(done, 'BADFORMAT', gd.open, samples.nonImageFile)
-        })
-        it('should throw gd.BADFORMAT exception on open of non-image file', function () {
-            testErrorSync('BADFORMAT', gd.open, samples.nonImageFile)
+        it('should throw gd.FileOpenError exception when reading directory instead of file', function () {
+            h.testErrorSync(gd.FileOpenError, function () {
+                gd.open('.')
+            })
         })
 
-        it('should return gd.BADFORMAT error on open of non-image buffer', function (done) {
-            testErrorAsync(done, 'BADFORMAT', gd.open, new Buffer('NO IMAGE HERE'))
+        it('should return gd.EmptySourceError error on open of empty file', function (done) {
+            h.testErrorAsync(gd.EmptySourceError, done, function (callback) {
+                gd.open(samples.emptyFile, callback)
+            })
         })
-        it('should throw gd.BADFORMAT exception on open of non-image buffer', function () {
-            testErrorSync('BADFORMAT', gd.open, new Buffer('NO IMAGE HERE'))
+        it('should throw gd.EmptySourceError exception on open of empty file', function () {
+            h.testErrorSync(gd.EmptySourceError, function () {
+                gd.open(samples.emptyFile)
+            })
+        })
+
+        it('should return gd.EmptySourceError error on open of empty buffer', function (done) {
+            h.testErrorAsync(gd.EmptySourceError, done, function (callback) {
+                gd.open(new Buffer(0), callback)
+            })
+        })
+        it('should throw gd.EmptySourceError exception on open of empty buffer', function () {
+            h.testErrorSync(gd.EmptySourceError, function () {
+                gd.open(new Buffer(0))
+            })
+        })
+
+        it('should return gd.UnknownImageFormatError error on open of non-image file', function (done) {
+            h.testErrorAsync(gd.UnknownImageFormatError, done, function (callback) {
+                gd.open(samples.nonImageFile, callback)
+            })
+        })
+        it('should throw gd.UnknownImageFormatError exception on open of non-image file', function () {
+            h.testErrorSync(gd.UnknownImageFormatError, function () {
+                gd.open(samples.nonImageFile)
+            })
+        })
+
+        it('should return gd.UnknownImageFormatError error on open of non-image buffer', function (done) {
+            h.testErrorAsync(gd.UnknownImageFormatError, done, function (callback) {
+                gd.open(new Buffer('NO IMAGE HERE'), callback)
+            })
+        })
+        it('should throw gd.UnknownImageFormatError exception on open of non-image buffer', function () {
+            h.testErrorSync(gd.UnknownImageFormatError, function () {
+                gd.open(new Buffer('NO IMAGE HERE'))
+            })
         })
 
         _.each(samples.incompleteFilesByType, function (filename, type) {
-            it('should return gd.BADIMAGE error on open of incomplete ' + type + ' file', function (done) {
-                testErrorAsync(done, 'BADIMAGE', gd.open, filename)
+            it('should return gd.IncompleteImageError error on open of incomplete ' + type + ' file', function (done) {
+                h.testErrorAsync(gd.IncompleteImageError, done, function (callback) {
+                    gd.open(filename, callback)
+                })
             })
-            it('should throw gd.BADIMAGE exception on open of incomplete ' + type + ' file', function () {
-                testErrorSync('BADIMAGE', gd.open, filename)
+            it('should throw gd.IncompleteImageError exception on open of incomplete ' + type + ' file', function () {
+                h.testErrorSync(gd.IncompleteImageError, function () {
+                    gd.open(filename)
+                })
             })
         })
 
         _.each(samples.incompleteBuffersByType, function (buffer, type) {
-            it('should return gd.BADIMAGE error on open of incomplete ' + type + ' buffer', function (done) {
-                testErrorAsync(done, 'BADIMAGE', gd.open, buffer)
+            it('should return gd.IncompleteImageError error on open of incomplete ' + type + ' buffer', function (done) {
+                h.testErrorAsync(gd.IncompleteImageError, done, function (callback) {
+                    gd.open(buffer, callback)
+                })
             })
-            it('should throw gd.BADIMAGE exception on open of incomplete ' + type + ' buffer', function () {
-                testErrorSync('BADIMAGE', gd.open, buffer)
+            it('should throw gd.IncompleteImageError exception on open of incomplete ' + type + ' buffer', function () {
+                h.testErrorSync(gd.IncompleteImageError, function () {
+                    gd.open(buffer)
+                })
             })
         })
 
@@ -121,9 +158,11 @@ describe('gd', function () {
             })
         })
 
-        it('should throw gd.NOSYNCSTREAM exception on sync open of a stream', function () {
+        it('should throw gd.SynchronousStreamAccessError exception on sync open of a stream', function () {
             var stream = fs.createReadStream(samples.emptyFile)
-            testErrorSync('NOSYNCSTREAM', gd.open, stream)
+            h.testErrorSync(gd.SynchronousStreamAccessError, function () {
+                gd.open(stream)
+            })
         })
     })
 })
@@ -134,34 +173,4 @@ function validateImage(image, type) {
     image.height.should.equal(1)
     image.should.have.property('format')
     image.format.should.equal(type)
-}
-
-function testErrorAsync(done, errorName, fn) {
-    var args = Array.prototype.slice.call(arguments, 3)
-
-    args.push(function asyncRunCallback (err, image) {
-        err.should.be.an.instanceof(Error)
-        err.should.have.property('code')
-        err.code.should.be.equal(gd[errorName])
-        done()
-    })
-
-    fn.apply(gd, args)
-}
-
-function testErrorSync(errorName, fn) {
-    var args = Array.prototype.slice.call(arguments, 2)
-
-    function syncRun() {
-        fn.apply(gd, args)
-    }
-
-    syncRun.should.throw(new RegExp('^' + errorName))
-
-    try {
-        syncRun()
-    } catch (e) {
-        e.should.have.property('code')
-        e.code.should.be.equal(gd[errorName])
-    }
 }

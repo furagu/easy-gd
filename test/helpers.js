@@ -24,22 +24,18 @@ exports.generateImage = function generateImage() {
 }
 
 
-exports.testErrorSync = function testErrorSync(errorName, testFn) {
-    testFn.should.throw(RegExp('^' + errorName))
+exports.testErrorSync = function testErrorSync(errorClass, testFn) {
+    testFn.should.throw()
     try {
         testFn()
     } catch (e) {
-        e.should.have.property('code')
-        e.code.should.be.equal(gd[errorName])
+        e.should.be.instanceof(errorClass)
     }
 }
 
-exports.testErrorAsync = function testErrorAsync(errorName, done, testFn) {
+exports.testErrorAsync = function testErrorAsync(errorClass, done, testFn) {
     testFn(function testErrorAsyncCallback(err) {
-        err.should.be.an.instanceof(Error)
-        err.message.should.match(RegExp('^' + errorName))
-        err.should.have.property('code')
-        err.code.should.be.equal(gd[errorName])
+        err.should.be.an.instanceof(errorClass)
         done()
     })
 }

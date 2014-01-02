@@ -3,7 +3,7 @@ var gd = module.exports = Object.create(require('node-gd')),
     path = require('path'),
     stream = require('stream'),
     util = require('util'),
-    buffertools = require('buffertools'),
+    buffertools = require('buffertools'), // TODO: looks like buffertools are not needed anymore
     exifParser = require('exif-parser'),
     vargs = require('vargs-callback'),
     clone = require('clone'), // TODO maybe _.clone would be sufficient?
@@ -11,6 +11,8 @@ var gd = module.exports = Object.create(require('node-gd')),
     assert = require('assert'),
     _ = require('underscore')
 
+
+_.extend(gd, require('./lib/errors.js'))
 
 var formats = {
     jpeg: {
@@ -127,21 +129,21 @@ function readSource(source, async, callback) {
     }
 
     if (source instanceof stream.Readable) {
-        if (!async) throw GdError(gd.NOSYNCSTREAM)
+        if (!async) throw gd.SynchronousStreamAccessError()
         return readStream(source, callback)
     }
 
-    return callback(GdError(gd.BADSOURCE))
+    return callback(gd.UnknownSourceTypeError())
 }
 
 function openImage(imageData, options) {
     options = _(options || {}).defaults(openDefaults)
 
-    if (!imageData.length) throw GdError(gd.NODATA)
+    if (!imageData.length) throw gd.EmptySourceError()
 
     var format = detectFormat(imageData)
     var image = formats[format].createFromPtr.call(gd, imageData)
-    if (!image) throw GdError(gd.BADIMAGE)
+    if (!image) throw gd.IncompleteImageError()
     image.format = format
 
     if (format === 'jpeg') {
@@ -181,8 +183,8 @@ function readStream(stream, callback) {
 }
 
 function wrapFileReadingError(error, callback) {
-    if (error.code === 'ENOENT') return callback(GdError(gd.DOESNOTEXIST))
-    return callback(GdError(gd.BADFILE, error.message))
+    if (error.code === 'ENOENT') return callback(gd.FileDoesNotExistError())
+    return callback(gd.FileOpenError(error.message))
 }
 
 function detectFormat(buffer) {
@@ -191,7 +193,7 @@ function detectFormat(buffer) {
         if (buffer.slice(0, signature.length).equals(signature))
             return name
     }
-    throw GdError(gd.BADFORMAT)
+    throw gd.UnknownImageFormatError()
 }
 
 gd.Image.prototype.save = vargs(function save(target, options, callback) {
@@ -221,30 +223,30 @@ gd.Image.prototype.save = vargs(function save(target, options, callback) {
 
     if (typeof target === 'string') {
         if (async) {
-            fs.writeFile(target, imageData, wrapError(callback, gd.FILEWRITE))
+            fs.writeFile(target, imageData, wrapError(callback, gd.FileWriteError))
             return this
         }
         try {
             fs.writeFileSync(target, imageData)
         } catch (e) {
-            throw GdError(gd.FILEWRITE, e.message)
+            throw gd.FileWriteError(e.message)
         }
         return this
     }
 
     if (target instanceof stream.Writable) {
-        if (!async) throw GdError(gd.NOSYNCSTREAM)
+        if (!async) throw gd.SynchronousStreamAccessError()
         target.end(imageData)
         callback(null)
         return this
     }
 
-    return error(GdError(gd.BADTARGET), callback)
+    return error(gd.UnknownDestinationTypeError(), callback)
 })
 
-function wrapError(callback, errorCode) {
+function wrapError(callback, errorConstructor) {
     return function (err) {
-        if (err) err = GdError(errorCode, err.message)
+        if (err) err = errorConstructor(err.message)
         return callback.apply(this, [err].concat(Array.prototype.slice.call(arguments, 1)))
     }
 }
@@ -258,10 +260,10 @@ function getSaveFormat(image, options, filename) {
     var format = options.format || image.format
     if (format) {
         if (format in formats) return formats[format]
-        throw GdError(gd.BADFORMAT, 'Unknown format ' + format)
+        throw gd.UnknownImageFormatError('Unknown format ' + format)
     }
 
-    throw GdError(gd.FORMATREQUIRED)
+    throw gd.DestinationFormatRequiredError()
 }
 
 // TODO: tests for callback version
@@ -402,7 +404,7 @@ gd.Image.prototype.autoOrient = function autoOrient() {
     if (!exif) return this
 
     if (exif.Orientation && exif.Orientation !== 1) {
-        if (!(exif.Orientation in orientations)) throw GdError(gd.BADORIENT)
+        if (!(exif.Orientation in orientations)) throw gd.UnsupportedOrientationError()
         var angle = orientations[exif.Orientation]
         var rotated = gd.createTrueColor(angle % 180 ? this.height : this.width, angle % 180 ? this.width : this.height)
         this.copyRotated(rotated, rotated.width / 2, rotated.height / 2, 0, 0, this.width, this.height, angle)
@@ -414,40 +416,6 @@ gd.Image.prototype.autoOrient = function autoOrient() {
 
     return this
 }
-
-var errorsDefinition = [
-    ['BADSOURCE',       'Unknown source type.'],
-    ['DOESNOTEXIST',    'File does not exist.'],
-    ['NODATA',          'Empty source file or buffer.'],
-    ['BADFILE',         'Open error.'],
-    ['BADFORMAT',       'Unsupported image format (or not an image at all).'],
-    ['BADIMAGE',        'Corrupted or incomplete image.'],
-    ['BADORIENT',       'Unsupported image Exif orientation tag.'],
-    ['NOSYNCSTREAM',    'Stream cannot be read or written synchronously.'],
-    ['FILEWRITE',       'File writing error.'],
-    ['FORMATREQUIRED',  'Output image format required.'],
-    ['BADTARGET',       'Unknown target type.']
-]
-
-var errorMessages = {},
-    errorNames = {}
-
-errorsDefinition.forEach(function (error, index) {
-    var code = index + 1,
-        name = error[0],
-        message = error[1]
-    errorMessages[code] = name + ', ' + message
-    errorNames[code] = name
-    gd[name] = code
-})
-
-function GdError(code, message) {
-    if (!(this instanceof GdError)) return new GdError(code, message)
-    this.message = message ? errorNames[code] + ', ' + message : errorMessages[code]
-    this.code = code
-}
-util.inherits(GdError, Error)
-
 function error(error, callback) {
     if (callback) return callback(error)
     throw error
