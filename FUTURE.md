@@ -49,3 +49,18 @@ fs.createReadStream('puppy.jpg')
   .pipe(gd.resize({width: 1000, height: 1000}).watermark('awsum_logo.png'))
   .pipe(fs.createWriteStream('puppy-large.jpg');
 ```
+
+## Error handling
+
+```js
+try {
+	gd.open('kitten.corrupted.jpg')
+	  .resize({width: 100})
+	  .save('kitten.thumb.jpg')
+} catch (e) {
+	if (e instanceof gd.IncompleteImageError) {
+		console.log('Corrupted file')
+	}
+	throw e
+}
+```
