@@ -1,46 +1,17 @@
 var gd = module.exports = Object.create(require('node-gd')),
     fs = require('fs'),
-    path = require('path'),
     stream = require('stream'),
     util = require('util'),
     buffertools = require('buffertools'), // TODO: looks like buffertools are not needed anymore
-    exifParser = require('exif-parser'),
     vargs = require('vargs-callback'),
-    clone = require('clone'), // TODO maybe _.clone would be sufficient?
+    clone = require('clone'), // TODO: maybe _.clone would be sufficient?
     async = require('async'),
     assert = require('assert'),
-    _ = require('underscore')
+    _ = require('underscore'),
+    formats = require('./lib/formats.js')
 
 
 _.extend(gd, require('./lib/errors.js'))
-
-var formats = {
-    jpeg: {
-        ext: 'jpg',
-        signature: Buffer([0xff, 0xd8, 0xff]),
-        createFromPtr: gd.createFromJpegPtr,
-        ptr: function jpegPtr(options) {
-            return gd.Image.prototype.jpegPtr.call(this, options.quality || -1)
-        },
-    },
-    png: {
-        ext: 'png',
-        signature: Buffer([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
-        createFromPtr: gd.createFromPngPtr,
-        ptr: function pngPtr(options) {
-            return gd.Image.prototype.pngPtr.call(this, options.compression || -1)
-        },
-    },
-    gif: {
-        ext: 'gif',
-        signature: Buffer('GIF'),
-        createFromPtr: gd.createFromGifPtr,
-        ptr: gd.Image.prototype.gifPtr,
-    },
-}
-
-var formatsByExtname = _.object(_.map(formats, function (format, name) {return ['.' + format.ext, format]}))
-formatsByExtname['.jpeg'] = formatsByExtname['.jpg']
 
 var openDefaults = {
     autoOrient: true,
@@ -141,19 +112,10 @@ function openImage(imageData, options) {
 
     if (!imageData.length) throw gd.EmptySourceError()
 
-    var format = detectFormat(imageData)
-    var image = formats[format].createFromPtr.call(gd, imageData)
+    var format = formats.getImageFormat(imageData)
+    var image = format.open(imageData)
     if (!image) throw gd.IncompleteImageError()
-    image.format = format
-
-    if (format === 'jpeg') {
-        try {
-            var exif = exifParser.create(imageData).parse()
-        } catch (e) {
-            // ignore exif parsing errors
-        }
-        if (!_.isEmpty(exif.tags)) image.exif = exif.tags
-    }
+    image.format = format.label
 
     if (options.autoOrient && image.exif) {
         try {
@@ -187,15 +149,6 @@ function wrapFileReadingError(error, callback) {
     return callback(gd.FileOpenError(error.message))
 }
 
-function detectFormat(buffer) {
-    for (var name in formats) {
-        var signature = formats[name].signature
-        if (buffer.slice(0, signature.length).equals(signature))
-            return name
-    }
-    throw gd.UnknownImageFormatError()
-}
-
 gd.Image.prototype.save = vargs(function save(target, options, callback) {
     if (typeof target === 'object' && !(target instanceof stream.Writable) && typeof options === 'undefined') {
         options = target
@@ -206,12 +159,12 @@ gd.Image.prototype.save = vargs(function save(target, options, callback) {
     var async = !!callback
 
     try {
-        var format = getSaveFormat(this, options, typeof target === 'string' ? target : '')
+        var format = formats.getDestinationFormat(this, options, typeof target === 'string' ? target : '')
     } catch (e) {
         return error(e, callback)
     }
 
-    var imageData = Buffer(format.ptr.call(this, options), 'binary')
+    var imageData = Buffer(format.save(this, options), 'binary')
 
     if (typeof target === 'undefined') {
         if (async) {
@@ -249,21 +202,6 @@ function wrapError(callback, errorConstructor) {
         if (err) err = errorConstructor(err.message)
         return callback.apply(this, [err].concat(Array.prototype.slice.call(arguments, 1)))
     }
-}
-
-function getSaveFormat(image, options, filename) {
-    if (filename) {
-        var extname = path.extname(filename).toLowerCase()
-        if (extname in formatsByExtname) return formatsByExtname[extname]
-    }
-
-    var format = options.format || image.format
-    if (format) {
-        if (format in formats) return formats[format]
-        throw gd.UnknownImageFormatError('Unknown format ' + format)
-    }
-
-    throw gd.DestinationFormatRequiredError()
 }
 
 // TODO: tests for callback version
