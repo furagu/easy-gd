@@ -58,9 +58,9 @@ describe('gd', function () {
 
             _.each(samples.types, function (type) {
                 it('should asycnronously write a ' + type + ' to a stream', function (done) {
-                    var stream = h.CollectorStream()
+                    var stream = h.WritableStream()
                     stream.on('finish', function () {
-                        checkGeneratedImage(testImage, this.collected, type)
+                        checkGeneratedImage(testImage, this.written, type)
                         done()
                     })
                     testImage.save(stream, {format: type}, function (err) {
@@ -71,7 +71,7 @@ describe('gd', function () {
 
             it('should throw gd.SynchronousStreamAccessError exception on sync save to a stream', function () {
                 h.testErrorSync(gd.SynchronousStreamAccessError, function () {
-                    testImage.save(h.CollectorStream(), {format: 'jpeg'})
+                    testImage.save(h.WritableStream(), {format: 'jpeg'})
                 })
             })
 
@@ -106,7 +106,7 @@ describe('gd', function () {
 
             it('should return gd.DestinationFormatRequiredError error when no target format set', function (done) {
                 h.testErrorAsync(gd.DestinationFormatRequiredError, done, function (callback) {
-                    testImage.save(h.CollectorStream(), callback)
+                    testImage.save(h.WritableStream(), callback)
                 })
             })
 
@@ -150,7 +150,7 @@ describe('gd', function () {
             })
 
             it('should return the image object when saving to stream', function () {
-                var stream = h.CollectorStream()
+                var stream = h.WritableStream()
                 var image = testImage.save(stream, {format: 'jpeg'}, function () {})
                 image.should.be.equal(testImage)
             })

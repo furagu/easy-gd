@@ -2,93 +2,100 @@ var Benchmark = require('benchmark')
     fs = require('fs'),
     _ = require('underscore'),
     async = require('async'),
-    devnull = require('dev-null'),
+    h = require('../test/helpers.js'),
 
     gd = require('../index.js'),
     resize = require('resize'),
     rsz = require('rsz'),
     im = require('im'),
+    gm = require('gm')
 
-    stream = require('stream'),
-    util = require('util')
 
 /*
-In orger to run the benchmark please install the following libraries into your system:
+These libraries are required to run the benchmark:
     GraphicsMagick
     ImageMagick
     cairo
 
-Mac OS X ports installation:
-    port install GraphicsMagick +universal
-    port install ImageMagick +universal
-    port install cairo +universal
+Installation with MacPorts:
+    port -v install GraphicsMagick +universal
+    port -v install ImageMagick +universal
+    port -v install cairo +universal
 */
 
-
-util.inherits(BufferStream, stream.Readable);
-function BufferStream(buffer, opt) {
-    stream.Readable.call(this, opt)
-    this.buffer = buffer
-}
-BufferStream.prototype._read = function() {
-    this.push(this.buffer)
-    this.push(null)
+function SampleStreams(imageData, deferred) {
+    this.input = new h.ReadableStream(imageData)
+    this.output = new h.WritableStream()
+    this.output.on('finish', function () {
+        if (this.written.length < 100) throw Error('Broken output')
+        deferred.resolve()
+    })
 }
 
 
 var samplePath = __dirname + '/samples/',
-    samples = _.filter(fs.readdirSync(samplePath), function (file) {return /\.(png|jpg)$/.test(file)}).sort()
+    samples = _.filter(fs.readdirSync(samplePath), function (file) {return /\.jpg$/.test(file)}).sort()
 
-// TODO: im and rsz seem to leak a lot of memory. It would be nice to log the memory footprint.
-// TODO: save resized image to a buffer and make an assertion on buffer length to be shure every library works properly
 
 async.eachSeries(samples, function (sample, done) {
     var imageData = fs.readFileSync(samplePath + sample)
-
     ;(new Benchmark.Suite)
 
     .add('easy-gd',
         function (deferred) {
-            var stream = new BufferStream(imageData)
-            gd.createFromPtr(stream.read(), function (err, image) {
-                image.resized({width:100, height:100}).ptr()
-                deferred.resolve()
-            })
+            var sample = new SampleStreams(imageData, deferred)
+            sample.input
+                .pipe(gd.resize({width:100, height:100}))
+                .pipe(sample.output)
         },
         {defer: true}
     )
 
-    .add('resize',
+    .add('gm',
         function (deferred) {
-            var stream = new BufferStream(imageData)
-            resize(stream.read(), 100, 100, {}, function (err, buf) {
-                deferred.resolve()
-            })
-        },
-        {defer: true}
-    )
-
-    .add('rsz',
-        function (deferred) {
-            var stream = new BufferStream(imageData)
-            rsz(stream.read(), {width: 100, height: 100}, function (err, buf) {
-                deferred.resolve()
-            })
+            var sample = new SampleStreams(imageData, deferred)
+            gm(sample.input)
+                .resize(100, 100)
+                .stream()
+                .pipe(sample.output)
         },
         {defer: true}
     )
 
     .add('im',
         function (deferred) {
-            var stream = new BufferStream(imageData)
-            im(stream).resize('100x100').convert(devnull())
-            deferred.resolve()
+            var sample = new SampleStreams(imageData, deferred)
+            im(sample.input)
+                .resize('100x100')
+                .convert(sample.output)
         },
         {defer: true}
     )
 
+    .add('resize',
+        function (deferred) {
+            var sample = new SampleStreams(imageData, deferred)
+            resize(sample.input.read(), 100, 100, {}, function (err, buf) {
+                sample.output.end(buf)
+            })
+        },
+        {defer: true}
+    )
+
+    // NOTE: rsz seems to leak a lot of memory and, furthermore, produces images with no resampling done (which addes some speed but causes rough edges on the image).
+    // NOTE: Should be compared with gd.resize({width:100, height:100, resample: false})
+    // .add('rsz',
+    //     function (deferred) {
+    //         var sample = new SampleStreams(imageData, deferred)
+    //         rsz(sample.input.read(), {width: 100, height: 100, aspectRatio: true}, function (err, buf) {
+    //             sample.output.end(buf)
+    //         })
+    //     },
+    //     {defer: true}
+    // )
+
     .on('start', function (event) {
-        console.log('Testing %s (%d bytes)', sample, imageData.length)
+        console.log('Resizing %s (%d bytes)', sample, imageData.length)
     })
     .on('cycle', function (event) {
         console.log(String(event.target))

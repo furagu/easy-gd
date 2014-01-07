@@ -206,6 +206,8 @@ function wrapError(callback, errorConstructor) {
 
 // TODO: tests for callback version
 gd.Image.prototype.resize = vargs(function resize(options, callback) {
+    options = _(options || {}).defaults({resample: true})
+
     var rw, rh, rr,
         sw, sh, sr, sx, sy,
         tw, th, tr,
@@ -216,7 +218,7 @@ gd.Image.prototype.resize = vargs(function resize(options, callback) {
     rr = rw / rh
     sr = this.width / this.height
 
-    if (options['method'] === 'crop') {
+    if (options.method === 'crop') {
         tw = Math.min(rw, this.width)
         th = Math.min(rh, this.height)
         tr = tw / th
@@ -249,7 +251,9 @@ gd.Image.prototype.resize = vargs(function resize(options, callback) {
 
     target.saveAlpha(1)
     target.alphaBlending(1)
-    this.copyResampled(target, 0, 0, sx, sy, tw, th, sw, sh)
+
+    var resizeMethod = options.resample ? 'copyResampled' : 'copyResized'
+    this[resizeMethod](target, 0, 0, sx, sy, tw, th, sw, sh)
 
     if (callback) return callback(null, target)
     return target

@@ -9,9 +9,9 @@ var should = require('should'),
 describe('gd', function () {
     describe('resize()', function () {
         it('should resize images piped in', function (done) {
-            var resized = h.CollectorStream()
+            var resized = h.WritableStream()
             resized.on('finish', function () {
-                var image = gd.open(this.collected)
+                var image = gd.open(this.written)
                 image.width.should.be.below(101)
                 image.height.should.be.below(101)
                 done()
