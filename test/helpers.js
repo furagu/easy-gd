@@ -27,8 +27,8 @@ exports.ReadableStream.prototype._read = function() {
 }
 
 
-exports.generateImage = function generateImage() {
-    var image = gd.createTrueColor(100, 100)
+exports.createImage = function createImage(width, height) {
+    var image = gd.createTrueColor(width || 100, height || 100)
     image.filledEllipse(50, 50, 25, 25, image.colorAllocate(255, 0, 0))
     return image
 }

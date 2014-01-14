@@ -161,7 +161,7 @@ describe('gd', function () {
             })
 
             it('should choose the format in this order: file extension, options.format, image.format', function () {
-                var image = h.generateImage(),
+                var image = h.createImage(),
                     jpegFilename = 'choose_format.jpg',
                     tmpFilename = 'choose_format.tmp'
                 image.format = 'gif'
@@ -179,14 +179,14 @@ describe('gd', function () {
             })
 
             it('should set jpeg quality with `quality` option', function () {
-                var image = h.generateImage(),
+                var image = h.createImage(),
                     highQualityJpeg = image.save({format: 'jpeg', quality: 100}),
                     lowQualityJpeg  = image.save({format: 'jpeg', quality: 1})
                 lowQualityJpeg.length.should.be.below(highQualityJpeg.length)
             })
 
             it('should set png compression type with `compression` option', function () {
-                var image = h.generateImage(),
+                var image = h.createImage(),
                     highCompressionPng = image.save({format: 'png', compression: 9}),
                     lowCompressionPng  = image.save({format: 'png', compression: 1})
                 highCompressionPng.length.should.be.below(lowCompressionPng.length)
@@ -197,22 +197,22 @@ describe('gd', function () {
             var target = {width: 50, height: 50}
 
             it('should save image ratio on resize', function () {
-                var image = Image(200, 100),
+                var image = h.createImage(200, 100),
                     resized = image.resize(target)
                 Ratio(resized).should.equal(Ratio(image))
             })
 
             it('should scale the image by height if image ratio is less than target size ratio', function () {
-                Image(100, 200).resize(target).height.should.equal(target.height)
+                h.createImage(100, 200).resize(target).height.should.equal(target.height)
             })
 
             it('should scale the image by width if image ratio is greater than target size ratio', function () {
-                Image(200, 100).resize(target).width.should.equal(target.width)
+                h.createImage(200, 100).resize(target).width.should.equal(target.width)
             })
 
             it('should resize by width option only and save image ratio', function () {
                 var target = {width: 50},
-                    image = Image(200, 100),
+                    image = h.createImage(200, 100),
                     resized = image.resize(target)
                 resized.width.should.equal(target.width)
                 Ratio(resized).should.equal(Ratio(image))
@@ -220,14 +220,14 @@ describe('gd', function () {
 
             it('should resize by height option only and save image ratio', function () {
                 var target = {height: 50},
-                    image = Image(200, 100),
+                    image = h.createImage(200, 100),
                     resized = image.resize(target)
                 resized.height.should.equal(target.height)
                 Ratio(resized).should.equal(Ratio(image))
             })
 
             it('should crop the image if `method` option is set to `crop`', function () {
-                var image = Image(100, 100),
+                var image = h.createImage(100, 100),
                     target = {width: 30, height: 10, method: 'crop'},
                     cropped
                 cropped = image.resize(target)
@@ -243,13 +243,13 @@ describe('gd', function () {
 
         describe('crop()', function () {
             it('should crop horizontal images', function () {
-                var cropped = Image(100, 100).crop({width: 30, height: 10})
+                var cropped = h.createImage(100, 100).crop({width: 30, height: 10})
                 cropped.width.should.equal(30)
                 cropped.height.should.equal(10)
             })
 
             it('should crop vertical images', function () {
-                var cropped = Image(100, 100).crop({width: 10, height: 30})
+                var cropped = h.createImage(100, 100).crop({width: 10, height: 30})
                 cropped.width.should.equal(10)
                 cropped.height.should.equal(30)
             })
@@ -257,7 +257,7 @@ describe('gd', function () {
             it('should not modify the options passed', function () {
                 var options = {width: 10, height: 20},
                     optionsCopy = _.clone(options)
-                Image(100, 100).crop(options)
+                h.createImage(100, 100).crop(options)
                 options.should.eql(optionsCopy)
             })
         })
@@ -480,10 +480,6 @@ function gdImageFromBuffer(buffer, type) {
             'gif':  gd.createFromGifPtr,
         }
     return openers[type](buffer)
-}
-
-function Image (width, height) {
-    return gd.createTrueColor(width, height)
 }
 
 function Ratio (image) {

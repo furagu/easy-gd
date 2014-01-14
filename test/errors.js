@@ -22,12 +22,12 @@ describe('gd', function () {
                 errorConstructor().should.have.property('stack')
             })
             if (errorName !== 'Error') {
-                it('should have a message by default', function () {
+                it('should have default message', function () {
                     errorConstructor().should.have.property('message')
                     errorConstructor().message.should.be.ok
                 })
             }
-            it('should store a message passed', function () {
+            it('should store a message passed to constructor', function () {
                 errorConstructor('hey').should.have.property('message', 'hey')
             })
         })
