@@ -2,11 +2,8 @@ var gd = module.exports = Object.create(require('node-gd')),
     fs = require('fs'),
     stream = require('stream'),
     util = require('util'),
-    buffertools = require('buffertools'), // TODO: looks like buffertools are not needed anymore
     vargs = require('vargs-callback'),
-    clone = require('clone'), // TODO: maybe _.clone would be sufficient?
     async = require('async'),
-    assert = require('assert'),
     _ = require('underscore'),
     formats = require('./lib/formats.js')
 
@@ -65,7 +62,7 @@ _.each(['resize', 'watermark', 'crop'], function (method) {
 })
 
 _.each(_.filter(_.keys(GdTransform.prototype), function (name) {return name.indexOf('_') !== 0}), function (method) {
-    assert(!(method in gd), 'gd and GdTransform method name clash!')
+    if (method in gd) throw Error('gd and GdTransform method name clash!')
     gd[method] = function () {
         var transform = GdTransform()
         return transform[method].apply(transform, arguments)
@@ -351,7 +348,7 @@ gd.Image.prototype.autoOrient = function autoOrient() {
         var rotated = gd.createTrueColor(angle % 180 ? this.height : this.width, angle % 180 ? this.width : this.height)
         this.copyRotated(rotated, rotated.width / 2, rotated.height / 2, 0, 0, this.width, this.height, angle)
         rotated.format = this.format
-        rotated.exif = clone(this.exif)
+        rotated.exif = _.clone(this.exif)
         rotated.exif.Orientation = 1
         return rotated
     }
