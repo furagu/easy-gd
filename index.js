@@ -267,6 +267,7 @@ gd.Image.prototype.watermark = vargs(function watermark(source, pos, callback) {
 function readImage(source, async, callback) {
     if (source instanceof gd.Image) return callback(null, source)
 
+    // TODO: use gd.open instead of readSource to decouple gd.Image.prototype methods from gd.prototype methods
     return readSource(source, async, function loadImage(err, sourceBuffer) {
         if (err) return callback(err)
         try {
