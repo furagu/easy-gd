@@ -4,7 +4,7 @@ var should = require('should'),
     errors = require('../lib/errors.js')
 
 describe('gd', function () {
-    _.each(errors, function (errorConstructor, errorName) {
+    _.each(errors.classes, function (errorConstructor, errorName) {
         describe(errorName + '()', function () {
             it('should be defined as a library top-level property', function () {
                 gd.should.have.property(errorName)
