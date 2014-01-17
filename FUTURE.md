@@ -1,6 +1,6 @@
 # Future interface of easy-gd library
 
-Node-gd has miserable C-style interface which should be fixed.
+Node-gd has miserable C-style interface that should be fixed.
 
 ## Open any source containing an image [a]synchronously
 
