@@ -1,4 +1,4 @@
-# Future interface of easy-gd library
+# The Future Interface of Easy-gd Library
 
 Node-gd has miserable C-style interface that should be fixed.
 
