@@ -239,6 +239,10 @@ describe('gd', function () {
                 cropped.width.should.equal(target.width)
                 cropped.height.should.equal(target.height)
             })
+
+            it('should take optional callback', function (done) {
+                var image = h.createImage(100, 100).resize({width:50, height: 50}, done)
+            })
         })
 
         describe('crop()', function () {
@@ -259,6 +263,10 @@ describe('gd', function () {
                     optionsCopy = _.clone(options)
                 h.createImage(100, 100).crop(options)
                 options.should.eql(optionsCopy)
+            })
+
+            it('should take optional callback', function (done) {
+                var image = h.createImage(100, 100).crop({width:50, height: 50}, done)
             })
         })
 
