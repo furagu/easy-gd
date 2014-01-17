@@ -285,6 +285,18 @@ describe('gd', function () {
                 watermarkShouldBeAt(image, watermark, 0.5, 0.5)
             })
 
+            it('should have default x position = 0.5', function () {
+                var image = createGradientImage(100, 100)
+                image.watermark(watermark, {y: 0})
+                watermarkShouldBeAt(image, watermark, 0.5, 0)
+            })
+
+            it('should have default y position = 0.5', function () {
+                var image = createGradientImage(100, 100)
+                image.watermark(watermark, {x: 1})
+                watermarkShouldBeAt(image, watermark, 1, 0.5)
+            })
+
             it('should put watermark on a given single position', function () {
                 var x, y, image
                 for (x = 0; x <= 1; x += 0.2) {
