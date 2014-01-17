@@ -1,9 +1,9 @@
 # The Future Interface of Easy-gd Library
 
-Node-gd has miserable C-style interface that should be fixed.
+Node-gd 0.0.7 has miserable C-style interface that should be fixed.<br/>
+Here is what's on the way to easy-gd 1.0.0:
 
-## Open any source containing an image [a]synchronously
-
+### A single method to open image sources of any kind [a]synchronously
 ```js
 gd.open('file.jpg', function (err, image) {})
 gd.open(stream, function (err, image) {})
@@ -13,7 +13,7 @@ var image = gd.open('file.jpg')
 var image = gd.open(buffer)
 ```
 
-## Image properties and methods
+### Image properties and methods have clean names
 
 ```js
 image.exif.GPSLatitude
@@ -22,7 +22,7 @@ image.resize({width:500})
 image.watermark('awsum_logo.png')
 ```
 
-## Save [a]synchronously
+### A single method to save images [a]synchronously
 
 ```js
 image.save('file.jpg', function (err) {})
@@ -33,7 +33,7 @@ var buffer = image.save()
 image.save('resized.jpg')
 ```
 
-## Synchronous processing via chains
+### Chaining is nice for synchronous processing
 
 ```js
 gd.open('kitten.jpg')
@@ -42,7 +42,7 @@ gd.open('kitten.jpg')
   .save('kitten-large.jpg')
 ```
 
-## Asynchronous processing via pipes
+### Pipes are nice for asynchronous processing
 
 ```js
 fs.createReadStream('puppy.jpg')
@@ -50,7 +50,7 @@ fs.createReadStream('puppy.jpg')
   .pipe(fs.createWriteStream('puppy-large.jpg');
 ```
 
-## Error handling
+### Errors are determined by class
 
 ```js
 try {
@@ -60,6 +60,9 @@ try {
 } catch (e) {
 	if (e instanceof gd.IncompleteImageError) {
 		console.log('Corrupted file')
+	}
+	if (e instanceof gd.Error) {
+		console.log('Some other image reading error')
 	}
 	throw e
 }
