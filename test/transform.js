@@ -7,30 +7,38 @@ var should = require('should'),
     h = require('./helpers.js')
 
 describe('gd', function () {
-    describe('resize()', function () {
-        it('should resize images piped in', function (done) {
-            var resized = h.WritableStream()
-            resized.on('finish', function () {
-                var image = gd.open(this.written)
-                image.width.should.be.below(101)
-                image.height.should.be.below(101)
+    it('should .resize() images piped in', function (done) {
+        testTransform(
+            gd.resize({width:50, height:40}),
+            function (image) {
+                image.width.should.be.equal(40)
+                image.height.should.be.equal(40)
                 done()
-            })
-
-            var source = fs.createReadStream(__dirname + '/samples/lemongrab.jpg')
-
-            source
-                .pipe(gd.resize({width: 200})
-                        .resize({height: 200})
-                        .crop({width:100, height: 100})
-                        .watermark(__dirname + '/samples/watermark.png')
-                        .format('jpeg')
-                        .quality(100)
-                )
-                .pipe(resized)
-        })
-
-        // TODO: accurate tests for .crop, .watermark, .format, .quality, .compression .options
+            }
+        )
     })
+
+    it('should .crop() images piped in', function (done) {
+        testTransform(
+            gd.crop({width:20, height:30}),
+            function (image) {
+                image.width.should.be.equal(20)
+                image.height.should.be.equal(30)
+                done()
+            }
+        )
+    })
+
+    // TODO: accurate tests for .watermark, .format, .quality, .compression .options
 })
 
+function testTransform(transform, callback) {
+    var dst = h.WritableStream()
+    dst.on('finish', function () {
+        var image = gd.open(this.written)
+        callback(image)
+    })
+    var imageData = h.createImage().save({format: 'png'})
+    var src = new h.ReadableStream(imageData)
+    src.pipe(transform).pipe(dst)
+}
