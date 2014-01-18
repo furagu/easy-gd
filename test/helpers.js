@@ -34,6 +34,10 @@ exports.createImage = function createImage(width, height) {
     return image
 }
 
+exports.aspectRatio = function aspectRatio(image) {
+    return image.width / image.height
+}
+
 
 exports.testErrorSync = function testErrorSync(errorClass, testFn) {
     testFn.should.throw()

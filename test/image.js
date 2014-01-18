@@ -9,23 +9,20 @@ var should = require('should'),
 
 describe('gd', function () {
     describe('Image.prototype', function () {
-        var testImage = gd.createTrueColor(100, 100)
-        testImage.filledEllipse(50, 50, 25, 25, testImage.colorAllocate(255, 0, 0))
-
         describe('save()', function () {
-            var testImage = h.createImage()
+            var image = h.createImage()
 
             it('should syncronously return a buffer when called with empty target argument', function () {
                 _.each(samples.types, function (type) {
-                    var buffer = testImage.save({format: type})
-                    checkGeneratedImage(testImage, buffer, type)
+                    var buffer = image.save({format: type})
+                    checkGeneratedImage(image, buffer, type)
                 })
             })
 
             _.each(samples.types, function (type) {
                 it('should asynchronously return a ' + type + ' buffer when called with empty target argument and a callback', function (done) {
-                    var buffer = testImage.save({format: type}, function (err, buffer) {
-                        checkGeneratedImage(testImage, buffer, type)
+                    var buffer = image.save({format: type}, function (err, buffer) {
+                        checkGeneratedImage(image, buffer, type)
                         done()
                     })
                 })
@@ -36,20 +33,20 @@ describe('gd', function () {
                     var tmpFilename = __dirname + '/save_sync_test.' + type
                     after(_.partial(fs.unlinkSync, tmpFilename))
 
-                    testImage.save(tmpFilename)
+                    image.save(tmpFilename)
 
                     var buffer = fs.readFileSync(tmpFilename)
-                    checkGeneratedImage(testImage, buffer, type)
+                    checkGeneratedImage(image, buffer, type)
                 })
             })
 
             _.each(samples.types, function (type) {
                 it('should asynchronously write a ' + type + ' to a file', function (done) {
                     var tmpFilename = __dirname + '/save_async_test.' + type
-                    testImage.save(tmpFilename, {format: type}, function (err) {
+                    image.save(tmpFilename, {format: type}, function (err) {
                         var buffer = fs.readFileSync(tmpFilename)
                         fs.unlinkSync(tmpFilename)
-                        checkGeneratedImage(testImage, buffer, type)
+                        checkGeneratedImage(image, buffer, type)
                         done()
                     })
                 })
@@ -59,10 +56,10 @@ describe('gd', function () {
                 it('should asycnronously write a ' + type + ' to a stream', function (done) {
                     var stream = h.WritableStream()
                     stream.on('finish', function () {
-                        checkGeneratedImage(testImage, this.written, type)
+                        checkGeneratedImage(image, this.written, type)
                         done()
                     })
-                    testImage.save(stream, {format: type}, function (err) {
+                    image.save(stream, {format: type}, function (err) {
                         should(err).equal(null)
                     })
                 })
@@ -70,19 +67,19 @@ describe('gd', function () {
 
             it('should throw gd.SynchronousStreamAccessError exception on sync save to a stream', function () {
                 h.testErrorSync(gd.SynchronousStreamAccessError, function () {
-                    testImage.save(h.WritableStream(), {format: 'jpeg'})
+                    image.save(h.WritableStream(), {format: 'jpeg'})
                 })
             })
 
             it('should throw gd.FileWriteError exception when failed to synchronously save to a file', function () {
                 h.testErrorSync(gd.FileWriteError, function () {
-                    testImage.save('nosuchdir/some.jpg')
+                    image.save('nosuchdir/some.jpg')
                 })
             })
 
             it('should return gd.FileWriteError error when failed to asynchronously save to a file', function (done) {
                 h.testErrorAsync(gd.FileWriteError, done, function (callback) {
-                    testImage.save('nosuchdir/some.jpg', callback)
+                    image.save('nosuchdir/some.jpg', callback)
                 })
             })
 
@@ -90,7 +87,7 @@ describe('gd', function () {
                 it('should detect ' + format + ' destination format by ' + extname + ' filename extension', function () {
                     _.each([extname, extname.toUpperCase()], function (extname) {
                         var tmpFilename = __dirname + '/format_detection_test' + extname
-                        testImage.save(tmpFilename)
+                        image.save(tmpFilename)
                         gd.open(tmpFilename).format.should.be.equal(format)
                         fs.unlinkSync(tmpFilename)
                     })
@@ -99,64 +96,64 @@ describe('gd', function () {
 
             it('should throw gd.DestinationFormatRequiredError exception when no target format set', function () {
                 h.testErrorSync(gd.DestinationFormatRequiredError, function () {
-                    var buffer = testImage.save()
+                    var buffer = image.save()
                 })
             })
 
             it('should return gd.DestinationFormatRequiredError error when no target format set', function (done) {
                 h.testErrorAsync(gd.DestinationFormatRequiredError, done, function (callback) {
-                    testImage.save(h.WritableStream(), callback)
+                    image.save(h.WritableStream(), callback)
                 })
             })
 
             it('should throw gd.UnknownImageFormatError exception when unknown target format set', function () {
                 h.testErrorSync(gd.UnknownImageFormatError, function () {
-                    var buffer = testImage.save({format: 'tiff'})
+                    var buffer = image.save({format: 'tiff'})
                 })
             })
 
             it('should return gd.UnknownImageFormatError error when unknown target format set', function (done) {
                 h.testErrorAsync(gd.UnknownImageFormatError, done, function (callback) {
-                    testImage.save({format: 'tiff'}, callback)
+                    image.save({format: 'tiff'}, callback)
                 })
             })
 
             it('should throw gd.UnknownDestinationTypeError exception when target is not a file, a buffer or a writable stream', function () {
                 h.testErrorSync(gd.UnknownDestinationTypeError, function () {
-                    var buffer = testImage.save(0xDEADBEEF, {format: 'jpeg'})
+                    var buffer = image.save(0xDEADBEEF, {format: 'jpeg'})
                 })
             })
 
             it('should asynchronously return gd.UnknownDestinationTypeError error when target is not a file, a buffer or a writable stream', function (done) {
                 h.testErrorAsync(gd.UnknownDestinationTypeError, done, function (callback) {
-                    testImage.save(0xDEADBEEF, {format: 'jpeg'}, callback)
+                    image.save(0xDEADBEEF, {format: 'jpeg'}, callback)
                 })
             })
 
             it('should return the image object when synchronously saving to file', function () {
                 var tmpFilename = './return_value_test.jpg'
-                var image = testImage.save(tmpFilename)
-                image.should.be.equal(testImage)
+                var result = image.save(tmpFilename)
+                result.should.be.equal(image)
                 fs.unlinkSync(tmpFilename)
             })
 
             it('should return the image object when asynchronously saving to file', function () {
                 var tmpFilename = './return_value_test.jpg'
-                var image = testImage.save(tmpFilename, function () {
+                var result = image.save(tmpFilename, function () {
                     fs.unlinkSync(tmpFilename)
                 })
-                image.should.be.equal(testImage)
+                result.should.be.equal(image)
             })
 
             it('should return the image object when saving to stream', function () {
                 var stream = h.WritableStream()
-                var image = testImage.save(stream, {format: 'jpeg'}, function () {})
-                image.should.be.equal(testImage)
+                var result = image.save(stream, {format: 'jpeg'}, function () {})
+                result.should.be.equal(image)
             })
 
             it('should return the image object when asynchronously saving to buffer', function () {
-                var image = testImage.save({format: 'jpeg'}, function (err, buffer) {})
-                image.should.be.equal(testImage)
+                var result = image.save({format: 'jpeg'}, function (err, buffer) {})
+                result.should.be.equal(image)
             })
 
             it('should choose the format in this order: file extension, options.format, image.format', function () {
@@ -178,14 +175,14 @@ describe('gd', function () {
             })
 
             it('should set jpeg quality with `quality` option', function () {
-                var highQualityJpeg = testImage.save({format: 'jpeg', quality: 100}),
-                    lowQualityJpeg  = testImage.save({format: 'jpeg', quality: 1})
+                var highQualityJpeg = image.save({format: 'jpeg', quality: 100}),
+                    lowQualityJpeg  = image.save({format: 'jpeg', quality: 1})
                 lowQualityJpeg.length.should.be.below(highQualityJpeg.length)
             })
 
             it('should set png compression type with `compression` option', function () {
-                var highCompressionPng = testImage.save({format: 'png', compression: 9}),
-                    lowCompressionPng  = testImage.save({format: 'png', compression: 1})
+                var highCompressionPng = image.save({format: 'png', compression: 9}),
+                    lowCompressionPng  = image.save({format: 'png', compression: 1})
                 highCompressionPng.length.should.be.below(lowCompressionPng.length)
             })
 
@@ -198,7 +195,7 @@ describe('gd', function () {
             it('should save image ratio on resize', function () {
                 var image = h.createImage(200, 100),
                     resized = image.resize(target)
-                Ratio(resized).should.equal(Ratio(image))
+                h.aspectRatio(resized).should.equal(h.aspectRatio(image))
             })
 
             it('should scale the image by height if image ratio is less than target size ratio', function () {
@@ -214,7 +211,7 @@ describe('gd', function () {
                     image = h.createImage(200, 100),
                     resized = image.resize(target)
                 resized.width.should.equal(target.width)
-                Ratio(resized).should.equal(Ratio(image))
+                h.aspectRatio(resized).should.equal(h.aspectRatio(image))
             })
 
             it('should resize by height option only and save image ratio', function () {
@@ -222,7 +219,7 @@ describe('gd', function () {
                     image = h.createImage(200, 100),
                     resized = image.resize(target)
                 resized.height.should.equal(target.height)
-                Ratio(resized).should.equal(Ratio(image))
+                h.aspectRatio(resized).should.equal(h.aspectRatio(image))
             })
 
             it('should crop the image if `method` option is set to `crop`', function () {
@@ -248,14 +245,16 @@ describe('gd', function () {
         })
 
         describe('crop()', function () {
+            var image = h.createImage()
+
             it('should crop horizontal images', function () {
-                var cropped = h.createImage(100, 100).crop({width: 30, height: 10})
+                var cropped = image.crop({width: 30, height: 10})
                 cropped.width.should.equal(30)
                 cropped.height.should.equal(10)
             })
 
             it('should crop vertical images', function () {
-                var cropped = h.createImage(100, 100).crop({width: 10, height: 30})
+                var cropped = image.crop({width: 10, height: 30})
                 cropped.width.should.equal(10)
                 cropped.height.should.equal(30)
             })
@@ -263,12 +262,12 @@ describe('gd', function () {
             it('should not modify the options passed', function () {
                 var options = {width: 10, height: 20},
                     optionsCopy = _.clone(options)
-                h.createImage(100, 100).crop(options)
+                image.crop(options)
                 options.should.eql(optionsCopy)
             })
 
             it('should take optional callback', function (done) {
-                var image = h.createImage(100, 100).crop({width:50, height: 50}, done)
+                image.crop({width:50, height: 50}, done)
             })
 
             it('should preserve exif data')
@@ -478,8 +477,4 @@ function gdImageFromBuffer(buffer, type) {
             'gif':  gd.createFromGifPtr,
         }
     return openers[type](buffer)
-}
-
-function Ratio (image) {
-    return image.width / image.height
 }
