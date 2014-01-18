@@ -278,28 +278,29 @@ describe('gd', function () {
 
         describe('watermark()', function () {
             var watermark = gd.open(samples.watermark)
+            var original = createGradientImage(100, 100)
 
-            // TODO: is this really supposed to be so? Generally, mutators are evil.
-            it('should return original image', function () {
-                var image = createGradientImage(100, 100)
-                image.watermark(watermark, {x: 0, y: 0}).should.equal(image)
+            it('should not modify the original', function () {
+                var image = original.watermark(watermark)
+                watermarkShouldBeAt(image, watermark, 0.5, 0.5)
+                original.should.not.equal(image)
+                ;(function () {
+                    watermarkShouldBeAt(original, watermark, 0.5, 0.5)
+                }).should.throw()
             })
 
             it('should put the watermark at the center of the image by default', function () {
-                var image = createGradientImage(100, 100)
-                image.watermark(watermark)
+                var image = original.watermark(watermark)
                 watermarkShouldBeAt(image, watermark, 0.5, 0.5)
             })
 
             it('should have default x position = 0.5', function () {
-                var image = createGradientImage(100, 100)
-                image.watermark(watermark, {y: 0})
+                var image = original.watermark(watermark, {y: 0})
                 watermarkShouldBeAt(image, watermark, 0.5, 0)
             })
 
             it('should have default y position = 0.5', function () {
-                var image = createGradientImage(100, 100)
-                image.watermark(watermark, {x: 1})
+                var image = original.watermark(watermark, {x: 1})
                 watermarkShouldBeAt(image, watermark, 1, 0.5)
             })
 
@@ -307,8 +308,7 @@ describe('gd', function () {
                 var x, y, image
                 for (x = 0; x <= 1; x += 0.2) {
                     for (y = 0; y <= 1; y += 0.2) {
-                        image = createGradientImage(50, 50)
-                        image.watermark(watermark, {x: x, y: y})
+                        image = original.watermark(watermark, {x: x, y: y})
                         watermarkShouldBeAt(image, watermark, x, y)
                     }
                 }
@@ -316,8 +316,7 @@ describe('gd', function () {
 
             it('should choose watermark position by brightness', function () {
                 var image
-                image = createGradientImage(50, 50)
-                image.watermark(watermark, [
+                image = original.watermark(watermark, [
                     {x: 0, y: 0},
                     {x: 0, y: 1},
                     {x: 1, y: 0},
@@ -325,23 +324,20 @@ describe('gd', function () {
                 ])
                 watermarkShouldBeAt(image, watermark, 0, 0)
 
-                image = createGradientImage(50, 50)
-                image.watermark(watermark, [
+                image = original.watermark(watermark, [
                     {x: 0, y: 1},
                     {x: 1, y: 0},
                     {x: 1, y: 1},
                 ])
                 watermarkShouldBeAt(image, watermark, 1, 0)
 
-                image = createGradientImage(50, 50)
-                image.watermark(watermark, [
+                image = original.watermark(watermark, [
                     {x: 0, y: 1},
                     {x: 1, y: 1},
                 ])
                 watermarkShouldBeAt(image, watermark, 0, 1)
 
-                image = createGradientImage(50, 50)
-                image.watermark(watermark, [
+                image = original.watermark(watermark, [
                     {x: 1, y: 1},
                 ])
                 watermarkShouldBeAt(image, watermark, 1, 1)
@@ -458,9 +454,9 @@ function testWatermarkSourceSync(source) {
     var x = 0,
         y = 0,
         watermark = gd.open(source),
-        image = createGradientImage(50, 50)
-    image.watermark(source, {x:x, y:y})
-    watermarkShouldBeAt(image, watermark, x, y)
+        image = createGradientImage(50, 50),
+        watermarked = image.watermark(source, {x:x, y:y})
+    watermarkShouldBeAt(watermarked, watermark, x, y)
 }
 
 function createGradientImage (width, height) {
