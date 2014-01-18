@@ -243,6 +243,9 @@ describe('gd', function () {
             it('should take optional callback', function (done) {
                 var image = h.createImage(100, 100).resize({width:50, height: 50}, done)
             })
+
+            it('should preserve exif data')
+            it('should preserve image format')
         })
 
         describe('crop()', function () {
@@ -268,6 +271,9 @@ describe('gd', function () {
             it('should take optional callback', function (done) {
                 var image = h.createImage(100, 100).crop({width:50, height: 50}, done)
             })
+
+            it('should preserve exif data')
+            it('should preserve image format')
         })
 
         describe('watermark()', function () {
@@ -386,6 +392,9 @@ describe('gd', function () {
                     createGradientImage(50, 50).watermark(samples.nonImageFile, callback)
                 })
             })
+
+            it('should preserve exif data')
+            it('should preserve image format')
         })
 
         describe('autoOrient()', function () {
