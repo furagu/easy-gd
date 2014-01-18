@@ -3,8 +3,6 @@ var should = require('should'),
     util = require('util'),
     gd = require('node-gd')
 
-// TODO: bring all the test helpers here
-
 exports.WritableStream = function WritableStream(options) {
     if (!(this instanceof WritableStream)) return new WritableStream(options)
     stream.Writable.call(this, options)

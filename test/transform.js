@@ -30,7 +30,7 @@ describe('gd', function () {
                 .pipe(resized)
         })
 
-        // TODO: accurate watermark test
+        // TODO: accurate tests for .crop, .watermark, .format, .quality, .compression .options
     })
 })
 
