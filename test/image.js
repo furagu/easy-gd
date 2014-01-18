@@ -13,8 +13,7 @@ describe('gd', function () {
         testImage.filledEllipse(50, 50, 25, 25, testImage.colorAllocate(255, 0, 0))
 
         describe('save()', function () {
-            var testImage = gd.createTrueColor(100, 100)
-            testImage.filledEllipse(50, 50, 25, 25, testImage.colorAllocate(255, 0, 0))
+            var testImage = h.createImage()
 
             it('should syncronously return a buffer when called with empty target argument', function () {
                 _.each(samples.types, function (type) {
@@ -179,18 +178,18 @@ describe('gd', function () {
             })
 
             it('should set jpeg quality with `quality` option', function () {
-                var image = h.createImage(),
-                    highQualityJpeg = image.save({format: 'jpeg', quality: 100}),
-                    lowQualityJpeg  = image.save({format: 'jpeg', quality: 1})
+                var highQualityJpeg = testImage.save({format: 'jpeg', quality: 100}),
+                    lowQualityJpeg  = testImage.save({format: 'jpeg', quality: 1})
                 lowQualityJpeg.length.should.be.below(highQualityJpeg.length)
             })
 
             it('should set png compression type with `compression` option', function () {
-                var image = h.createImage(),
-                    highCompressionPng = image.save({format: 'png', compression: 9}),
-                    lowCompressionPng  = image.save({format: 'png', compression: 1})
+                var highCompressionPng = testImage.save({format: 'png', compression: 9}),
+                    lowCompressionPng  = testImage.save({format: 'png', compression: 1})
                 highCompressionPng.length.should.be.below(lowCompressionPng.length)
             })
+
+            it('shoud substitute {ext} in the filename with the extention based on target format')
         })
 
         describe('resize()', function () {
@@ -278,7 +277,7 @@ describe('gd', function () {
 
         describe('watermark()', function () {
             var watermark = gd.open(samples.watermark)
-            var original = createGradientImage(100, 100)
+            var original = h.createImage()
 
             it('should not modify the original', function () {
                 var image = original.watermark(watermark)
@@ -370,22 +369,22 @@ describe('gd', function () {
 
             it('should throw an exception when bad watermark source given', function () {
                 h.testErrorSync(gd.FileDoesNotExistError, function () {
-                    createGradientImage(50, 50).watermark(samples.notExistingFile)
+                    h.createImage().watermark(samples.notExistingFile)
                 })
                 h.testErrorSync(gd.UnknownImageFormatError, function () {
-                    createGradientImage(50, 50).watermark(samples.nonImageFile)
+                    h.createImage().watermark(samples.nonImageFile)
                 })
             })
 
             it('should asynchronously return gd.FileDoesNotExistError when non-existing watermark source given', function (done) {
                 h.testErrorAsync(gd.FileDoesNotExistError, done, function (callback) {
-                    createGradientImage(50, 50).watermark(samples.notExistingFile, callback)
+                    h.createImage().watermark(samples.notExistingFile, callback)
                 })
             })
 
             it('should asynchronously return gd.UnknownImageFormatError when non-image watermark source given', function (done) {
                 h.testErrorAsync(gd.UnknownImageFormatError, done, function (callback) {
-                    createGradientImage(50, 50).watermark(samples.nonImageFile, callback)
+                    h.createImage().watermark(samples.nonImageFile, callback)
                 })
             })
 
@@ -444,7 +443,7 @@ describe('gd', function () {
 function testWatermarkSourceAsync(done, source, watermark) {
     var x = 0,
         y = 0
-    createGradientImage(50, 50).watermark(source, {x:x, y:y}, function (err, image) {
+    h.createImage().watermark(source, {x:x, y:y}, function (err, image) {
         watermarkShouldBeAt(image, watermark, x, y)
         done()
     })
@@ -454,35 +453,9 @@ function testWatermarkSourceSync(source) {
     var x = 0,
         y = 0,
         watermark = gd.open(source),
-        image = createGradientImage(50, 50),
+        image = h.createImage(),
         watermarked = image.watermark(source, {x:x, y:y})
     watermarkShouldBeAt(watermarked, watermark, x, y)
-}
-
-function createGradientImage (width, height) {
-    var img = gd.createTrueColor(width, height)
-    return greyGradientFill(img, Math.PI/8)
-}
-
-function greyGradientFill (image, angle) {
-    var width = image.width,
-        height = image.height,
-        sin_a = Math.sin(angle),
-        cos_a = Math.cos(angle),
-        step  = 255 / (width * cos_a + height * sin_a),
-        x,
-        y,
-        component,
-        color
-
-    for (x = 0; x < width; x++) {
-        for (y = 0; y < height; y++) {
-            component = Math.round(step * (x * sin_a + y * cos_a))
-            color = image.colorAllocate(component, component, component)
-            image.setPixel(x, y, color)
-       }
-    }
-    return image
 }
 
 function watermarkShouldBeAt(image, watermark, x, y) {

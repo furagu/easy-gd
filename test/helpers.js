@@ -29,7 +29,8 @@ exports.ReadableStream.prototype._read = function() {
 
 exports.createImage = function createImage(width, height) {
     var image = gd.createTrueColor(width || 100, height || 100)
-    image.filledEllipse(50, 50, 25, 25, image.colorAllocate(255, 0, 0))
+    greyGradientFill(image, Math.PI/8)
+    // image.filledEllipse(50, 50, 25, 25, image.colorAllocate(255, 0, 0))
     return image
 }
 
@@ -48,4 +49,25 @@ exports.testErrorAsync = function testErrorAsync(errorClass, done, testFn) {
         err.should.be.an.instanceof(errorClass)
         done()
     })
+}
+
+function greyGradientFill (image, angle) {
+    var width = image.width,
+        height = image.height,
+        sin_a = Math.sin(angle),
+        cos_a = Math.cos(angle),
+        step  = 255 / (width * cos_a + height * sin_a),
+        x,
+        y,
+        component,
+        color
+
+    for (x = 0; x < width; x++) {
+        for (y = 0; y < height; y++) {
+            component = Math.round(step * (x * sin_a + y * cos_a))
+            color = image.colorAllocate(component, component, component)
+            image.setPixel(x, y, color)
+       }
+    }
+    return image
 }
