@@ -103,6 +103,25 @@ describe('gd', function () {
             )
         }, done)
     })
+
+    it('should accept image data encoded in strings', function (done) {
+        var dst = h.WritableStream()
+        dst.on('finish', function () {
+            var image = gd.open(this.written)
+            image.should.have.property('format', 'png')
+            image.should.have.property('width', 50)
+            image.should.have.property('height', 50)
+            done()
+        })
+
+        var transform = gd.crop({width: 50, height: 50})
+        transform.pipe(dst)
+
+        var imageData = h.createImage(100, 100).save({format: 'png'}).toString('base64')
+        transform.write(imageData, 'base64')
+        transform.end()
+
+    })
 })
 
 function testTransform(transform, callback) {
