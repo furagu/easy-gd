@@ -253,6 +253,13 @@ describe('gd', function () {
                 h.aspectRatio(resized).should.equal(h.aspectRatio(image))
             })
 
+            it('should not resample the image with resample: false option set', function () {
+                var image = h.createImage(500, 500),
+                    resampled = image.resize({width: 100, height: 100}).save({format: 'png', compression: 0}),
+                    resized   = image.resize({width: 100, height: 100, resample: false}).save({format: 'png', compression: 0})
+                    resampled.length.should.be.below(resized.length)
+            })
+
             it('should crop the image if `method` option is set to `crop`', function () {
                 var image = h.createImage(100, 100),
                     target = {width: 30, height: 10, method: 'crop'},
