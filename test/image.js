@@ -131,14 +131,14 @@ describe('gd', function () {
             })
 
             it('should return the image object when synchronously saving to file', function () {
-                var tmpFilename = './return_value_test.jpg'
+                var tmpFilename = __dirname + '/return_value_test.jpg'
                 var result = image.save(tmpFilename)
                 result.should.be.equal(image)
                 fs.unlinkSync(tmpFilename)
             })
 
             it('should return the image object when asynchronously saving to file', function () {
-                var tmpFilename = './return_value_test.jpg'
+                var tmpFilename = __dirname + '/return_value_test.jpg'
                 var result = image.save(tmpFilename, function () {
                     fs.unlinkSync(tmpFilename)
                 })
@@ -158,8 +158,8 @@ describe('gd', function () {
 
             it('should choose the format in this order: file extension, options.format, image.format', function () {
                 var image = h.createImage(),
-                    jpegFilename = 'choose_format.jpg',
-                    tmpFilename = 'choose_format.tmp'
+                    jpegFilename = __dirname + '/choose_format.jpg',
+                    tmpFilename = __dirname + '/choose_format.tmp'
                 image.format = 'gif'
                 after(_.partial(fs.unlinkSync, jpegFilename))
                 after(_.partial(fs.unlinkSync, tmpFilename))
@@ -194,7 +194,7 @@ describe('gd', function () {
                 }
 
                 _.each(samples.buffersByType, function (buffer, type) {
-                    var filenameTemplate = './extByTypeTest.{ext}',
+                    var filenameTemplate = __dirname + '/extByTypeTest.{ext}',
                         expectedFilename = filenameTemplate.replace('{ext}', typeExtensions[type])
                     after(_.partial(fs.unlinkSync, expectedFilename))
 
