@@ -207,7 +207,20 @@ describe('gd', function () {
         })
 
         describe('resize()', function () {
-            var target = {width: 50, height: 50}
+            var target = {width: 50, height: 50},
+                image = h.createImage()
+
+            it('should throw gd.OptionsRequiredError when no options passed', function () {
+                h.testErrorSync(gd.OptionsRequiredError, function () {
+                    image.resize()
+                })
+            })
+
+            it('should return gd.OptionsRequiredError error when no options passed', function (done) {
+                h.testErrorAsync(gd.OptionsRequiredError, done, function (callback) {
+                    image.resize(callback)
+                })
+            })
 
             it('should save image ratio on resize', function () {
                 var image = h.createImage(200, 100),
