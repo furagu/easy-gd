@@ -29,7 +29,11 @@ describe('gd', function () {
         )
     })
 
-    // TODO: accurate tests for .watermark, .format, .quality, .compression .options
+    it('should .watermark() images piped in')
+    it('should set format setting for piped in images with .format()')
+    it('should set quality setting for piped in images with .quality()')
+    it('should set compression setting for piped in images with .compression()')
+    it('should set saving options for piped in images with .options()')
 })
 
 function testTransform(transform, callback) {
