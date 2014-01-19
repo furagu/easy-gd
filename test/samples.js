@@ -19,6 +19,7 @@ module.exports = {
 
     filesByExifOrientation: _.object(orientations, exifFiles),
     buffersByExifOrientation: _.object(orientations, exifBuffers),
+    exifBuffer: exifBuffers[0],
 
     notExistingFile: __dirname + '/samples/none.jpg',
     emptyFile:       __dirname + '/samples/empty.jpg',

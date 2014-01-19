@@ -186,7 +186,24 @@ describe('gd', function () {
                 highCompressionPng.length.should.be.below(lowCompressionPng.length)
             })
 
-            it('shoud substitute {ext} in the filename with the extention based on target format')
+            it('shoud substitute {ext} in the filename with the extention based on target format', function () {
+                var typeExtensions = {
+                    jpeg: 'jpg',
+                    png:  'png',
+                    gif:  'gif',
+                }
+
+                _.each(samples.buffersByType, function (buffer, type) {
+                    var filenameTemplate = './extByTypeTest.{ext}',
+                        expectedFilename = filenameTemplate.replace('{ext}', typeExtensions[type])
+                    after(_.partial(fs.unlinkSync, expectedFilename))
+
+                    fs.existsSync(expectedFilename).should.not.be.ok
+                    image.save(filenameTemplate, {format: type})
+                    fs.existsSync(expectedFilename).should.be.ok
+                })
+
+            })
         })
 
         describe('resize()', function () {
@@ -240,8 +257,22 @@ describe('gd', function () {
                 var image = h.createImage(100, 100).resize({width:50, height: 50}, done)
             })
 
-            it('should preserve exif data')
-            it('should preserve image format')
+            it('should preserve exif data', function () {
+                var image = gd.open(samples.exifBuffer)
+                image.resize({width: 5}).should.have.property('exif').eql(image.exif)
+            })
+
+            it('should return a clone of the original exif data', function () {
+                var image = gd.open(samples.exifBuffer)
+                image.resize({width: 5}).should.have.property('exif').eql(image.exif).not.equal(image.exif)
+            })
+
+            it('should preserve image format', function () {
+                _.each(samples.buffersByType, function (buffer, type) {
+                    var image = gd.open(buffer)
+                    image.resize({width: 5}).should.have.property('format', image.format)
+                })
+            })
         })
 
         describe('crop()', function () {
@@ -270,8 +301,22 @@ describe('gd', function () {
                 image.crop({width:50, height: 50}, done)
             })
 
-            it('should preserve exif data')
-            it('should preserve image format')
+            it('should preserve exif data', function () {
+                var image = gd.open(samples.exifBuffer)
+                image.crop({width: 5}).should.have.property('exif').eql(image.exif)
+            })
+
+            it('should return a clone of the original exif data', function () {
+                var image = gd.open(samples.exifBuffer)
+                image.crop({width: 5}).should.have.property('exif').eql(image.exif).not.equal(image.exif)
+            })
+
+            it('should preserve image format', function () {
+                _.each(samples.buffersByType, function (buffer, type) {
+                    var image = gd.open(buffer)
+                    image.crop({width: 5}).should.have.property('format', image.format)
+                })
+            })
         })
 
         describe('watermark()', function () {
@@ -387,8 +432,22 @@ describe('gd', function () {
                 })
             })
 
-            it('should preserve exif data')
-            it('should preserve image format')
+            it('should preserve exif data', function () {
+                var image = gd.open(samples.exifBuffer)
+                image.watermark(samples.watermark).should.have.property('exif').eql(image.exif)
+            })
+
+            it('should return a clone of the original exif data', function () {
+                var image = gd.open(samples.exifBuffer)
+                image.watermark(samples.watermark).should.have.property('exif').eql(image.exif).not.equal(image.exif)
+            })
+
+            it('should preserve image format', function () {
+                _.each(samples.buffersByType, function (buffer, type) {
+                    var image = gd.open(buffer)
+                    image.watermark(samples.watermark).should.have.property('format', image.format)
+                })
+            })
         })
 
         describe('autoOrient()', function () {
