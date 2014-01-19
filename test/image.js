@@ -207,16 +207,17 @@ describe('gd', function () {
         })
 
         describe('resize()', function () {
-            var target = {width: 50, height: 50},
-                image = h.createImage()
+            var target = {width: 50, height: 50}
 
             it('should throw gd.OptionsRequiredError when no options passed', function () {
+                var image = h.createImage()
                 h.testErrorSync(gd.OptionsRequiredError, function () {
                     image.resize()
                 })
             })
 
             it('should return gd.OptionsRequiredError error when no options passed', function (done) {
+                var image = h.createImage()
                 h.testErrorAsync(gd.OptionsRequiredError, done, function (callback) {
                     image.resize(callback)
                 })
