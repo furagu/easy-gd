@@ -1,6 +1,6 @@
 # The Future Interface of Easy-gd Library
 
-Node-gd 0.0.7 has miserable C-style interface that should be fixed.<br/>
+Easy-gd 0.0.7 has miserable C-style interface that should be fixed.<br/>
 Here is what's on the way to easy-gd 1.0.0:
 
 ### A single method to open image sources of any kind [a]synchronously
