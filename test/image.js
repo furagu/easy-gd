@@ -254,10 +254,10 @@ describe('gd', function () {
             })
 
             it('should not resample the image with resample: false option set', function () {
-                var image = h.createImage(500, 500),
-                    resampled = image.resize({width: 100, height: 100}).save({format: 'png', compression: 0}),
-                    resized   = image.resize({width: 100, height: 100, resample: false}).save({format: 'png', compression: 0})
-                    resampled.length.should.be.below(resized.length)
+                var image = h.createImage(100, 100),
+                    resampled = image.resize({width: 50, height: 50}).save({format: 'png', compression: 1}),
+                    resized   = image.resize({width: 50, height: 50, resample: false}).save({format: 'png', compression: 1})
+                resampled.length.should.be.above(resized.length)
             })
 
             it('should crop the image if `method` option is set to `crop`', function () {
