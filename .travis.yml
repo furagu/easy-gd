@@ -6,3 +6,6 @@ node_js:
   - "0.6"
 before_install:
   - "sudo apt-get install libgd2-xpm-dev"
+  - "sudo apt-get install graphicsmagick"
+  - "sudo apt-get install imagemagick"
+  - "sudo apt-get install libcairo2-dev"
