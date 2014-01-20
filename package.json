@@ -39,13 +39,8 @@
   },
   "devDependencies": {
     "should": "~2.1.1",
-    "benchmark": "~1.0.0",
-    "resize": "~0.7.2",
-    "rsz": "~0.2.2",
-    "im": "~0.2.3",
     "async": "~0.2.9",
     "istanbul": "~0.2.1",
-    "gm": "~1.14.2",
     "mocha": "~1.17.0"
   }
 }
