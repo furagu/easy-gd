@@ -1,12 +1,7 @@
 language: node_js
 node_js:
-  - "0.11"
   - "0.10"
   - "0.9"
   - "0.8"
-  - "0.6"
 before_install:
   - "sudo apt-get install libgd2-xpm-dev"
-  - "sudo apt-get install graphicsmagick"
-  - "sudo apt-get install imagemagick"
-  - "sudo apt-get install libcairo2-dev"
