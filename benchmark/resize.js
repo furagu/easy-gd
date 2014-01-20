@@ -12,15 +12,22 @@ var Benchmark = require('benchmark')
 
 
 /*
-These libraries are required to run the benchmark:
-    GraphicsMagick
-    ImageMagick
-    cairo
+To run the benchmark:
+    1. Install the system libraries
+        Mac OS X with MacPorts:
+            sudo port install GraphicsMagick +universal
+            sudo port install ImageMagick +universal
+            sudo port install cairo +universal
+        Ubuntu with apt-get:
+            sudo apt-get install graphicsmagick
+            sudo apt-get install imagemagick
+            sudo apt-get install libcairo2-dev
 
-Installation with MacPorts:
-    port -v install GraphicsMagick +universal
-    port -v install ImageMagick +universal
-    port -v install cairo +universal
+    2. Install node modules
+        npm install resize rsz im gm benchmark
+
+    3. Run it
+        make benchmark
 */
 
 var suites = [

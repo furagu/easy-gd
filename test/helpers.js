@@ -1,5 +1,5 @@
 var should = require('should'),
-    stream = require('stream'),
+    stream = require('readable-stream'),
     util = require('util'),
     gd = require('node-gd')
 

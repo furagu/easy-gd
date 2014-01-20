@@ -35,11 +35,11 @@
     "exif-parser": "~0.1.6",
     "vargs-callback": "~0.2.3",
     "clone": "~0.1.11",
-    "async": "~0.2.9"
+    "async": "~0.2.9",
+    "readable-stream": "~1.1.10"
   },
   "devDependencies": {
     "should": "~2.1.1",
-    "async": "~0.2.9",
     "istanbul": "~0.2.1",
     "mocha": "~1.17.0"
   }

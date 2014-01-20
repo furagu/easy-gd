@@ -3,7 +3,7 @@ var should = require('should'),
     _ = require('underscore'),
     fs = require('fs'),
     util = require('util'),
-    stream = require('stream'),
+    stream = require('readable-stream'),
     samples = require('./samples.js'),
     h = require('./helpers.js')
 
