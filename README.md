@@ -60,8 +60,8 @@ gd.open('uploaded.jpg')
 The default watermark position is the center of the image. To specify the position pass an additional __pos__ argument to the .watermark() call:
 
 ```js
-image = image.watermark('logo', {x: 0, y: 0}) // the left top corner
-image = image.watermark('logo', {x: 1, y: 1}) // the right bottom corner
+image = image.watermark('logo.png', {x: 0, y: 0}) // the left top corner
+image = image.watermark('logo.png', {x: 1, y: 1}) // the right bottom corner
 ```
 
 Read the [advansed section](#TODO) how to make a watermarking process asynchronous.
