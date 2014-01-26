@@ -11,40 +11,60 @@ Easy-gd is a node.js wrapper of the [GD image manipulation library](http://libgd
 
 ## Quickstart
 
-### Resize an Image
+### Making Thumbnails
 
-Say, you have a nice photo of a kitten and you want to make a thumbnail of it. Begin by loading the easy-gd module:
-
-```js
-var gd = require('easy-gd')
-```
-
-Then, open the image:
-
-```js
-var image = gd.open('kitten.jpg')
-```
-
-The image is now loaded into memory. It has properties and methods, __resize__ and __save__ being two of them. Most of the methods are chainable, making image manipulation easy indeed:
-
-```js
-image.resize({width: 100, height: 100}).save('kitten-thumbnail.jpg')
-```
-
-That's it! Your image was shrunk to feat into 100x100 pixels and saved into kitten-thumbnail.jpg file.
-
-### Add a Watermark
-
-_DESCRIPTION HERE_
+Let's start with everyday basics. The most common thing to do with a graphics library on the web is to make a thumbnail of a user-uploaded image. Let's do it step by step with easy-gd. Begin by loading the library:
 
 ```js
 var gd = require('easy-gd')
+```
 
-gd.open('kitten.jpg')
-  .resize({width: 800, height: 600})
+Open the image:
+
+```js
+var image = gd.open('uploaded-image.jpg')
+```
+
+The image is now loaded into memory and is represented by an object. It has properties and methods, __resize__ and __save__ being two of them. Most of the methods are chainable, making thumbnail generation this easy:
+
+```js
+image.resize({width: 100, height: 100}).save('image-thumbnail.jpg')
+```
+
+That's it! The image was shrunk to feat into 100x100 pixel square and was saved into image-thumbnail.jpg file.
+
+The production-ready solution, though, should be made in a slightly different manner to take an advantage of asynchronous node.js nature. Read the section on [asynchronous processing](#TODO).
+
+### Adding Watermarks
+
+Adding a watermark is something that often goes hand by hand with image resizing. A watermark is a semi-transparent image to be put on top of the original image to represent a website or company attribution.
+
+The common flow is something like this:
+
+* User uploads an image.
+* The image gets scaled down to some reasonable dimentions.
+* A watermark gets applied to the image.
+* The image gets saved and served.
+
+This is how to do the resize-watermark-save part with easy-gd:
+
+```js
+var gd = require('easy-gd')
+
+gd.open('uploaded.jpg')
+  .resize({width: 1000, height: 1000})
   .watermark('logo.png')
-  .save('kitten-large.jpg')
+  .save('large.jpg')
 ```
+
+The default watermark position is the center of the image. To specipy the position pass ann additional __pos__ argument to the .watermark() call:
+
+```js
+image = image.watermark('logo', {x: 0, y: 0}) // the left top corner
+image = image.watermark('logo', {x: 1, y: 1}) // the right bottom corner
+```
+
+Read the [advansed section](#TODO) how to make a watermarking process asynchronous.
 
 ### Read an Image from Buffer
 
