@@ -57,7 +57,7 @@ gd.open('uploaded.jpg')
   .save('large.jpg')
 ```
 
-The default watermark position is the center of the image. To specipy the position pass ann additional __pos__ argument to the .watermark() call:
+The default watermark position is the center of the image. To specify the position pass an additional __pos__ argument to the .watermark() call:
 
 ```js
 image = image.watermark('logo', {x: 0, y: 0}) // the left top corner
