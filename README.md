@@ -33,7 +33,7 @@ image.resize({width: 100, height: 100}).save('image-thumbnail.jpg')
 
 That's it! The image was shrunk to feat into 100x100 pixel square and was saved into image-thumbnail.jpg file.
 
-The production-ready solution, though, should be made in a slightly different manner to take an advantage of asynchronous node.js nature. Read the section on [asynchronous processing](#TODO).
+The production-ready solution, though, should be made in a slightly different manner to take the advantage of asynchronous node.js nature. Read the section on [asynchronous processing](#TODO).
 
 ### Adding Watermarks
 
@@ -64,19 +64,33 @@ image = image.watermark('logo.png', {x: 0, y: 0}) // the left top corner
 image = image.watermark('logo.png', {x: 1, y: 1}) // the right bottom corner
 ```
 
-Read the [advansed section](#TODO) how to make a watermarking process asynchronous.
+Read the [advansed section](#TODO) to make a watermarking process asynchronous.
 
-### Read an Image from Buffer
+### Opening and Saving Buffers
 
-_DESCRIPTION HERE_
+Sometimes the image comes in the form of buffer containing the image data. Easy-gd handles buffers just the same way it handles files: gd.open checks the type of the source passed in and does the right thing.
 
 ```js
 var gd = require('easy-gd')
+
+imageBuffer = somehowGetTheImageData()
 
 gd.open(imageBuffer)
   .resize({width: 1500, height: 1500})
   .save(filename)
 ```
+
+Sometimes it is necessary to get the resulting image as a buffer containing the image data. With easy-gd it is pretty easy, too: just call the image.save() without parameters and you'll get the buffer.
+
+```js
+var gd = require('easy-gd')
+
+var resizedBuffer = gd.open('image.jpg')
+  .resize({width: 500, height: 500})
+  .save()
+```
+
+Also, a buffer could be specified as the watermark source in the [image.watermark()](#adding-watermarks) method.
 
 ## License
 
