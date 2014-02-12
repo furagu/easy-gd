@@ -78,7 +78,7 @@ var gd = require('easy-gd')
 var imageBuffer = getTheImageBuffer() // fs.readFileSync(filename) for example
 
 gd.open(imageBuffer)
-  .resize({width: 1500, height: 1500})
+  .resize({width: 1000, height: 1000})
   .save(filename)
 ```
 
@@ -103,14 +103,14 @@ To read a stream just pass it to the gd.open() method. Due to asynchronous strea
 ```js
 var gd = require('easy-gd')
 
-var stream = getTheImageStream() // fs.createReadStream(filename) or process.stdin for example
+var stream = getInputStream() // fs.createReadStream(filename) or process.stdin
 
 gd.open(stream, function (error, image) {
     if (error) {
         console.log(error)
         return
     }
-    image.resize({width: 1500, height: 1500}).save('resized.jpg')
+    image.resize({width: 1000, height: 1000}).save('resized.jpg')
 })
 ```
 
@@ -119,16 +119,28 @@ Stream writing, as you maybe already guessed, is performed by the image.save() m
 ```js
 var gd = require('easy-gd')
 
-var stream = getTheFileStream() // fs.createWriteStream(filename) or process.stdout for example
+var stream = getOutputStream() // fs.createWriteStream(filename) or process.stdout
 
 gd.open('image.jpg')
-  .resize({width: 1500, height: 1500})
+  .resize({width: 1000, height: 1000})
   .save(stream, function (error) { // note the callback
     console.log(error || 'success')
   })
 ```
 
-_TODO: describe the pipelining_
+Sometimes both the input and the output are represented as a stream. For that case node.js has a concept of [transform stream](http://nodejs.org/api/stream.html#stream_class_stream_transform), which is implemented in easy-gd.
+
+Just omit the .open() and .save() calls to make a transform stream and then pipeline it to the source and the destination.
+
+```js
+var gd = require('easy-gd')
+
+var input  = getInputStream()  // fs.createReadStream(filename) or process.stdin
+var output = getOutputStream() // fs.createWriteStream(filename) or process.stdout
+
+var transform = gd.resize({width: 1000, height: 1000}).watermark('logo.png')
+input.pipe(transform).pipe(output)
+```
 
 ## License
 
