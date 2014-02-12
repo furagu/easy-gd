@@ -17,6 +17,8 @@ This documentation begins with some examples of what could be done with easy-gd,
     * [Adding Watermarks](#adding-watermarks)
     * [Opening and Saving Buffers](#opening-and-saving-buffers)
     * [Reading and Writing Streams](#reading-and-writing-streams)
+ * [Advanced Topics](#advanced-topics)
+    * [The Library Design](#the-library-design)
 
 ## Quickstart
 
@@ -141,6 +143,15 @@ var output = getOutputStream() // fs.createWriteStream(filename) or process.stdo
 var transform = gd.resize({width: 1000, height: 1000}).watermark('logo.png')
 input.pipe(transform).pipe(output)
 ```
+
+## Advanced Topics
+
+### The Library Design
+
+Easy-gd is build on top of [node-gd](https://www.npmjs.org/package/node-gd), which itself is a node.js wrapper of the popular [GD image manipulation library](http://libgd.bitbucket.org).
+
+Easy-gd is designed to be a wrapper of the underlying node-gd, leaving all the functionality of node-gd intact. _TO BE CONTINUED_
+
 
 ## License
 
