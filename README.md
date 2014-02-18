@@ -148,15 +148,19 @@ input.pipe(transform).pipe(output)
 
 ### The Library Design
 
-The library is built on top of [node-gd](https://www.npmjs.org/package/node-gd), which itself is a node.js wrapper of the [GD image manipulation library](http://libgd.bitbucket.org).
+The library is built on top of the [node-gd](https://www.npmjs.org/package/node-gd), which itself is a node.js wrapper of the [GD image manipulation library](http://libgd.bitbucket.org).
 
-Easy-gd is designed to be a wrapper of the underlying node-gd, extending the functionality of node-gd with new features. This wrapping made in three aspects:
+Easy-gd is designed to be a wrapper of the underlying node-gd, extending the functionality of node-gd with new features. This wrapping is made in three aspects:
 
-1. All of the node-gd methods present in easy-gd. You can just replace ```require('node-gd')``` with ```require('easy-gd')``` and nothing breaks.
+1. All of the node-gd methods present in easy-gd. You can just replace ```require('node-gd')``` with ```require('easy-gd')``` and everything works as before.
 2. gd.open() returns ordinary node-gd images (gd.Image descendants), so you can use your existing image processing methods if any.
-3. All the image objects returned by node-gd have extended methods like resize(), save() and so on. You can generate images with your existing code and save it with image.save() or resize with image.resize().
+3. All the image objects returned by node-gd have extended methods like resize(), save() and other, so one can generate images with some existing code and save them with image.save() or resize with image.resize().
 
-_TO BE CONTINUED_
+The philosophy of easy-gd is to make the routine image processing tasks easy and consistent.
+
+For instance, gd.open() will open an image in any [format it knows](#TODO-open-formats) from any type of the source it knows, be it a stream, a file or a buffer. It will return the image sincronously if one does not provide a callback, which is handy for proof-of-concept prototyping. It will also return the image asynchronously being passed a callback, so, when one is ready to write an asynchronous production code, the method stays exactly the same, only the callback agreement is added.
+
+All of the easy-gd methods are made this way, hiding the boring details of detecting formats, calculating the image size, reading buffers and streams and more.
 
 ## License
 
