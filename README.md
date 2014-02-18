@@ -19,6 +19,7 @@ This documentation begins with some examples of what could be done with easy-gd,
     * [Reading and Writing Streams](#reading-and-writing-streams)
 * [Advanced Topics](#advanced-topics)
     * [The Library Design](#the-library-design)
+    * [Opening Images](#opening-images)
 
 ## Quickstart
 
@@ -158,9 +159,61 @@ Easy-gd is designed to be a wrapper of the underlying node-gd, extending the fun
 
 The philosophy of easy-gd is to make the routine image processing tasks easy and consistent.
 
-For instance, gd.open() will open an image in any [format it knows](#TODO-open-formats) from any type of the source it knows, be it a stream, a file or a buffer. It will return the image sincronously if one does not provide a callback, which is handy for proof-of-concept prototyping. It will also return the image asynchronously being passed a callback, so, when one is ready to write an asynchronous production code, the method stays exactly the same, only the callback agreement is added.
+For instance, gd.open() will open an image in any [format it knows](#supported-formats) from any type of the source it knows, be it a stream, a file or a buffer. It will return the image sincronously if one does not provide a callback, which is handy for proof-of-concept prototyping. It will also return the image asynchronously being passed a callback, so, when one is ready to write an asynchronous production code, the method stays exactly the same, only the callback agreement is added.
 
 All of the easy-gd methods are made this way, hiding the boring details of detecting formats, calculating the image size, reading buffers and streams and more.
+
+### Opening Images
+
+```js
+gd.open( source [, options ] [, callback] )
+```
+
+Open an image and return the image object.
+
+__source__<br>
+Type: String, Stream, or Buffer<br>
+An image filename, a readable stream or a buffer containing the image data.
+
+__options__<br>
+Type: Object<br>
+A set of key/value pairs that configure gd.open features.
+
+* __autoOrient__ (default: true) Automatically orient the image using the Exif orientation tag (see a note on the [Exif handling](#TODO-exif-handling)).
+
+__callback__<br>
+Type: Function( gd.Error error, gd.Image image )<br>
+A function to be called when the image is ready. The error argument is set to gd.Error descendant to indicate a failure or null to indicate a success (see the [Error Handling](#TODO-error-handling)).
+
+#### Details
+
+<a name="supported-formats"/>
+The format of the image is automatically detected by checking the image contents. Only JPEG, PNG and GIF are supported.
+
+If there's no callback given, gd.open() will synchronously return an image or will raise a [gd.Error](#TODO-error-handling) exception to indicate a failure.
+
+The returned image is a gd.Image descendant, being an in-memory representation of the image used by GD library (one could spy the methods of the Image object in the gd.h header file of the C-library, typically located in /usr/local/include/gd.h).
+
+With easy-gd the gd.Image gains some extra properties and methods.
+
+The properties are:
+
+* __format__ (String). Stores the initial image format label, could be 'jpeg', 'png' or 'gif'.
+* __exif__ (Object). A set of key/value pairs representing the Exif tags found in the image (see the details on [Exif handling](#TODO-exif-handling)).
+
+The methods are:
+
+* __autoOrient()__                                    Automatically orient the image using the image.exif.Orientation tag (as gd.open() does by default).
+* __crop( [ options ] [, callback] )__                Crop the image (see [Resizing Images](#TODO-resizing-images-crop)).
+* __resize( [ options ] [, callback] )__              Resize the image proportionally (see [Resizing Images](#TODO-resizing-images)).
+* __save( [ target ] [, options] [, callback] )__     Save the image to a file, a buffer or a stream (see [Writing Images](#TODO-writing-images)).
+* __watermark( source [, position ] [, callback] )__  Add a watermark to the image (see [Adding Watermarks](#TODO-adding-watermarks)).
+
+See the [Handy Image Methods](#TODO-handy-image-methods) for some built-in GD image functionality.
+
+#### Examples
+
+_TO BE CONTINUED_
 
 ## License
 
