@@ -5,8 +5,8 @@ A Node.js wrapper around [GD image manipulation library](http://libgd.bitbucket.
 * A drop-in replacement for [node-gd](https://www.npmjs.org/package/node-gd). You can just ```require('easy-gd')``` instead of ```require('node-gd')``` and everything will be working as before.
 * Image format autodetection: just [```gd.open(file)```](#readingwriting-image-files) instead of choosing between ```gd.createFromJpeg(file)``` or  ```gd.createFromPng(file)``` or whatever.
 * Handy [resizing](#resizing-images) and [watermarking](#placing-a-watermark) shortcuts: ```gd.open('image.png').resize({width: 100, height:100}).save('small-image.png')```.
-* Reads/writes [files](#readingwriting-image-files), [buffers](#readingwriting-buffers) and [streams](#TODO).
-* Provides [synchronous](#TODO), [asynchronous](#TODO) and [stream](#TODO) interfaces.
+* Reads/writes [files](#readingwriting-image-files), [buffers](#readingwriting-buffers) and [streams](#readingwriting-streams).
+* Provides [synchronous](#TODO), [asynchronous](#TODO) and [transform stream](#TODO) interfaces.
 * Has built-in [Exif parsing](#TODO) and supports [automatic image orientation](#TODO).
 
 ## Recipes
@@ -24,7 +24,7 @@ var image = gd.open('image.png')
 image.save('processed.jpg', {quality: 80})
 ```
 
-See also: [Reading/writing buffers](#readingwriting-buffers), [Reading/writing streams](#TODO), [Asynchronous processing](#TODO), [Controlling the output format](#TODO).
+See also: [Reading/writing buffers](#readingwriting-buffers), [Reading/writing streams](#readingwriting-streams), [Asynchronous processing](#TODO), [Controlling the output format](#TODO).
 
 
 ### Resizing images
@@ -53,7 +53,7 @@ resized = image.resize({width: 100, height: 100, method: 'crop'})
 resized = image.resize({width: 100, height: 100, resample: false})
 ```
 
-See also: [Asynchronous processing](#TODO).
+See also: [Asynchronous processing](#TODO), [Image transform streams](#TODO).
 
 
 ### Placing a watermark
@@ -83,7 +83,7 @@ var logo = gd.open('logo.png')
 watermarked = image.watermark(logo)
 ```
 
-See also: [Reading/writing buffers](#readingwriting-buffers), [Reading/writing streams](#TODO), [Asynchronous processing](#TODO).
+See also: [Reading/writing buffers](#readingwriting-buffers), [Reading/writing streams](#readingwriting-streams), [Asynchronous processing](#TODO).
 
 
 ### Reading/writing buffers
@@ -101,7 +101,37 @@ var imageData = image.save()
 var watermarked = image.watermark(imageData)
 ```
 
-See also: [Reading/writing files](#readingwriting-image-files), [Reading/writing streams](#TODO), [Asynchronous processing](#TODO).
+See also: [Reading/writing files](#readingwriting-image-files), [Reading/writing streams](#readingwriting-streams), [Asynchronous processing](#TODO), [Controlling the output format](#TODO).
+
+
+### Reading/writing streams
+
+```js
+var gd = require('easy-gd')
+
+// Reading image from stream
+gd.open(stream, function (error, image) {
+  if (!error) {
+    // Process the image
+  }
+})
+
+// Saving image to a stream
+image.save(stream, function (error) {
+  if (!error) {
+    // Some action
+  }
+})
+
+// Using stream as a watermark source
+image.watermark(stream, function (error, watermarked) {
+  if (!error) {
+    // Process the watermarked image
+  }
+})
+```
+
+See also: [Image transform streams](#TODO), [Reading/writing files](#readingwriting-image-files), [Reading/writing buffers](#readingwriting-buffers), [Controlling the output format](#TODO).
 
 
 ### Error handling
