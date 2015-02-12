@@ -3,11 +3,11 @@
 A Node.js wrapper around [GD image manipulation library](http://libgd.bitbucket.org) with extra features:
 
 * A drop-in replacement for [node-gd](https://www.npmjs.org/package/node-gd). You can just ```require('easy-gd')``` instead of ```require('node-gd')``` and everything will be working as before.
-* Image format autodetection: just ```gd.open(file)``` instead of choosing between ```gd.createFromJpeg(file)``` or  ```gd.createFromPng(file)``` or whatever.
-* Handy [resizing](#resizing-images) and [watermarking](#TODO) shortcuts: ```gd.open('image.png').resize({width: 100, height:100}).save('small-image.png')```.
-* Reads/writes [files](#TODO), [buffers](#TODO) and [streams](#TODO).
-* [Synchronous](#TODO), [asynchronous](#TODO) and [stream](#TODO) interfaces.
-* [Exif parsing](#TODO) and [automatic image orientation](#TODO) support.
+* Image format autodetection: just [```gd.open(file)```](#readingwriting-image-files) instead of choosing between ```gd.createFromJpeg(file)``` or  ```gd.createFromPng(file)``` or whatever.
+* Handy [resizing](#resizing-images) and [watermarking](#placing-a-watermark) shortcuts: ```gd.open('image.png').resize({width: 100, height:100}).save('small-image.png')```.
+* Reads/writes [files](#readingwriting-image-files), [buffers](#TODO) and [streams](#TODO).
+* Provides [synchronous](#TODO), [asynchronous](#TODO) and [stream](#TODO) interfaces.
+* Has built-in [Exif parsing](#TODO) and supports [automatic image orientation](#TODO).
 
 ## Recipes
 
@@ -24,7 +24,7 @@ var image = gd.open('image.png')
 image.save('processed.jpg', {quality: 80})
 ```
 
-See also: [asynchronous processing](#TODO), [controlling the output format](#TODO).
+See also: [Reading/writing buffers](#TODO), [Reading/writing streams](#TODO), [Asynchronous processing](#TODO), [Controlling the output format](#TODO).
 
 
 ### Resizing images
@@ -52,3 +52,40 @@ resized = image.resize({width: 100, height: 100, method: 'crop'})
 // Resize without resampling; faster but lowers the quality
 resized = image.resize({width: 100, height: 100, resample: false})
 ```
+
+See also: [Asynchronous processing](#TODO).
+
+
+### Placing a watermark
+
+```js
+var gd = require('easy-gd')
+
+var image, watermarked
+
+image = gd.open('source-image.jpg')
+
+// Place a logo at the center of the image
+watermarked = image.watermark('logo.png')
+watermarked = image.watermark('logo.png', {x: 0.5, y: 0.5})
+
+// At the left top corner
+watermarked = image.watermark('logo.png', {x: 0, y: 0})
+
+// At the right bottom corner
+watermarked = image.watermark('logo.png', {x: 1, y: 1})
+
+// Choose the most contrast position for a logo at the bottom
+watermarked = image.watermark('logo.png',
+  [{x: 0, y: 1}, {x: 0.5, y: 1}, {x: 1, y: 1}])
+
+// Using gd.Image object as a watermark
+var logo = gd.open('logo.png')
+watermarked = image.watermark(logo)
+```
+
+See also: [Reading/writing buffers](#TODO), [Reading/writing streams](#TODO), [Asynchronous processing](#TODO).
+
+
+### Error handling
+
