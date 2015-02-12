@@ -5,7 +5,7 @@ A Node.js wrapper around [GD image manipulation library](http://libgd.bitbucket.
 * A drop-in replacement for [node-gd](https://www.npmjs.org/package/node-gd). You can just ```require('easy-gd')``` instead of ```require('node-gd')``` and everything will be working as before.
 * Image format autodetection: just [```gd.open(file)```](#readingwriting-image-files) instead of choosing between ```gd.createFromJpeg(file)``` or  ```gd.createFromPng(file)``` or whatever.
 * Handy [resizing](#resizing-images) and [watermarking](#placing-a-watermark) shortcuts: ```gd.open('image.png').resize({width: 100, height:100}).save('small-image.png')```.
-* Reads/writes [files](#readingwriting-image-files), [buffers](#TODO) and [streams](#TODO).
+* Reads/writes [files](#readingwriting-image-files), [buffers](#readingwriting-buffers) and [streams](#TODO).
 * Provides [synchronous](#TODO), [asynchronous](#TODO) and [stream](#TODO) interfaces.
 * Has built-in [Exif parsing](#TODO) and supports [automatic image orientation](#TODO).
 
@@ -24,7 +24,7 @@ var image = gd.open('image.png')
 image.save('processed.jpg', {quality: 80})
 ```
 
-See also: [Reading/writing buffers](#TODO), [Reading/writing streams](#TODO), [Asynchronous processing](#TODO), [Controlling the output format](#TODO).
+See also: [Reading/writing buffers](#readingwriting-buffers), [Reading/writing streams](#TODO), [Asynchronous processing](#TODO), [Controlling the output format](#TODO).
 
 
 ### Resizing images
@@ -76,16 +76,32 @@ watermarked = image.watermark('logo.png', {x: 0, y: 0})
 watermarked = image.watermark('logo.png', {x: 1, y: 1})
 
 // Choose the most contrast position for a logo at the bottom
-watermarked = image.watermark('logo.png',
-  [{x: 0, y: 1}, {x: 0.5, y: 1}, {x: 1, y: 1}])
+watermarked = image.watermark('logo.png', [{x: 0, y: 1}, {x: 0.5, y: 1}, {x: 1, y: 1}])
 
 // Using gd.Image object as a watermark
 var logo = gd.open('logo.png')
 watermarked = image.watermark(logo)
 ```
 
-See also: [Reading/writing buffers](#TODO), [Reading/writing streams](#TODO), [Asynchronous processing](#TODO).
+See also: [Reading/writing buffers](#readingwriting-buffers), [Reading/writing streams](#TODO), [Asynchronous processing](#TODO).
+
+
+### Reading/writing buffers
+
+```js
+var gd = require('easy-gd')
+
+// Reading image from buffer
+var image = gd.open(imageData)
+
+// Saving image to a buffer
+var imageData = image.save()
+
+// Using buffer as a watermark source
+var watermarked = image.watermark(imageData)
+```
+
+See also: [Reading/writing files](#readingwriting-image-files), [Reading/writing streams](#TODO), [Asynchronous processing](#TODO).
 
 
 ### Error handling
-
