@@ -7,7 +7,7 @@ A Node.js wrapper around [GD image manipulation library](http://libgd.bitbucket.
 * Handy [resizing](#resizing-images) and [watermarking](#placing-a-watermark) shortcuts: ```gd.open('image.png').resize({width: 100, height:100}).save('small-image.png')```.
 * Reads/writes [files](#readingwriting-image-files), [buffers](#readingwriting-buffers) and [streams](#readingwriting-streams).
 * Provides [synchronous](#synchronous-image-processing), [asynchronous](#asynchronous-image-processing) and [transform stream](#image-transform-streams) interfaces.
-* Has built-in [Exif parsing](#TODO) and supports [automatic image orientation](#TODO).
+* Has built-in [Exif parsing](#reading-exif-data) and supports [automatic image orientation](#TODO).
 
 ## Recipes
 
@@ -233,6 +233,26 @@ gd.open(inputStream, function (error, image) {
 ```
 
 See also: [Image transform streams](#image-transform-streams), [Synchronous processing](#synchronous-image-processing).
+
+
+### Reading Exif data
+
+Exif data are being parsed automatically for JPEG images.
+
+```js
+var gd = require('easy-gd')
+
+var image = gd.open('input.jpg')
+
+// Accessing Exif tags
+if (image.exif) {
+  console.log('%s %s', image.exif.GPSLongitude, image.exif.GPSLatitude)
+} else {
+  console.log('No Exif data')
+}
+```
+
+See also: [Automatic image orientation](#TODO).
 
 
 ### Error handling
