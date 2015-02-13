@@ -6,7 +6,7 @@ A Node.js wrapper around [GD image manipulation library](http://libgd.bitbucket.
 * Image format autodetection: just [```gd.open(file)```](#readingwriting-image-files) instead of choosing between ```gd.createFromJpeg(file)``` or  ```gd.createFromPng(file)``` or whatever.
 * Handy [resizing](#resizing-images) and [watermarking](#placing-a-watermark) shortcuts: ```gd.open('image.png').resize({width: 100, height:100}).save('small-image.png')```.
 * Reads/writes [files](#readingwriting-image-files), [buffers](#readingwriting-buffers) and [streams](#readingwriting-streams).
-* Provides [synchronous](#synchronous-image-processing), [asynchronous](#TODO) and [transform stream](#image-transform-streams) interfaces.
+* Provides [synchronous](#synchronous-image-processing), [asynchronous](#asynchronous-image-processing) and [transform stream](#image-transform-streams) interfaces.
 * Has built-in [Exif parsing](#TODO) and supports [automatic image orientation](#TODO).
 
 ## Recipes
@@ -24,7 +24,7 @@ var image = gd.open('image.png')
 image.save('processed.jpg', {quality: 80})
 ```
 
-See also: [Reading/writing buffers](#readingwriting-buffers), [Reading/writing streams](#readingwriting-streams), [Asynchronous processing](#TODO), [Controlling the output format](#TODO).
+See also: [Reading/writing buffers](#readingwriting-buffers), [Reading/writing streams](#readingwriting-streams), [Asynchronous processing](#asynchronous-image-processing), [Controlling the output format](#TODO).
 
 
 ### Resizing images
@@ -53,7 +53,7 @@ resized = image.resize({width: 100, height: 100, method: 'crop'})
 resized = image.resize({width: 100, height: 100, resample: false})
 ```
 
-See also: [Asynchronous processing](#TODO), [Image transform streams](#image-transform-streams).
+See also: [Asynchronous processing](#asynchronous-image-processing), [Image transform streams](#image-transform-streams).
 
 
 ### Placing a watermark
@@ -83,7 +83,7 @@ var logo = gd.open('logo.png')
 watermarked = image.watermark(logo)
 ```
 
-See also: [Reading/writing buffers](#readingwriting-buffers), [Reading/writing streams](#readingwriting-streams), [Asynchronous processing](#TODO).
+See also: [Reading/writing buffers](#readingwriting-buffers), [Reading/writing streams](#readingwriting-streams), [Asynchronous processing](#asynchronous-image-processing).
 
 
 ### Reading/writing buffers
@@ -101,7 +101,7 @@ var imageData = image.save()
 var watermarked = image.watermark(imageData)
 ```
 
-See also: [Reading/writing files](#readingwriting-image-files), [Reading/writing streams](#readingwriting-streams), [Asynchronous processing](#TODO), [Controlling the output format](#TODO).
+See also: [Reading/writing files](#readingwriting-image-files), [Reading/writing streams](#readingwriting-streams), [Asynchronous processing](#asynchronous-image-processing), [Controlling the output format](#TODO).
 
 
 ### Reading/writing streams
@@ -187,7 +187,52 @@ var outputData = gd.open(inputData)
   .save({format: 'jpeg', quality: 90})
 ```
 
-See also: [Asynchronous processing](#TODO).
+See also: [Asynchronous processing](#asynchronous-image-processing).
+
+
+### Asynchronous image processing
+
+You can asynchronously process files, buffers and streams by passing additional ```callback(error[, resultImageOrBuffer])``` argument:
+
+```js
+var gd = require('easy-gd')
+
+// Processing files
+gd.open('input.png', function (error, image) {
+  if (error) throw error;
+  image.resize({width: 800, height: 600}, function (error, resized) {
+    if (error) throw error;
+    resized.save('output.jpg', {quality: 90}, function (error) {
+      if (error) throw error;
+    })
+  })
+})
+
+// Processing buffers
+gd.open(inputData, function (error, image) {
+  if (error) throw error;
+  image.resize({width: 800, height: 600}, function (error, resized) {
+    if (error) throw error;
+    resized.save({format: 'jpeg', quality: 90}, function (error, outputData) {
+      if (error) throw error;
+      // Process outputData buffer
+    })
+  })
+})
+
+// Processing streams
+gd.open(inputStream, function (error, image) {
+  if (error) throw error;
+  image.resize({width: 800, height: 600}, function (error, resized) {
+    if (error) throw error;
+    resized.save(outputStream, {format: 'jpeg', quality: 90}, function (error) {
+      if (error) throw error;
+    })
+  })
+})
+```
+
+See also: [Image transform streams](#image-transform-streams), [Synchronous processing](#synchronous-image-processing).
 
 
 ### Error handling
