@@ -199,22 +199,22 @@ var gd = require('easy-gd')
 
 // Processing files
 gd.open('input.png', function (error, image) {
-  if (error) throw error;
+  if (error) throw error
   image.resize({width: 800, height: 600}, function (error, resized) {
-    if (error) throw error;
+    if (error) throw error
     resized.save('output.jpg', {quality: 90}, function (error) {
-      if (error) throw error;
+      if (error) throw error
     })
   })
 })
 
 // Processing buffers
 gd.open(inputData, function (error, image) {
-  if (error) throw error;
+  if (error) throw error
   image.resize({width: 800, height: 600}, function (error, resized) {
-    if (error) throw error;
+    if (error) throw error
     resized.save({format: 'jpeg', quality: 90}, function (error, outputData) {
-      if (error) throw error;
+      if (error) throw error
       // Process outputData buffer
     })
   })
@@ -222,11 +222,11 @@ gd.open(inputData, function (error, image) {
 
 // Processing streams
 gd.open(inputStream, function (error, image) {
-  if (error) throw error;
+  if (error) throw error
   image.resize({width: 800, height: 600}, function (error, resized) {
-    if (error) throw error;
+    if (error) throw error
     resized.save(outputStream, {format: 'jpeg', quality: 90}, function (error) {
-      if (error) throw error;
+      if (error) throw error
     })
   })
 })
