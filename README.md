@@ -6,7 +6,7 @@ A Node.js wrapper around [GD image manipulation library](http://libgd.bitbucket.
 * Image format autodetection: just [```gd.open(file)```](#readingwriting-image-files) instead of choosing between ```gd.createFromJpeg(file)``` or  ```gd.createFromPng(file)``` or whatever.
 * Handy [resizing](#resizing-images) and [watermarking](#placing-a-watermark) shortcuts: ```gd.open('image.png').resize({width: 100, height:100}).save('small-image.png')```.
 * Reads/writes [files](#readingwriting-image-files), [buffers](#readingwriting-buffers) and [streams](#readingwriting-streams).
-* Provides [synchronous](#TODO), [asynchronous](#TODO) and [transform stream](#image-transform-streams) interfaces.
+* Provides [synchronous](#synchronous-image-processing), [asynchronous](#TODO) and [transform stream](#image-transform-streams) interfaces.
 * Has built-in [Exif parsing](#TODO) and supports [automatic image orientation](#TODO).
 
 ## Recipes
@@ -167,6 +167,27 @@ process.stdin
 ```
 
 See also: [Reading/writing files](#readingwriting-image-files), [Reading/writing buffers](#readingwriting-buffers), [Reading/writing streams](#readingwriting-streams), [Controlling the output format](#TODO).
+
+
+### Synchronous image processing
+
+With easy-gd you can synchronously process files and buffers:
+
+```js
+var gd = require('easy-gd')
+
+// Processing files
+gd.open('input.png')
+  .resize({width: 800, height: 600})
+  .save('output.jpg', {quality: 90})
+
+// Processing buffers
+var outputData = gd.open(inputData)
+  .resize({width: 800, height: 600})
+  .save({format: 'jpeg', quality: 90})
+```
+
+See also: [Asynchronous processing](#TODO).
 
 
 ### Error handling
