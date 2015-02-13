@@ -6,7 +6,7 @@ A Node.js wrapper around [GD image manipulation library](http://libgd.bitbucket.
 * Image format autodetection: just [```gd.open(file)```](#readingwriting-image-files) instead of choosing between ```gd.createFromJpeg(file)``` or  ```gd.createFromPng(file)``` or whatever.
 * Handy [resizing](#resizing-images) and [watermarking](#placing-a-watermark) shortcuts: ```gd.open('image.png').resize({width: 100, height:100}).save('small-image.png')```.
 * Reads/writes [files](#readingwriting-image-files), [buffers](#readingwriting-buffers) and [streams](#readingwriting-streams).
-* Provides [synchronous](#TODO), [asynchronous](#TODO) and [transform stream](#TODO) interfaces.
+* Provides [synchronous](#TODO), [asynchronous](#TODO) and [transform stream](#image-transform-streams) interfaces.
 * Has built-in [Exif parsing](#TODO) and supports [automatic image orientation](#TODO).
 
 ## Recipes
@@ -53,7 +53,7 @@ resized = image.resize({width: 100, height: 100, method: 'crop'})
 resized = image.resize({width: 100, height: 100, resample: false})
 ```
 
-See also: [Asynchronous processing](#TODO), [Image transform streams](#TODO).
+See also: [Asynchronous processing](#TODO), [Image transform streams](#image-transform-streams).
 
 
 ### Placing a watermark
@@ -131,7 +131,42 @@ image.watermark(stream, function (error, watermarked) {
 })
 ```
 
-See also: [Image transform streams](#TODO), [Reading/writing files](#readingwriting-image-files), [Reading/writing buffers](#readingwriting-buffers), [Controlling the output format](#TODO).
+See also: [Image transform streams](#image-transform-streams), [Reading/writing files](#readingwriting-image-files), [Reading/writing buffers](#readingwriting-buffers), [Controlling the output format](#TODO).
+
+
+### Image transform streams
+
+All the image manipulation methods called directly on the module object produce chainable [transform streams](http://nodejs.org/api/stream.html#stream_class_stream_transform_1):
+
+```js
+var gd = require('easy-gd')
+
+// Making thumbnails
+process.stdin
+  .pipe(gd.crop({width: 100, height: 100}))
+  .pipe(process.stdout)
+
+// Watermarking
+process.stdin
+  .pipe(gd.watermark('logo.png'))
+  .pipe(process.stdout)
+
+// Changing image format
+process.stdin
+  .pipe(gd.format('jpeg').quality(90))
+  .pipe(process.stdout)
+
+// Combine everything
+process.stdin
+  .pipe(
+    gd.resize({width: 800, height: 600})
+      .watermark('logo.png', {x:1, y:1})
+      .options({format: 'jpeg', quality: '90'})
+  )
+  .pipe(process.stdout)
+```
+
+See also: [Reading/writing files](#readingwriting-image-files), [Reading/writing buffers](#readingwriting-buffers), [Reading/writing streams](#readingwriting-streams), [Controlling the output format](#TODO).
 
 
 ### Error handling
