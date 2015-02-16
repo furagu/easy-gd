@@ -24,7 +24,7 @@ var image = gd.open('image.png')
 image.save('processed.jpg', {quality: 80})
 ```
 
-See also: [Reading/writing buffers](#readingwriting-buffers), [Reading/writing streams](#readingwriting-streams), [Asynchronous processing](#asynchronous-image-processing), [Controlling the output format](#TODO).
+See also: [Reading/writing buffers](#readingwriting-buffers), [Reading/writing streams](#readingwriting-streams), [Asynchronous processing](#asynchronous-image-processing), [Controlling the output format](#controlling-the-output-format).
 
 
 ### Resizing images
@@ -101,7 +101,7 @@ var imageData = image.save()
 var watermarked = image.watermark(imageData)
 ```
 
-See also: [Reading/writing files](#readingwriting-image-files), [Reading/writing streams](#readingwriting-streams), [Asynchronous processing](#asynchronous-image-processing), [Controlling the output format](#TODO).
+See also: [Reading/writing files](#readingwriting-image-files), [Reading/writing streams](#readingwriting-streams), [Asynchronous processing](#asynchronous-image-processing), [Controlling the output format](#controlling-the-output-format).
 
 
 ### Reading/writing streams
@@ -131,7 +131,7 @@ image.watermark(stream, function (error, watermarked) {
 })
 ```
 
-See also: [Image transform streams](#image-transform-streams), [Reading/writing files](#readingwriting-image-files), [Reading/writing buffers](#readingwriting-buffers), [Controlling the output format](#TODO).
+See also: [Image transform streams](#image-transform-streams), [Reading/writing files](#readingwriting-image-files), [Reading/writing buffers](#readingwriting-buffers), [Controlling the output format](#controlling-the-output-format).
 
 
 ### Image transform streams
@@ -166,7 +166,7 @@ process.stdin
   .pipe(process.stdout)
 ```
 
-See also: [Reading/writing files](#readingwriting-image-files), [Reading/writing buffers](#readingwriting-buffers), [Reading/writing streams](#readingwriting-streams), [Controlling the output format](#TODO).
+See also: [Reading/writing files](#readingwriting-image-files), [Reading/writing buffers](#readingwriting-buffers), [Reading/writing streams](#readingwriting-streams), [Controlling the output format](#controlling-the-output-format).
 
 
 ### Synchronous image processing
@@ -255,4 +255,34 @@ if (image.exif) {
 See also: [Automatic image orientation](#TODO).
 
 
+### Controlling the output format
+
+```js
+var gd = require('easy-gd')
+var image = gd.open('input.jpg')
+
+// Format is inherited from the source image
+var image = gd.open('input.jpg')
+var resizedBuffer = image.resize({width: 100}).save() // Saved in JPEG
+
+// Format can be specified explicitly with target filename extension
+var image = gd.open('input.jpg')
+image.save('output.png') // Saved in PNG
+
+// Format can be specified explicitly with save({format: 'format_name'})
+var image = gd.open('input.jpg')
+var pngBuffer = image.save({format: 'png'}) // Saved in PNG
+
+// Format can be overwritten by target file extension
+var image = gd.open('input.png')
+image.save('output.jpg') // Saved in JPEG
+```
+
+Precedence: filename extension > save 'format' option > inherited format.
+
+See also: [Automatic filename extensions](#TODO), [Controlling image quality/compression](#TODO).
+
+
+### Controlling image quality/compression
+### Automatic filename extensions
 ### Error handling
