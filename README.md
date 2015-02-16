@@ -7,7 +7,7 @@ A Node.js wrapper around [GD image manipulation library](http://libgd.bitbucket.
 * Handy [resizing](#resizing-images) and [watermarking](#placing-a-watermark) shortcuts: ```gd.open('image.png').resize({width: 100, height:100}).save('small-image.png')```.
 * Reads/writes [files](#readingwriting-image-files), [buffers](#readingwriting-buffers) and [streams](#readingwriting-streams).
 * Provides [synchronous](#synchronous-image-processing), [asynchronous](#asynchronous-image-processing) and [transform stream](#image-transform-streams) interfaces.
-* Has built-in [Exif parsing](#reading-exif-data) and supports [automatic image orientation](#TODO).
+* Has built-in [Exif parsing](#reading-exif-data) and supports [automatic image orientation](#automatic-image-orientation).
 
 ## Recipes
 
@@ -252,7 +252,9 @@ if (image.exif) {
 }
 ```
 
-See also: [Automatic image orientation](#TODO).
+Note: image.exif property will be copied by resize() and other methods, but will not be written to the destination image.
+
+See also: [Automatic image orientation](#automatic-image-orientation).
 
 
 ### Controlling the output format
@@ -323,6 +325,26 @@ image
 ```
 
 See also: [Controlling the output format](#controlling-the-output-format), [Controlling image quality/compression](#controlling-image-qualitycompression).
+
+
+### Automatic image orientation
+
+GD does not process Exif data, resulting rotated images in the output. Easy-gd fixes this by automatically orienting the image.
+
+```js
+var gd = require('easy-gd')
+
+// The image gets automatically oriented by Exif data
+var image = gd.open('photo.jpg')
+
+// Turn automatic orientation off
+var original = gd.open('photo.jpg', {autoOrient: false})
+
+// Automatically orient existing image
+var rotated = original.autoOrient()
+```
+
+See also: [Reading Exif data](#reading-exif-data).
 
 
 ### Error handling
