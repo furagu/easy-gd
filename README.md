@@ -259,7 +259,6 @@ See also: [Automatic image orientation](#TODO).
 
 ```js
 var gd = require('easy-gd')
-var image = gd.open('input.jpg')
 
 // Format is inherited from the source image
 var image = gd.open('input.jpg')
@@ -280,9 +279,33 @@ image.save('output.jpg') // Saved in JPEG
 
 Precedence: filename extension > save 'format' option > inherited format.
 
-See also: [Automatic filename extensions](#TODO), [Controlling image quality/compression](#TODO).
+See also: [Controlling image quality/compression](#controlling-image-qualitycompression), [Automatic filename extensions](#TODO).
 
 
 ### Controlling image quality/compression
+
+```js
+var gd = require('easy-gd')
+var image = gd.open('input.jpg')
+
+// Setting JPEG file quality, 0-100
+image.save('output.jpg', {quality: 90})
+
+// Setting PNG file compression level, 0-9
+image.save('ouput.png', {compression: 9})
+
+// Transform stream options
+inputStream.pipe(gd.format('png').compression(6)).pipe(outputStream)
+inputStream.pipe(gd.format('jpeg').quality(80)).pipe(outputStream)
+inputStream.pipe(gd.options({format: 'jpeg', quality: 80}).pipe(outputStream)
+
+// Buffer saving options
+var outputBuffer = image.save({format: 'jpeg', quality: 80})
+var outputBuffer = image.save({format: 'png', compression: 6})
+```
+
+See also: [Controlling the output format](#controlling-the-output-format), [Automatic filename extensions](#TODO).
+
+
 ### Automatic filename extensions
 ### Error handling
