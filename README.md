@@ -279,7 +279,7 @@ image.save('output.jpg') // Saved in JPEG
 
 Precedence: filename extension > save 'format' option > inherited format.
 
-See also: [Controlling image quality/compression](#controlling-image-qualitycompression), [Automatic filename extensions](#TODO).
+See also: [Controlling image quality/compression](#controlling-image-qualitycompression), [Automatic filename extensions](#automatic-filename-extensions).
 
 
 ### Controlling image quality/compression
@@ -304,8 +304,25 @@ var outputBuffer = image.save({format: 'jpeg', quality: 80})
 var outputBuffer = image.save({format: 'png', compression: 6})
 ```
 
-See also: [Controlling the output format](#controlling-the-output-format), [Automatic filename extensions](#TODO).
+See also: [Controlling the output format](#controlling-the-output-format), [Automatic filename extensions](#automatic-filename-extensions).
 
 
 ### Automatic filename extensions
+
+```js
+var gd = require('easy-gd')
+
+var image = gd.open('input.jpg')
+image.save('output.{ext}', {format: 'png'}) // Writes ouput.png
+
+
+var image = gd.open('input.jpg')
+image
+  .resize({width: 100})
+  .save('output.{ext}') // Writes output.jpg since format was inherited
+```
+
+See also: [Controlling the output format](#controlling-the-output-format), [Controlling image quality/compression](#controlling-image-qualitycompression).
+
+
 ### Error handling
