@@ -235,28 +235,6 @@ gd.open(inputStream, function (error, image) {
 See also: [Image transform streams](#image-transform-streams), [Synchronous processing](#synchronous-image-processing).
 
 
-### Reading Exif data
-
-Exif data are being parsed automatically for JPEG images.
-
-```js
-var gd = require('easy-gd')
-
-var image = gd.open('input.jpg')
-
-// Accessing Exif tags
-if (image.exif) {
-  console.log('%s %s', image.exif.GPSLongitude, image.exif.GPSLatitude)
-} else {
-  console.log('No Exif data')
-}
-```
-
-Note: image.exif property will be copied by resize() and other methods, but will not be written to the destination image.
-
-See also: [Automatic image orientation](#automatic-image-orientation).
-
-
 ### Controlling the output format
 
 ```js
@@ -325,6 +303,28 @@ image
 ```
 
 See also: [Controlling the output format](#controlling-the-output-format), [Controlling image quality/compression](#controlling-image-qualitycompression).
+
+
+### Reading Exif data
+
+Exif data are being parsed automatically for JPEG images.
+
+```js
+var gd = require('easy-gd')
+
+var image = gd.open('input.jpg')
+
+// Accessing Exif tags
+if (image.exif) {
+  console.log('%s %s', image.exif.GPSLongitude, image.exif.GPSLatitude)
+} else {
+  console.log('No Exif data')
+}
+```
+
+Note: image.exif property will be copied by resize() and other methods, but will not be written to the destination image.
+
+See also: [Automatic image orientation](#automatic-image-orientation).
 
 
 ### Automatic image orientation
