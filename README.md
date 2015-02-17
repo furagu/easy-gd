@@ -407,15 +407,15 @@ try {
 
 There are some subclasses you can use to catch specific errors:
 
-__gd.UnknownSourceType__ - unknown source type.
-__gd.EmptySource__ - empty source file or buffer.
-__gd.UnknownImageFormat__ - unknown image format (or not an image at all).
-__gd.IncompleteImage__ - corrupted or incomplete image.
-__gd.UnsupportedOrientation__ - unsupported image Exif orientation tag value.
-__gd.DestinationFormatRequired__ - destination image format required.
-__gd.UnknownDestinationType__ - unknown destination type.
-__gd.FileOpen__ - file opening error.
-__gd.FileDoesNotExist__ - file does not exist.
-__gd.FileWrite__ - file writing error.
-__gd.SynchronousStreamAccess__ - a stream cannot be read or written synchronously.
-__gd.OptionsRequired__ - options argument should be passed in.
+* __gd.UnknownSourceType__ - unknown source type.
+* __gd.EmptySource__ - empty source file or buffer.
+* __gd.UnknownImageFormat__ - unknown image format (or not an image at all).
+* __gd.IncompleteImage__ - corrupted or incomplete image.
+* __gd.UnsupportedOrientation__ - unsupported image Exif orientation tag value.
+* __gd.DestinationFormatRequired__ - destination image format required.
+* __gd.UnknownDestinationType__ - unknown destination type.
+* __gd.FileOpen__ - file opening error.
+* __gd.FileDoesNotExist__ - file does not exist.
+* __gd.FileWrite__ - file writing error.
+* __gd.SynchronousStreamAccess__ - a stream cannot be read or written synchronously.
+* __gd.OptionsRequired__ - options argument should be passed in.
