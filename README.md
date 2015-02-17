@@ -2,14 +2,33 @@
 
 A simplified Node.js wrapper around [GD image manipulation library](http://libgd.bitbucket.org) with extra features:
 
-* Image [format autodetection](#readingwriting-image-files): just ```gd.open(file)``` instead of choosing between gd.createFromJpeg() or gd.createFromPng() or whatever.
-* Handy [resizing](#resizing-images) and [watermarking](#placing-a-watermark) shortcuts: ```image.resize({width: 100, height:100})``` and ```image.watermark('logo.png')```.
+* Image [format autodetection](#readingwriting-image-files): just `gd.open(file)` instead of choosing between gd.createFromJpeg() or gd.createFromPng() or whatever.
+* Handy [resizing](#resizing-images) and [watermarking](#placing-a-watermark) shortcuts: `image.resize({width: 100, height:100})` and `image.watermark('logo.png')`.
 * Reads/writes [files](#readingwriting-image-files), [buffers](#readingwriting-buffers) and [streams](#readingwriting-streams).
 * Provides [synchronous](#synchronous-image-processing), [asynchronous](#asynchronous-image-processing) and [transform stream](#image-transform-streams) interfaces.
 * Has built-in [Exif parsing](#reading-exif-data) and supports [automatic image orientation](#automatic-image-orientation).
-* A drop-in replacement for [node-gd](https://www.npmjs.org/package/node-gd). You can just ```require('easy-gd')``` instead of ```require('node-gd')``` and everything will be working as before.
+* A drop-in replacement for [node-gd](https://www.npmjs.org/package/node-gd). You can just `require('easy-gd')` instead of `require('node-gd')` and everything will be working as before.
+
+### Further reading
+
+* [Reading/writing image files](#readingwriting-image-files)
+* [Resizing images](#resizing-images)
+* [Placing a watermark](#placing-a-watermark)
+* [Reading/writing buffers](#readingwriting-buffers)
+* [Reading/writing streams](#readingwriting-streams)
+* [Image transform streams](#image-transform-streams)
+* [Synchronous image processing](#synchronous-image-processing)
+* [Asynchronous image processing](#asynchronous-image-processing)
+* [Controlling the output format](#controlling-the-output-format)
+* [Controlling image quality/compression](#controlling-image-qualitycompression)
+* [Automatic filename extensions](#automatic-filename-extensions)
+* [Reading Exif data](#reading-exif-data)
+* [Automatic image orientation](#automatic-image-orientation)
+* [Error handling](#error-handling)
+
 
 ## Recipes
+
 
 ### Reading/writing image files
 
