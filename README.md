@@ -1,16 +1,15 @@
 # easy-gd [![Build Status](https://travis-ci.org/furagu/easy-gd.png?branch=master)](https://travis-ci.org/furagu/easy-gd)
 
-A Node.js wrapper around [GD image manipulation library](http://libgd.bitbucket.org) with extra features:
+A simplified Node.js wrapper around [GD image manipulation library](http://libgd.bitbucket.org) with extra features:
 
-* A drop-in replacement for [node-gd](https://www.npmjs.org/package/node-gd). You can just ```require('easy-gd')``` instead of ```require('node-gd')``` and everything will be working as before.
-* Image format autodetection: just [```gd.open(file)```](#readingwriting-image-files) instead of choosing between ```gd.createFromJpeg(file)``` or  ```gd.createFromPng(file)``` or whatever.
-* Handy [resizing](#resizing-images) and [watermarking](#placing-a-watermark) shortcuts: ```gd.open('image.png').resize({width: 100, height:100}).save('small-image.png')```.
+* Image [format autodetection](#readingwriting-image-files): just ```gd.open(file)``` instead of choosing between gd.createFromJpeg() or gd.createFromPng() or whatever.
+* Handy [resizing](#resizing-images) and [watermarking](#placing-a-watermark) shortcuts: ```image.resize({width: 100, height:100})``` and ```image.watermark('logo.png')```.
 * Reads/writes [files](#readingwriting-image-files), [buffers](#readingwriting-buffers) and [streams](#readingwriting-streams).
 * Provides [synchronous](#synchronous-image-processing), [asynchronous](#asynchronous-image-processing) and [transform stream](#image-transform-streams) interfaces.
 * Has built-in [Exif parsing](#reading-exif-data) and supports [automatic image orientation](#automatic-image-orientation).
+* A drop-in replacement for [node-gd](https://www.npmjs.org/package/node-gd). You can just ```require('easy-gd')``` instead of ```require('node-gd')``` and everything will be working as before.
 
 ## Recipes
-
 
 ### Reading/writing image files
 
@@ -51,9 +50,12 @@ resized = image.resize({width: 100, height: 100, method: 'crop'})
 
 // Resize without resampling; faster but lowers the quality
 resized = image.resize({width: 100, height: 100, resample: false})
+
+// Save the resized image
+resized.save('resized.jpg')
 ```
 
-See also: [Asynchronous processing](#asynchronous-image-processing), [Image transform streams](#image-transform-streams).
+See also: [Reading/writing files](#readingwriting-image-files), [Asynchronous processing](#asynchronous-image-processing), [Image transform streams](#image-transform-streams).
 
 
 ### Placing a watermark
@@ -81,9 +83,12 @@ watermarked = image.watermark('logo.png', [{x: 0, y: 1}, {x: 0.5, y: 1}, {x: 1, 
 // Using gd.Image object as a watermark
 var logo = gd.open('logo.png')
 watermarked = image.watermark(logo)
+
+// Save the watermarked image
+watermarked.save('watermarked.jpg')
 ```
 
-See also: [Reading/writing buffers](#readingwriting-buffers), [Reading/writing streams](#readingwriting-streams), [Asynchronous processing](#asynchronous-image-processing), [Error handling](#error-handling).
+See also: [Reading/writing files](#readingwriting-image-files), [Reading/writing buffers](#readingwriting-buffers), [Reading/writing streams](#readingwriting-streams), [Asynchronous processing](#asynchronous-image-processing), [Error handling](#error-handling).
 
 
 ### Reading/writing buffers
