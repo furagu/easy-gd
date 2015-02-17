@@ -24,7 +24,7 @@ var image = gd.open('image.png')
 image.save('processed.jpg', {quality: 80})
 ```
 
-See also: [Reading/writing buffers](#readingwriting-buffers), [Reading/writing streams](#readingwriting-streams), [Asynchronous processing](#asynchronous-image-processing), [Controlling the output format](#controlling-the-output-format).
+See also: [Reading/writing buffers](#readingwriting-buffers), [Reading/writing streams](#readingwriting-streams), [Asynchronous processing](#asynchronous-image-processing), [Controlling the output format](#controlling-the-output-format), [Error handling](#error-handling).
 
 
 ### Resizing images
@@ -83,7 +83,7 @@ var logo = gd.open('logo.png')
 watermarked = image.watermark(logo)
 ```
 
-See also: [Reading/writing buffers](#readingwriting-buffers), [Reading/writing streams](#readingwriting-streams), [Asynchronous processing](#asynchronous-image-processing).
+See also: [Reading/writing buffers](#readingwriting-buffers), [Reading/writing streams](#readingwriting-streams), [Asynchronous processing](#asynchronous-image-processing), [Error handling](#error-handling).
 
 
 ### Reading/writing buffers
@@ -101,7 +101,7 @@ var imageData = image.save()
 var watermarked = image.watermark(imageData)
 ```
 
-See also: [Reading/writing files](#readingwriting-image-files), [Reading/writing streams](#readingwriting-streams), [Asynchronous processing](#asynchronous-image-processing), [Controlling the output format](#controlling-the-output-format).
+See also: [Reading/writing files](#readingwriting-image-files), [Reading/writing streams](#readingwriting-streams), [Asynchronous processing](#asynchronous-image-processing), [Controlling the output format](#controlling-the-output-format), [Error handling](#error-handling).
 
 
 ### Reading/writing streams
@@ -131,7 +131,7 @@ image.watermark(stream, function (error, watermarked) {
 })
 ```
 
-See also: [Image transform streams](#image-transform-streams), [Reading/writing files](#readingwriting-image-files), [Reading/writing buffers](#readingwriting-buffers), [Controlling the output format](#controlling-the-output-format).
+See also: [Image transform streams](#image-transform-streams), [Reading/writing files](#readingwriting-image-files), [Reading/writing buffers](#readingwriting-buffers), [Controlling the output format](#controlling-the-output-format), [Error handling](#error-handling).
 
 
 ### Image transform streams
@@ -166,7 +166,7 @@ process.stdin
   .pipe(process.stdout)
 ```
 
-See also: [Reading/writing files](#readingwriting-image-files), [Reading/writing buffers](#readingwriting-buffers), [Reading/writing streams](#readingwriting-streams), [Controlling the output format](#controlling-the-output-format).
+See also: [Reading/writing files](#readingwriting-image-files), [Reading/writing buffers](#readingwriting-buffers), [Reading/writing streams](#readingwriting-streams), [Controlling the output format](#controlling-the-output-format), [Error handling](#error-handling).
 
 
 ### Synchronous image processing
@@ -187,7 +187,7 @@ var outputData = gd.open(inputData)
   .save({format: 'jpeg', quality: 90})
 ```
 
-See also: [Asynchronous processing](#asynchronous-image-processing).
+See also: [Asynchronous processing](#asynchronous-image-processing), [Error handling](#error-handling).
 
 
 ### Asynchronous image processing
@@ -232,7 +232,7 @@ gd.open(inputStream, function (error, image) {
 })
 ```
 
-See also: [Image transform streams](#image-transform-streams), [Synchronous processing](#synchronous-image-processing).
+See also: [Image transform streams](#image-transform-streams), [Synchronous processing](#synchronous-image-processing), [Error handling](#error-handling).
 
 
 ### Controlling the output format
@@ -259,7 +259,7 @@ image.save('output.jpg') // Saved in JPEG
 
 Precedence: filename extension > save 'format' option > inherited format.
 
-See also: [Controlling image quality/compression](#controlling-image-qualitycompression), [Automatic filename extensions](#automatic-filename-extensions).
+See also: [Controlling image quality/compression](#controlling-image-qualitycompression), [Automatic filename extensions](#automatic-filename-extensions), [Error handling](#error-handling).
 
 
 ### Controlling image quality/compression
@@ -348,3 +348,50 @@ See also: [Reading Exif data](#reading-exif-data).
 
 
 ### Error handling
+
+```js
+var gd = require('easy-gd')
+
+// Synchronous methods throw exceptions
+try {
+  var image = gd.open('non-existent.png')
+} catch (error) {
+  console.log('Failed to open the image: %s', error)
+}
+
+// Asynchronous methods return errors as the first callback argument;
+// null means there was no error
+gd.open('non-existent.png', function (error, image) {
+  if (error) {
+    console.log('Failed to open the image: %s', error)
+    return
+  }
+  // ...
+})
+
+// Every error raised or returned by easy-gd is a descendant or gd.Error
+try {
+  doImageRelatedStuff()
+} catch (error) {
+  if (error instanceof gd.Error) {
+    console.log('Image processing error: %s', error)
+  } else {
+    // Some other error happened
+  }
+}
+```
+
+There are some subclasses you can use to catch specific errors:
+
+__gd.UnknownSourceType__ - unknown source type.
+__gd.EmptySource__ - empty source file or buffer.
+__gd.UnknownImageFormat__ - unknown image format (or not an image at all).
+__gd.IncompleteImage__ - corrupted or incomplete image.
+__gd.UnsupportedOrientation__ - unsupported image Exif orientation tag value.
+__gd.DestinationFormatRequired__ - destination image format required.
+__gd.UnknownDestinationType__ - unknown destination type.
+__gd.FileOpen__ - file opening error.
+__gd.FileDoesNotExist__ - file does not exist.
+__gd.FileWrite__ - file writing error.
+__gd.SynchronousStreamAccess__ - a stream cannot be read or written synchronously.
+__gd.OptionsRequired__ - options argument should be passed in.
