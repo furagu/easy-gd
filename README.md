@@ -9,11 +9,11 @@ A simplified Node.js wrapper around [GD image manipulation library](http://libgd
 * Has built-in [Exif parsing](#reading-exif-data) and supports [automatic image orientation](#automatic-image-orientation).
 * A drop-in replacement for [node-gd](https://www.npmjs.org/package/node-gd). You can just `require('easy-gd')` instead of `require('node-gd')` and everything will be working as before.
 
-### Further reading
+## Usage recipes
 
-* [Reading/writing image files](#readingwriting-image-files)
 * [Resizing images](#resizing-images)
 * [Placing a watermark](#placing-a-watermark)
+* [Reading/writing image files](#readingwriting-image-files)
 * [Reading/writing buffers](#readingwriting-buffers)
 * [Reading/writing streams](#readingwriting-streams)
 * [Image transform streams](#image-transform-streams)
@@ -25,24 +25,6 @@ A simplified Node.js wrapper around [GD image manipulation library](http://libgd
 * [Reading Exif data](#reading-exif-data)
 * [Automatic image orientation](#automatic-image-orientation)
 * [Error handling](#error-handling)
-
-
-## Recipes
-
-
-### Reading/writing image files
-
-```js
-var gd = require('easy-gd')
-
-var image = gd.open('image.png')
-
-// Do something to the image
-
-image.save('processed.jpg', {quality: 80})
-```
-
-See also: [Reading/writing buffers](#readingwriting-buffers), [Reading/writing streams](#readingwriting-streams), [Asynchronous processing](#asynchronous-image-processing), [Controlling the output format](#controlling-the-output-format), [Error handling](#error-handling).
 
 
 ### Resizing images
@@ -108,6 +90,21 @@ watermarked.save('watermarked.jpg')
 ```
 
 See also: [Reading/writing files](#readingwriting-image-files), [Reading/writing buffers](#readingwriting-buffers), [Reading/writing streams](#readingwriting-streams), [Asynchronous processing](#asynchronous-image-processing), [Error handling](#error-handling).
+
+
+### Reading/writing image files
+
+```js
+var gd = require('easy-gd')
+
+var image = gd.open('image.png')
+
+// Do something to the image
+
+image.save('processed.jpg', {quality: 90})
+```
+
+See also: [Reading/writing buffers](#readingwriting-buffers), [Reading/writing streams](#readingwriting-streams), [Asynchronous processing](#asynchronous-image-processing), [Controlling the output format](#controlling-the-output-format), [Error handling](#error-handling).
 
 
 ### Reading/writing buffers
@@ -216,7 +213,7 @@ See also: [Asynchronous processing](#asynchronous-image-processing), [Error hand
 
 ### Asynchronous image processing
 
-You can asynchronously process files, buffers and streams by passing additional ```callback(error[, resultImageOrBuffer])``` argument:
+You can asynchronously process files, buffers and streams by passing additional `callback` argument:
 
 ```js
 var gd = require('easy-gd')
@@ -276,12 +273,12 @@ image.save('output.png') // Saved in PNG
 var image = gd.open('input.jpg')
 var pngBuffer = image.save({format: 'png'}) // Saved in PNG
 
-// Format can be overwritten by target file extension
+// Target file extension has higher priority
 var image = gd.open('input.png')
 image.save('output.jpg') // Saved in JPEG
 ```
 
-Precedence: filename extension > save 'format' option > inherited format.
+Format specification priority: filename extension > save 'format' option > inherited format.
 
 See also: [Controlling image quality/compression](#controlling-image-qualitycompression), [Automatic filename extensions](#automatic-filename-extensions), [Error handling](#error-handling).
 
@@ -296,15 +293,15 @@ var image = gd.open('input.jpg')
 image.save('output.jpg', {quality: 90})
 
 // Setting PNG file compression level, 0-9
-image.save('ouput.png', {compression: 9})
+image.save('ouput.png', {compression: 6})
 
 // Transform stream options
 inputStream.pipe(gd.format('png').compression(6)).pipe(outputStream)
-inputStream.pipe(gd.format('jpeg').quality(80)).pipe(outputStream)
-inputStream.pipe(gd.options({format: 'jpeg', quality: 80}).pipe(outputStream)
+inputStream.pipe(gd.format('jpeg').quality(90)).pipe(outputStream)
+inputStream.pipe(gd.options({format: 'jpeg', quality: 90}).pipe(outputStream)
 
 // Buffer saving options
-var outputBuffer = image.save({format: 'jpeg', quality: 80})
+var outputBuffer = image.save({format: 'jpeg', quality: 90})
 var outputBuffer = image.save({format: 'png', compression: 6})
 ```
 
