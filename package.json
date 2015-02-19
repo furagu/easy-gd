@@ -37,7 +37,7 @@
     "vargs-callback": "~0.2.3",
     "clone": "~0.1.11",
     "async": "~0.2.9",
-    "readable-stream": "~1.1.10"
+    "readable-stream": "~1.0.0"
   },
   "devDependencies": {
     "should": "^5.0.0",
