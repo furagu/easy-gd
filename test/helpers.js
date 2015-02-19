@@ -1,4 +1,5 @@
 var should = require('should'),
+    buffertools = require('buffertools'),
     stream = require('readable-stream'),
     util = require('util'),
     gd = require('node-gd')
@@ -10,7 +11,7 @@ exports.WritableStream = function WritableStream(options) {
 }
 util.inherits(exports.WritableStream, stream.Writable)
 exports.WritableStream.prototype._write = function _write(chunk, encoding, callback) {
-    this.written = this.written.concat(chunk)
+    this.written = buffertools.concat(this.written, chunk)
     callback()
 }
 
