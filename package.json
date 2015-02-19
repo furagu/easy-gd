@@ -40,7 +40,7 @@
     "readable-stream": "~1.1.10"
   },
   "devDependencies": {
-    "should": "~2.1.1",
+    "should": "^5.0.0",
     "istanbul": "~0.2.1",
     "mocha": "~1.17.0"
   }

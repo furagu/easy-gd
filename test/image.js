@@ -484,7 +484,7 @@ describe('gd', function () {
                     var image = gd.open(filename, {autoOrient: false})
                     var rotated = image.autoOrient()
                     image.getPixel(1, 0).should.not.be.equal(0)
-                    image.exif.Orientation.should.be.eql(orientation)
+                    image.exif.Orientation.should.be.eql(parseInt(orientation, 10))
                 })
             })
 
