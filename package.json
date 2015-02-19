@@ -34,7 +34,7 @@
     "buffertools": "~1.1.1",
     "underscore": "~1.4.4",
     "exif-parser": "~0.1.6",
-    "vargs-callback": "~0.2.3",
+    "vargs-callback": "^0.2.4",
     "clone": "^1.0.0",
     "async": "^0.9.0",
     "readable-stream": "~1.0.0"
