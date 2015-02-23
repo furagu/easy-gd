@@ -5,7 +5,6 @@ var Benchmark = require('benchmark')
     h = require('../test/helpers.js'),
 
     gd = require('../index.js'),
-    resize = require('resize'),
     rsz = require('rsz'),
     im = require('im'),
     gm = require('gm')
@@ -19,12 +18,10 @@ To run the benchmark:
             sudo port install ImageMagick +universal
             sudo port install cairo +universal
         Ubuntu with apt-get:
-            sudo apt-get install graphicsmagick
-            sudo apt-get install imagemagick
-            sudo apt-get install libcairo2-dev
+            sudo apt-get install libgd2-xpm-dev graphicsmagick imagemagick libcairo2-dev libgraphicsmagick1-dev libgif-dev
 
     2. Install node modules
-        npm install resize rsz im gm benchmark
+        npm install rsz im gm benchmark
 
     3. Run it
         make benchmark
@@ -58,15 +55,6 @@ var suites = [
                     im(sample.input)
                         .resize('100x100')
                         .convert(sample.output)
-                },
-                {defer: true}
-            )
-            .add('resize',
-                function (deferred) {
-                    var sample = new SampleStreams(imageData, deferred)
-                    resize(sample.input.read(), 100, 100, {}, function (err, buf) {
-                        sample.output.end(buf)
-                    })
                 },
                 {defer: true}
             )
