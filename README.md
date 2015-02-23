@@ -15,6 +15,11 @@ A simplified Node.js wrapper around [GD image manipulation library](http://libgd
 Because it is fast. Easy-gd uses C++ buindings for libgd that add very little overhead. For example, it resizes images two times faster than [gm](https://www.npmjs.com/package/gm), which executes graphicsmagick commands in the background.
 
 
+## Compatibility
+
+Node.js 0.8-0.10.
+
+
 ## Usage recipes
 
 * [Resizing images](#resizing-images)
