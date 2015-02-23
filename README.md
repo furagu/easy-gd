@@ -9,6 +9,12 @@ A simplified Node.js wrapper around [GD image manipulation library](http://libgd
 * Has built-in [Exif parsing](#reading-exif-data) and supports [automatic image orientation](#automatic-image-orientation).
 * A drop-in replacement for [node-gd](https://www.npmjs.org/package/node-gd). You can just `require('easy-gd')` instead of `require('node-gd')` and everything will be working as before.
 
+
+## Why should one use easy-gd?
+
+Because it is fast. Easy-gd uses C++ buindings for libgd that add very little overhead. For example, it resizes images two times faster than [gm](https://www.npmjs.com/package/gm), which executes graphicsmagick commands in the background.
+
+
 ## Usage recipes
 
 * [Resizing images](#resizing-images)
