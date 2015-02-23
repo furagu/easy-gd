@@ -20,6 +20,23 @@ Because it is fast. Easy-gd uses C++ buindings for libgd that add very little ov
 Node.js 0.8-0.10.
 
 
+## Installation
+
+Ubuntu:
+
+```bash
+sudo apt-get install libgd2-xpm-dev
+npm install easy-gd
+```
+
+Mac OS X:
+
+```bash
+brew install gd
+npm install easy-gd
+```
+
+
 ## Usage recipes
 
 * [Resizing images](#resizing-images)
