@@ -1,5 +1,5 @@
 test:
-	node_modules/.bin/mocha --reporter list
+	node_modules/.bin/mocha --reporter spec --colors 2>/dev/null
 benchmark:
 	node benchmark/resize.js
 coverage:
