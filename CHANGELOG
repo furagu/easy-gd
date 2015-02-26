@@ -1,3 +1,7 @@
+1.0.0
+- Improved the interface consistency
+- Added transform streams support
+
 0.0.7
 - fixed multiple callback issue https://github.com/furagu/easy-gd/issues/1
 - added `options` argument to gd.createFrom()
