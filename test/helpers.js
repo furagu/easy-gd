@@ -27,7 +27,7 @@ exports.ReadableStream.prototype._read = function() {
 
 
 exports.createImage = function createImage(width, height) {
-    var image = gd.createTrueColor(width || 100, height || 100)
+    var image = gd.createTrueColorSync(width || 100, height || 100)
     greyGradientFill(image, Math.PI/8)
     // image.filledEllipse(50, 50, 25, 25, image.colorAllocate(255, 0, 0))
     return image
