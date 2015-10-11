@@ -4,7 +4,7 @@
   "description": "A simplified Node.js wrapper around GD image manipulation library with extra features making your life easier.",
   "main": "index.js",
   "scripts": {
-    "test": "node_modules/.bin/mocha --reporter spec --colors 2>/dev/null"
+    "test": "node_modules/.bin/mocha --reporter spec --colors"
   },
   "repository": {
     "type": "git",
@@ -30,7 +30,7 @@
     "url": "https://github.com/furagu/easy-gd/issues"
   },
   "dependencies": {
-    "node-gd": "~1.0.1",
+    "node-gd": "~1.1.0",
     "buffertools": "~2.1.2",
     "underscore": "~1.7.0",
     "exif-parser": "~0.1.7",
