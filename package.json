@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "node_modules/.bin/mocha --reporter spec --colors 2>/dev/null"
+
   },
   "repository": {
     "type": "git",
@@ -30,9 +31,9 @@
     "url": "https://github.com/furagu/easy-gd/issues"
   },
   "dependencies": {
-    "node-gd": "~0.2.3",
-    "buffertools": "~2.1.2",
-    "underscore": "~1.7.0",
+    "node-gd": "~1.5.0",
+    "buffertools": "~2.1.6",
+    "underscore": "~1.8.3",
     "exif-parser": "~0.1.7",
     "vargs-callback": "~0.2.4",
     "clone": "~1.0.0",
